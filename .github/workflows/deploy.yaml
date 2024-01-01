@@ -21,7 +21,7 @@ jobs:
       run: npm install
 
     - name: Build
-      run: npm run build -- --base-href /holzwerkskunst/
+      run: npm run build
 
     - name: Deploy
       if: success()
