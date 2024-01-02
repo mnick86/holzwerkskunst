@@ -7,7 +7,7 @@ export interface Product {
 
 export const mockData: Product[] = [
     {
-        name: 'Glubbal',
+        name: 'Glubbal :)',
         description: 'Sehr schöne Glubbal lorem ipsum',
         created: new Date().toISOString(),
         tags: ['Glubbal', 'Holz']
