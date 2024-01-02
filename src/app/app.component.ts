@@ -11,7 +11,12 @@ export class AppComponent {
 
   items: MenuItem[] = [
     {
-      label: 'SEPP'
+      label: 'HOME',
+      routerLink: 'home'
+    },
+    {
+      label: 'Impressum',
+      routerLink: 'impressum'
     }
   ]
 }

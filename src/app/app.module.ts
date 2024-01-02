@@ -12,13 +12,15 @@ import { CardModule } from 'primeng/card';
 import { ImageModule } from 'primeng/image';
 import { HttpClientModule } from '@angular/common/http';
 import { TagModule } from 'primeng/tag';
+import { ImpressumComponent } from './impressum/impressum.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     StartComponent,
-    PreviewComponent
+    PreviewComponent,
+    ImpressumComponent
   ],
   imports: [
     BrowserModule,

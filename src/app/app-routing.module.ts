@@ -1,12 +1,21 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { StartComponent } from './start/start.component';
+import { ImpressumComponent } from './impressum/impressum.component';
 
 const routes: Routes = [
   {
-    path: '',
+    path: 'home',
     component: StartComponent
-  }
+  },
+  {
+    path: 'impressum',
+    component: ImpressumComponent
+  },
+  {
+    path: '**',
+    component: StartComponent
+  },
 ];
 
 @NgModule({
