@@ -4,10 +4,13 @@ on:
   push:
     branches:
     - main
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write    
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -24,7 +27,7 @@ jobs:
       run: npm run build -- --base-href ./
 
     - name: Copy CNAME file to dist
-      run: cp CNAME dist/holzwerkskunst/browser
+      run: cp .github/CNAME dist/holzwerkskunst/browser
 
     - name: Deploy
       if: success()
