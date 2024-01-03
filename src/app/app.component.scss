@@ -1,0 +1,10 @@
+ul {
+  list-style: none;
+  li {
+    margin-bottom: 10px;
+  }
+}
+
+::ng-deep .link-button > .p-button {
+  padding: 0px;
+}

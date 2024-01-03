@@ -3,36 +3,36 @@ name: deploy
 on:
   push:
     branches:
-    - main
+      - main
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write    
+      contents: write
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 20
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Build
-      run: npm run build -- --base-href ./
+      - name: Build
+        run: npm run build -- --base-href ./
 
-    - name: Copy CNAME file to dist
-      run: cp .github/CNAME dist/holzwerkskunst/browser
+      - name: Copy CNAME file to dist
+        run: cp .github/CNAME dist/holzwerkskunst/browser
 
-    - name: Deploy
-      if: success()
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: dist/holzwerkskunst/browser
-        publish_branch: gh-pages
+      - name: Deploy
+        if: success()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist/holzwerkskunst/browser
+          publish_branch: gh-pages

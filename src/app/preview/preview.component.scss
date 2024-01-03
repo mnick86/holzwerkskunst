@@ -1,0 +1,12 @@
+:host {
+  max-width: 400px;
+}
+
+.tags {
+  display: flex;
+  gap: 5px;
+}
+
+::ng-deep .preview .p-card-content {
+  padding: 0;
+}

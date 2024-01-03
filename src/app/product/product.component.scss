@@ -1,0 +1,28 @@
+:host {
+  padding: 10px;
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.image {
+  cursor: pointer;
+}
+
+.tags {
+  display: flex;
+  gap: 5px;
+}
+
+::ng-deep .product .p-card-content {
+  padding: 0;
+}
+
+.share {
+  font-size: smaller;
+  padding: 10px;
+  text-decoration: none;
+}
