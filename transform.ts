@@ -95,10 +95,6 @@ function parseOriginalData() {
     const spec: Spec = YAML.parse(
       fs.readFileSync(`${product.folderPath}/spec.yaml`, {encoding: 'utf-8'}),
     );
-    console.warn('------ start ----');
-    console.warn(spec);
-    console.warn('------ end ----');
-
     product.spec = spec;
 
     result.push(product);
@@ -113,6 +109,6 @@ function isImage(filename: string): boolean {
 }
 
 fs.rmSync(DESTINATION_FOLDER, {recursive: true, force: true});
-fs.mkdirSync(DESTINATION_FOLDER);
+fs.mkdirSync(DESTINATION_FOLDER, {recursive: true});
 
 transform();
