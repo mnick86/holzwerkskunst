@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {ProductStore} from './+store/product.store';
 import {map} from 'rxjs';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-product',
@@ -10,12 +11,17 @@ import {map} from 'rxjs';
   providers: [ProductStore],
 })
 export class ProductComponent {
-  constructor(public productStore: ProductStore) {}
+  constructor(
+    public productStore: ProductStore,
+    public router: Router,
+  ) {}
 
   product$ = this.productStore.selectProduct$;
   whatsapp$ = this.product$.pipe(
     map((product) => {
-      return `WhatsApp://send?text=Siehe dir das an: ${product?.name}. ${window.location.href}`;
+      return `WhatsApp://send?text=Siehe dir das an: ${product?.name}. ${encodeURIComponent(
+        this.router.url,
+      )}`;
     }),
   );
 
