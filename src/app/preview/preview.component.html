@@ -13,13 +13,6 @@
       <img [src]="item.small" style="width: 100%; display: block" />
     </ng-template>
   </p-galleria>
-  <div markdown ngPreserveWhitespaces>
-    {{
-      product.description.length > 50
-        ? (product.description | slice: 0 : 50) + '...'
-        : product.description
-    }}
-  </div>
   <ng-template pTemplate="footer">
     <p-button label="Mehr Details" size="small" (click)="details()"></p-button>
   </ng-template>

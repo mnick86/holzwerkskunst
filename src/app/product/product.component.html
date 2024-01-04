@@ -3,14 +3,6 @@
     <p class="tags">
       <p-tag *ngFor="let tag of product.tags" [value]="tag"></p-tag>
     </p>
-    <a
-      [href]="whatsapp$ | async"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="pi pi-whatsapp share p-button p-button-outlined p-button-success"
-      data-action="share/whatsapp/share"
-      >&nbsp;Mit Whatsapp teilen</a
-    >
 
     <div markdown ngPreserveWhitespaces>
       {{ product.description }}
