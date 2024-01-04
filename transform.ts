@@ -2,6 +2,7 @@ import Jimp from 'jimp';
 import * as fs from 'fs';
 import {Product} from './src/app/+store/product';
 import YAML from 'yaml';
+import path from 'path';
 
 const PRODUCTS_FOLDER = './products/';
 const DESTINATION_FOLDER = 'dist/products';
@@ -43,8 +44,8 @@ async function transform() {
     };
 
     for (const image of data.images) {
-      const smallFilename = await transformImage(destinalFolder, image, 400);
-      const largeFilename = await transformImage(destinalFolder, image, 1024);
+      const smallFilename = await transformImage(destinalFolder, image, 400, 400);
+      const largeFilename = await transformImage(destinalFolder, image, 1024, 1024);
       product.images.push({
         small: `${data.spec.id}/${smallFilename}`,
         large: `${data.spec.id}/${largeFilename}`,
@@ -59,14 +60,16 @@ async function transform() {
   });
 }
 
-function transformImage(folder: string, image: Image, size: number): Promise<string> {
-  const destinationName = `thumb_${size}_${image.name}`;
+function transformImage(folder: string, image: Image, w: number, h: number): Promise<string> {
+  const imageName = path.parse(image.name).name;
+  const imageExtension = path.parse(image.name).ext;
+  const destinationName = `${imageName}__${w}_${h}${imageExtension}`;
   const destinationFile = `${folder}/${destinationName}`;
-  console.log(' - transform ' + image.name);
+  console.log(' - transform ' + image.name + ' --> ' + destinationName);
   return Jimp.read(image.path)
     .then((image) => {
       return image
-        .contain(size, size)
+        .contain(w, h)
         .quality(80) // set JPEG quality
         .write(`${destinationFile}`); // save
     })

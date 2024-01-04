@@ -42,4 +42,8 @@ export class AppComponent {
     this.store.setSidebarVisible(false);
     this.router.navigate(['/produkte', tag]);
   }
+
+  contact() {
+    this.store.setShowContact(true);
+  }
 }

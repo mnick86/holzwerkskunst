@@ -1,8 +1,6 @@
 <ng-container *ngIf="product$ | async as product">
   <p-card class="product" [header]="product.name">
-    <p class="tags">
-      <p-tag *ngFor="let tag of product.tags" [value]="tag"></p-tag>
-    </p>
+    <app-tags [product]="product"></app-tags>
 
     <div markdown ngPreserveWhitespaces>
       {{ product.description }}
@@ -31,4 +29,8 @@
       <img [src]="item.large" style="width: 100%; display: block" />
     </ng-template>
   </p-galleria>
+
+  <div class="contact">
+    <p-button p-button label="Anfragen / Kontakt" (onClick)="contact()"></p-button>
+  </div>
 </ng-container>

@@ -1,7 +1,5 @@
 <p-card [header]="product.name" class="preview">
-  <p class="tags">
-    <p-tag *ngFor="let tag of product.tags" [value]="tag"></p-tag>
-  </p>
+  <app-tags [product]="product" class="mb-2"></app-tags>
   <p-galleria
     [value]="product.images"
     [circular]="true"

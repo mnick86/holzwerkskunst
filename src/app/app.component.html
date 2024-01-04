@@ -37,5 +37,9 @@
         (onClick)="navigateTo('Datenschutz')"
       ></p-button>
     </li>
+    <li>
+      <p-button class="link-button" label="Kontakt" [link]="true" (onClick)="contact()"></p-button>
+    </li>
   </ul>
 </p-sidebar>
+<app-contact></app-contact>

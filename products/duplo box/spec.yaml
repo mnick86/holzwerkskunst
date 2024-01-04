@@ -1,7 +1,6 @@
-id: 'duplobox'
-name: 'Duplo Boxen'
-description: 'Kreative Duploboxen'
+id: duplobox
+name: Duplo Boxen
+description: Kreative Duploboxen mit personalisierbarem Spruch.
 tags:
-  - Duplo
   - Geschenk
 date: '2024-01-01'

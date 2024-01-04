@@ -7,9 +7,10 @@ import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 export interface AppState {
   products: Product[];
   sidebarVisible: boolean;
+  showContact: boolean;
 }
 
-const initialState: AppState = {products: [], sidebarVisible: false};
+const initialState: AppState = {products: [], sidebarVisible: false, showContact: false};
 
 @Injectable({providedIn: 'root'})
 export class AppStore extends ComponentStore<AppState> {
@@ -28,9 +29,15 @@ export class AppStore extends ComponentStore<AppState> {
     const result = [...new Set(([] as string[]).concat(...products.map((p) => p.tags)))];
     return result.sort();
   });
+  selectShowContact$ = this.select((state) => state.showContact);
 
   setSidebarVisible = this.updater((state, visible: boolean) => {
     state.sidebarVisible = visible;
+    return state;
+  });
+
+  setShowContact = this.updater((state, showContact: boolean) => {
+    state.showContact = showContact;
     return state;
   });
 

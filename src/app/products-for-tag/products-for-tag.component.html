@@ -1,3 +1,4 @@
-<h3>Kategorie {{ tag$ | async }}</h3>
-
+<div class="center">
+  <h2>Kategorie {{ tag$ | async }}</h2>
+</div>
 <app-product-list [products]="products$ | async"></app-product-list>

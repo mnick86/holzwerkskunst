@@ -2,11 +2,10 @@
   max-width: 400px;
 }
 
-.tags {
-  display: flex;
-  gap: 5px;
-}
-
 ::ng-deep .preview .p-card-content {
   padding: 0;
+}
+
+.mb-2 {
+  margin-bottom: 10px;
 }

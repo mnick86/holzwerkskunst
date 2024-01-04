@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {ProductStore} from './+store/product.store';
 import {map} from 'rxjs';
+import {AppStore} from '../+store/app.store';
 
 @Component({
   selector: 'app-product',
@@ -10,7 +11,10 @@ import {map} from 'rxjs';
   providers: [ProductStore],
 })
 export class ProductComponent {
-  constructor(public productStore: ProductStore) {}
+  constructor(
+    public productStore: ProductStore,
+    public store: AppStore,
+  ) {}
 
   product$ = this.productStore.selectProduct$;
 
@@ -21,5 +25,9 @@ export class ProductComponent {
   imageClick(index: number) {
     this.activeIndex = index;
     this.displayCustom = true;
+  }
+
+  contact() {
+    this.store.setShowContact(true);
   }
 }

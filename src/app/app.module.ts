@@ -23,6 +23,10 @@ import {DataProtectionComponent} from './data-protection/data-protection.compone
 import {PersonalInfosComponent} from './personal-infos/personal-infos.component';
 import {MarkdownModule} from 'ngx-markdown';
 import {ProductsForTagComponent} from './products-for-tag/products-for-tag.component';
+import {ContactComponent} from './contact/contact.component';
+import {DialogModule} from 'primeng/dialog';
+import {ReactiveFormsModule} from '@angular/forms';
+import { TagsComponent } from './tags/tags.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +41,8 @@ import {ProductsForTagComponent} from './products-for-tag/products-for-tag.compo
     ProductComponent,
     DataProtectionComponent,
     PersonalInfosComponent,
+    ContactComponent,
+    TagsComponent,
   ],
   imports: [
     BrowserModule,
@@ -50,7 +56,9 @@ import {ProductsForTagComponent} from './products-for-tag/products-for-tag.compo
     TagModule,
     SidebarModule,
     GalleriaModule,
+    DialogModule,
     MarkdownModule.forRoot(),
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
