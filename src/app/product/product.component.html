@@ -11,6 +11,7 @@
         *ngFor="let image of product.images; let index = index"
         [src]="image.small"
         (click)="imageClick(index)"
+        width="100%"
       >
       </p-image>
     </div>
