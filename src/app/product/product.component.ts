@@ -23,15 +23,15 @@ export class ProductComponent {
       }
       const url = new URL(window.location.href);
 
-      meta.updateTag({name: 'og:title', content: product.name});
-      meta.updateTag({name: 'og:type', content: 'website'});
+      meta.updateTag({property: 'og:title', content: product.name});
+      meta.updateTag({property: 'og:type', content: 'website'});
       meta.updateTag({
         name: 'og:description',
         content: product.description,
       });
-      meta.updateTag({name: 'og:site_name', content: 'Holzwerkskunst.de'});
-      meta.updateTag({name: 'og:url', content: window.location.href});
-      meta.updateTag({name: 'og:image', content: url.origin + '/' + product.images[0].small});
+      meta.updateTag({property: 'og:site_name', content: 'Holzwerkskunst.de'});
+      meta.updateTag({property: 'og:url', content: window.location.href});
+      meta.updateTag({property: 'og:image', content: url.origin + '/' + product.images[0].small});
     });
   }
 

@@ -15,14 +15,14 @@ export class ProductsForTagComponent {
     public meta: Meta,
   ) {
     combineLatest([this.tag$, this.products$]).subscribe(([tag, products]) => {
-      meta.updateTag({name: 'og:title', content: 'Kategorie ' + tag});
-      meta.updateTag({name: 'og:type', content: 'website'});
+      meta.updateTag({property: 'og:title', content: 'Kategorie ' + tag});
+      meta.updateTag({property: 'og:type', content: 'website'});
       meta.updateTag({
         name: 'og:description',
         content: 'Alles zum Thema ' + tag,
       });
-      meta.updateTag({name: 'og:site_name', content: 'Holzwerkskunst.de'});
-      meta.updateTag({name: 'og:url', content: window.location.href});
+      meta.updateTag({property: 'og:site_name', content: 'Holzwerkskunst.de'});
+      meta.updateTag({property: 'og:url', content: window.location.href});
 
       if (products.length > 0) {
         const image = products[0].images[0].small;
