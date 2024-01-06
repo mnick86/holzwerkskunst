@@ -70,7 +70,7 @@ function transformImage(folder: string, image: Image, w: number, h: number): Pro
     .then((image) => {
       return image
         .contain(w, h)
-        .quality(80) // set JPEG quality
+        .quality(95) // set JPEG quality
         .write(`${destinationFile}`); // save
     })
     .then(() => {
