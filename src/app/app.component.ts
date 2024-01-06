@@ -4,6 +4,7 @@ import {AppStore} from './+store/app.store';
 import {take, tap} from 'rxjs';
 import {Router} from '@angular/router';
 import {Sidebar} from 'primeng/sidebar';
+import {Meta} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,21 @@ export class AppComponent {
   constructor(
     public store: AppStore,
     public router: Router,
-  ) {}
+    public meta: Meta,
+  ) {
+    meta.updateTag({name: 'og:title', content: 'Holzwerkskunst.de'});
+    meta.updateTag({name: 'og:type', content: 'website'});
+    meta.updateTag({
+      name: 'og:description',
+      content: 'Kreative Holzarbeiten auf Holzwerkskunst.de',
+    });
+    meta.updateTag({name: 'og:site_name', content: 'Holzwerkskunst.de'});
+    meta.updateTag({name: 'og:url', content: 'https://www.Holzwerkskunst.de'});
+    meta.updateTag({
+      name: 'og:image',
+      content: 'https://holzwerkskunst.de/glubbal/10__400_400.jpg',
+    }); // TODO fix me later
+  }
 
   sidebarVisible$ = this.store.selectSidebarVisible$.pipe(
     tap((visible) => {
