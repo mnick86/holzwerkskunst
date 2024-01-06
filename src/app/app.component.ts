@@ -21,15 +21,15 @@ export class AppComponent {
     public router: Router,
     public meta: Meta,
   ) {
-    meta.updateTag({property: 'og:title', content: 'Holzwerkskunst.de'});
-    meta.updateTag({property: 'og:type', content: 'website'});
-    meta.updateTag({
+    meta.addTag({property: 'og:title', content: 'Holzwerkskunst.de'});
+    meta.addTag({property: 'og:type', content: 'website'});
+    meta.addTag({
       name: 'og:description',
       content: 'Kreative Holzarbeiten auf Holzwerkskunst.de',
     });
-    meta.updateTag({property: 'og:site_name', content: 'Holzwerkskunst.de'});
-    meta.updateTag({property: 'og:url', content: 'https://www.Holzwerkskunst.de'});
-    meta.updateTag({
+    meta.addTag({property: 'og:site_name', content: 'Holzwerkskunst.de'});
+    meta.addTag({property: 'og:url', content: 'https://www.Holzwerkskunst.de'});
+    meta.addTag({
       name: 'og:image',
       content: 'https://holzwerkskunst.de/glubbal/10__400_400.jpg',
     }); // TODO fix me later
