@@ -67,6 +67,9 @@ export class AppStore extends ComponentStore<AppState> {
   sortImages(i1: ProductImage, i2: ProductImage): number {
     const getSort = (path: string) => {
       try {
+        /**
+         * small: kugeln/100__PXL_120232.jpg
+         */
         const imageName = path.split('/')[1];
         const sort = Number.parseInt(imageName.split('__')[0]);
         if (isNaN(sort)) {
@@ -78,13 +81,6 @@ export class AppStore extends ComponentStore<AppState> {
       }
     };
 
-    try {
-      /**
-       * small: kugeln/100__PXL_120232.jpg
-       */
-      return getSort(i1.small) - getSort(i2.small);
-    } catch {
-      return 1;
-    }
+    return getSort(i1.small) - getSort(i2.small);
   }
 }
