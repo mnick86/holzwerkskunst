@@ -21,6 +21,7 @@ export class AppStore extends ComponentStore<AppState> {
 
   selectProducts$ = this.select((state) => {
     const products = state.products;
+    products.sort((p1, p2) => p1.name.localeCompare(p2.name));
     return products;
   });
 
