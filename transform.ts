@@ -88,7 +88,7 @@ function parseOriginalData() {
       spec: {} as Spec,
       images: [],
     };
-    const imagesNames = fs.readdirSync(product.folderPath).filter(isImage).sort();
+    const imagesNames = fs.readdirSync(product.folderPath).filter(isImage);
     const images: Image[] = imagesNames.map((imageName) => ({
       name: imageName,
       path: `${product.folderPath}/${imageName}`,

@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {ComponentStore, tapResponse} from '@ngrx/component-store';
-import {Product} from './product';
+import {Product, ProductImage} from './product';
 import {of, switchMap} from 'rxjs';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 
@@ -23,7 +23,7 @@ export class AppStore extends ComponentStore<AppState> {
     const products = state.products;
     products.sort((p1, p2) => p1.name.localeCompare(p2.name));
     for (const product of products) {
-      product.images.sort((i1, i2) => this.getSortOrder(i1.small) - this.getSortOrder(i2.small));
+      product.images.sort(this.sortImages);
     }
     return products;
   });
@@ -64,15 +64,27 @@ export class AppStore extends ComponentStore<AppState> {
     console.error(err);
   }
 
-  getSortOrder(name: string): number {
-    try {
-      const sort = Number.parseInt(name.split('__')[0]);
-      if (isNaN(sort)) {
-        throw Error('NAN');
+  sortImages(i1: ProductImage, i2: ProductImage): number {
+    const getSort = (path: string) => {
+      try {
+        const imageName = path.split('/')[1];
+        const sort = Number.parseInt(imageName.split('__')[0]);
+        if (isNaN(sort)) {
+          throw Error('NAN');
+        }
+        return sort;
+      } catch {
+        return 10000;
       }
-      return sort;
+    };
+
+    try {
+      /**
+       * small: kugeln/100__PXL_120232.jpg
+       */
+      return getSort(i1.small) - getSort(i2.small);
     } catch {
-      return 100000;
+      return 1;
     }
   }
 }
