@@ -23,7 +23,7 @@ export class AppStore extends ComponentStore<AppState> {
     const products = state.products;
     products.sort((p1, p2) => p1.name.localeCompare(p2.name));
     for (const product of products) {
-      product.images.sort((i1, i2) => i1.small.localeCompare(i2.small));
+      product.images.sort((i1, i2) => this.getSortOrder(i1.small) - this.getSortOrder(i2.small));
     }
     return products;
   });
@@ -62,5 +62,17 @@ export class AppStore extends ComponentStore<AppState> {
 
   logError(err: any) {
     console.error(err);
+  }
+
+  getSortOrder(name: string): number {
+    try {
+      const sort = Number.parseInt(name.split('__')[0]);
+      if (isNaN(sort)) {
+        throw Error('NAN');
+      }
+      return sort;
+    } catch {
+      return 100000;
+    }
   }
 }
