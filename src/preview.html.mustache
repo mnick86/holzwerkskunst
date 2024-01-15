@@ -1,0 +1,52 @@
+<div class="card bg-body shadow" style="max-width: 400px">
+  <div id="carousel_{{@index}}" class="carousel slide">
+    <div class="carousel-inner">
+      {{#each this.images}}
+      <div class="carousel-item {{#if @first}} active {{/if}}">
+        <img
+          data-src="/produkt/{{ id }}/{{ this.small }}"
+          src="{{#if @first}}/produkt/{{ id }}/{{ this.small }}{{/if}}"
+          class="d-block w-100 rounded-top"
+        />
+      </div>
+      {{/each}}
+    </div>
+    <button
+      class="carousel-control-prev"
+      type="button"
+      data-bs-target="#carousel_{{@index}}"
+      data-bs-slide="prev"
+    >
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Vorheriges</span>
+    </button>
+    <button
+      class="carousel-control-next"
+      type="button"
+      data-bs-target="#carousel_{{@index}}"
+      data-bs-slide="next"
+    >
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Nächstes</span>
+    </button>
+  </div>
+  <div class="card-body">
+    <h3 class="card-title">{{ name }}</h3>
+    <div class="card-subtitle mb-2">
+      {{#each this.tags}}
+      <a
+        class="btn btn-outline-secondary btn-sm rounded-3"
+        href="/kategorie/{{.}}.html"
+        role="button"
+        >{{ . }}</a
+      >
+      {{/each}}
+    </div>
+    <p class="card-text">
+      {{ this.description }}
+    </p class="card-text">
+  </div>
+  <div class="card-footer text-center bg-white border-0">
+      <a href="/produkt/{{ id }}/" class="btn btn-dark">Details anzeigen</a>
+  </div>  
+</div>

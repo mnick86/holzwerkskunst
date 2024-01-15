@@ -26,16 +26,14 @@ jobs:
       - name: Generate products
         run: npm run transform
 
-      - name: Build
-        run: npm run build -- --base-href ./
-
-      - name: Copy CNAME file to dist
-        run: cp .github/CNAME dist/holzwerkskunst/browser
+      - name: Generate page
+        run: npm run mustache
 
       - name: Deploy
         if: success()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist/holzwerkskunst/browser
+          publish_dir: dist/bootstrap
           publish_branch: gh-pages
+          cname: holzwerkskunst.de

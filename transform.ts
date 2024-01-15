@@ -1,11 +1,25 @@
 import Jimp from 'jimp';
 import * as fs from 'fs';
-import {Product} from './src/app/+store/product';
 import YAML from 'yaml';
 import path from 'path';
 
 const PRODUCTS_FOLDER = './products/';
-const DESTINATION_FOLDER = 'dist/products';
+const DESTINATION_FOLDER = 'dist/bootstrap/produkt';
+
+export interface ProductImage {
+  small: string;
+  large: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  created: string;
+  tags: string[];
+  images: ProductImage[];
+}
+
 interface Image {
   name: string;
   path: string;
@@ -44,8 +58,8 @@ async function transform() {
     };
 
     for (const image of data.images) {
-      const smallFilename = await transformImage(destinalFolder, image, 400, 400);
-      const largeFilename = await transformImage(destinalFolder, image, 1024, 1024);
+      const smallFilename = await transformImage(destinalFolder, image, 400, 300);
+      const largeFilename = await transformImage(destinalFolder, image, 1024, 768);
       product.images.push({
         small: `${data.spec.id}/${smallFilename}`,
         large: `${data.spec.id}/${largeFilename}`,
@@ -68,6 +82,11 @@ function transformImage(folder: string, image: Image, w: number, h: number): Pro
   console.log(' - transform ' + image.name + ' --> ' + destinationName);
   return Jimp.read(image.path)
     .then((image) => {
+      const height = image.getHeight();
+      const width = image.getWidth();
+      if (!is4by3(width, height)) {
+        throw Error('Image is not not 4:3 > ' + width / height + ' <> ' + 4 / 3);
+      }
       return image
         .contain(w, h)
         .quality(95) // set JPEG quality
@@ -109,6 +128,15 @@ function isImage(filename: string): boolean {
   const imageExtensions = ['.jpg', '.jpeg', '.png'];
   const lowercasedFilename = filename.toLowerCase();
   return imageExtensions.some((ext) => lowercasedFilename.endsWith(ext));
+}
+
+function is4by3(width: number, height: number) {
+  const targetRatio = 4 / 3;
+  const tolerance = 0.01; // Adjust the tolerance as needed
+
+  const actualRatio = width / height;
+
+  return Math.abs(actualRatio - targetRatio) < tolerance;
 }
 
 fs.rmSync(DESTINATION_FOLDER, {recursive: true, force: true});
