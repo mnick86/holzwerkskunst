@@ -1,14 +1,22 @@
 <h3>{{ product.name }}</h3>
 <div class="tags d-flex flex-wrap gap-2">
   {{#each this.tags}}
-  <a class="btn btn-outline-secondary btn-sm rounded-3" href="/kategorie/{{.}}.html" role="button">{{ . }}</a>
-  {{/each}} 
+  <a
+    class="btn btn-outline-secondary btn-sm rounded-3"
+    href="/kategorie/{{.}}.html"
+    role="button"
+    >{{ . }}</a
+  >
+  {{/each}}
 </div>
-<p class="mt-2 lead">{{{product.description}}}</p>
+<p class="mt-2 lead">{{ product.description }}</p>
 <div class="d-flex flex-wrap gap-5 justify-content-center mt-4">
   {{#each product.images}}
   <a href="/produkt/{{ this.id }}/{{ this.large }}"
-    ><img class="d-block w-100 shadow rounded-4" src="/produkt/{{ this.id }}/{{ this.small }}"
+    ><img
+      class="d-block w-100 shadow rounded-4"
+      src="/produkt/{{ this.id }}/{{ this.small }}"
+      alt="{{ ../product.name }}"
   /></a>
   {{/each}}
 </div>
@@ -16,4 +24,4 @@
   <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
     Kontakt / Anfragen
   </button>
-</div>   
+</div>

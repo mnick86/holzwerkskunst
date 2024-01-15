@@ -67,7 +67,7 @@ for (let product of products) {
       ogSiteName,
       ogTitle: product.name,
       ogType: 'website',
-      ogUrl: `https://www.holzwerkskunst.de/produkt/${product.id}`,
+      ogUrl: `https://www.holzwerkskunst.de/produkt/${product.id}/`,
     },
   };
 
@@ -96,7 +96,7 @@ for (let tag of tags) {
       ogSiteName,
       ogTitle: `Kategorie ${tag}`,
       ogType: 'website',
-      ogUrl: `https://www.holzwerkskunst.de/kategorie/${tag}`,
+      ogUrl: `https://www.holzwerkskunst.de/kategorie/${tag}.html`,
     },
   };
   if (!existsSync(`dist/bootstrap/kategorie`)) {
