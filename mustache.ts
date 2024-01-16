@@ -1,6 +1,6 @@
 import {readFileSync, writeFileSync, mkdirSync, existsSync} from 'fs';
 import Handlebars from 'handlebars';
-import {Product} from './transform';
+import {Product, ProductImage} from './transform';
 
 const ogSiteName = 'Holzwerkskunst.de';
 
@@ -22,6 +22,11 @@ interface Page {
 const products: Product[] = JSON.parse(
   readFileSync('dist/bootstrap/produkt/products.json', 'utf-8'),
 );
+products.sort((p1, p2) => p1.name.localeCompare(p2.name));
+for (const product of products) {
+  product.images.sort(sortImages);
+}
+
 const tags = [...new Set(([] as string[]).concat(...products.map((p) => p.tags)))].sort();
 
 Handlebars.registerPartial('home', getTemplate('src/home.html.mustache'));
@@ -139,4 +144,24 @@ writeFileSync('dist/bootstrap/datenschutz.html', pageTemplate(dataProtectionMode
 function getTemplate(file: string) {
   const template = readFileSync(file, 'utf-8');
   return template;
+}
+
+function sortImages(i1: ProductImage, i2: ProductImage): number {
+  const getSort = (path: string) => {
+    try {
+      /**
+       * small: kugeln/100__PXL_120232.jpg
+       */
+      const imageName = path.split('/')[1];
+      const sort = Number.parseInt(imageName.split('__')[0]);
+      if (isNaN(sort)) {
+        throw Error('NAN');
+      }
+      return sort;
+    } catch {
+      return 10000;
+    }
+  };
+
+  return getSort(i1.small) - getSort(i2.small);
 }
