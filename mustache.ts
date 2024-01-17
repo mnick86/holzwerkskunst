@@ -35,6 +35,7 @@ Handlebars.registerPartial('category', getTemplate('src/category.html.mustache')
 Handlebars.registerPartial('preview', getTemplate('src/preview.html.mustache'));
 Handlebars.registerPartial('impressum', getTemplate('src/impressum.html.mustache'));
 Handlebars.registerPartial('data-protection', getTemplate('src/data-protection.html.mustache'));
+Handlebars.registerPartial('404', getTemplate('src/404.html.mustache'));
 
 const pageTemplate = Handlebars.compile(readFileSync('src/index.html.mustache', 'utf-8'));
 
@@ -140,6 +141,25 @@ const dataProtectionModel: Page = {
   },
 };
 writeFileSync('dist/bootstrap/datenschutz.html', pageTemplate(dataProtectionModel), 'utf-8');
+
+/** 404 */
+interface PageHome extends Page {
+  products: Product[];
+}
+const _404Model: PageHome = {
+  tags: tags,
+  products: products,
+  mainTemplate: () => '404',
+  metaAttributes: {
+    ogImage: products[0].images[0].large,
+    ogSiteName,
+    ogTitle: 'Schöne Bastelsachen aus Holz- und Papier. Holzwerkskunst.de',
+    ogDescription: 'Hier findest du Bastelsachen aus Holz- und Papier',
+    ogType: 'website',
+    ogUrl: 'https://www.holzwerkskunst.de',
+  },
+};
+writeFileSync('dist/bootstrap/404.html', pageTemplate(_404Model), 'utf-8');
 
 function getTemplate(file: string) {
   const template = readFileSync(file, 'utf-8');
