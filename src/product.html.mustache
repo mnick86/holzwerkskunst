@@ -1,5 +1,10 @@
-<h3>{{ product.name }}</h3>
-<div class="tags d-flex flex-wrap gap-2">
+<div class="d-flex justify-content-between">
+  <h2>{{ product.name }}</h2>
+  <button type="button" class="btn btn-outline-secondary share">
+    <span class="bi bi-share"></span>
+  </button>
+</div>
+<div class="tags d-flex flex-wrap gap-2 mt-3">
   {{#each this.tags}}
   <a
     class="btn btn-outline-secondary btn-sm rounded-3"
@@ -25,3 +30,20 @@
     Kontakt / Anfragen
   </button>
 </div>
+
+<script>
+  const shareData = {
+    title: '{{metaAttributes.ogTitle}}',
+    text: 'Siehe dir das auf Holzwerkskunst.de an',
+    url: '{{metaAttributes.ogUrl}}',
+  };
+
+  const btn = document.querySelector('.share');
+  btn.addEventListener('click', async () => {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      alert(err);
+    }
+  });
+</script>
