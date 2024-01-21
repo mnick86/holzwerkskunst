@@ -1,4 +1,4 @@
-import {readFileSync, writeFileSync, mkdirSync, existsSync} from 'fs';
+import {readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync} from 'fs';
 import Handlebars from 'handlebars';
 import {Product, ProductImage} from './transform';
 
@@ -160,6 +160,9 @@ const _404Model: PageHome = {
   },
 };
 writeFileSync('dist/bootstrap/404.html', pageTemplate(_404Model), 'utf-8');
+
+/* other files */
+copyFileSync('src/robots.txt', 'dist/bootstrap/robots.txt');
 
 function getTemplate(file: string) {
   const template = readFileSync(file, 'utf-8');
