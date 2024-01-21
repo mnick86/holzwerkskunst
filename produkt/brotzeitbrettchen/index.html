@@ -220,7 +220,7 @@ Hinweis: Die Brettchen sind aus 100% Buchenholz und d√ºrfen **nicht** in die Sp√
       <script>
         const shareData = {
           title: 'Brotzeitbrettchen',
-          text: 'Siehe dir das auf Holzwerkskunst.de an',
+          text: 'Schau mal was ich gefunden habe',
           url: 'https://www.holzwerkskunst.de/produkt/brotzeitbrettchen/',
         };
       
@@ -228,9 +228,7 @@ Hinweis: Die Brettchen sind aus 100% Buchenholz und d√ºrfen **nicht** in die Sp√
         btn.addEventListener('click', async () => {
           try {
             await navigator.share(shareData);
-          } catch (err) {
-            alert(err);
-          }
+          } catch (err) {}
         });
       </script>
     </div>

@@ -332,7 +332,7 @@ oder einfach so als Geschenk
       <script>
         const shareData = {
           title: 'Glubbal',
-          text: 'Siehe dir das auf Holzwerkskunst.de an',
+          text: 'Schau mal was ich gefunden habe',
           url: 'https://www.holzwerkskunst.de/produkt/glubbal/',
         };
       
@@ -340,9 +340,7 @@ oder einfach so als Geschenk
         btn.addEventListener('click', async () => {
           try {
             await navigator.share(shareData);
-          } catch (err) {
-            alert(err);
-          }
+          } catch (err) {}
         });
       </script>
     </div>

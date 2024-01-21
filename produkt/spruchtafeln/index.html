@@ -216,7 +216,7 @@
       <script>
         const shareData = {
           title: 'Spruchtafeln',
-          text: 'Siehe dir das auf Holzwerkskunst.de an',
+          text: 'Schau mal was ich gefunden habe',
           url: 'https://www.holzwerkskunst.de/produkt/spruchtafeln/',
         };
       
@@ -224,9 +224,7 @@
         btn.addEventListener('click', async () => {
           try {
             await navigator.share(shareData);
-          } catch (err) {
-            alert(err);
-          }
+          } catch (err) {}
         });
       </script>
     </div>

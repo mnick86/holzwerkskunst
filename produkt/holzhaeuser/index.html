@@ -186,7 +186,7 @@
       <script>
         const shareData = {
           title: 'Holzhäuser',
-          text: 'Siehe dir das auf Holzwerkskunst.de an',
+          text: 'Schau mal was ich gefunden habe',
           url: 'https://www.holzwerkskunst.de/produkt/holzhaeuser/',
         };
       
@@ -194,9 +194,7 @@
         btn.addEventListener('click', async () => {
           try {
             await navigator.share(shareData);
-          } catch (err) {
-            alert(err);
-          }
+          } catch (err) {}
         });
       </script>
     </div>
