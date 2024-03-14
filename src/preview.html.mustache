@@ -1,5 +1,14 @@
 <div class="card bg-body shadow" style="max-width: 400px">
   <div id="carousel_{{@index}}" class="carousel slide">
+
+    <!--
+    <div class="carousel-indicators">
+      {{#each this.images}}
+      <button type="button" data-bs-target="#carousel_{{@../index}}" data-bs-slide-to="{{@index}}" class="{{#if @first}} active {{/if}}" aria-current="true" aria-label="Image {{@index}}"></button>
+      {{/each}}
+    </div>
+  -->
+
     <div class="carousel-inner">
       {{#each this.images}}
       <div class="carousel-item {{#if @first}} active {{/if}}">
