@@ -5,10 +5,12 @@
     "start": "http-server ./dist/bootstrap/ --port 4200",
     "transform": "ts-node transform.ts",
     "mustache": "ts-node mustache.ts",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "check": "ts-node check.ts"
   },
   "private": true,
   "dependencies": {
+    "image-size": "^1.1.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
