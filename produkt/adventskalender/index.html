@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Schöne Bastelsachen aus Holz- und Papier. Holzwerkskunst.de">
     <meta property="og:image" content="https://www.Holzwerkskunst.de/produkt/adventskalender/10__1024_768.jpg" />
-    <meta property="og:title" content="Impressum" />
+    <meta property="og:title" content="adventskalender" />
     <meta property="og:site_name" content="Holzwerkskunst.de" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.holzwerkskunst.de/impressum.html" />
-    <meta property="og:description" content="Impressum" />
+    <meta property="og:url" content="https://www.holzwerkskunst.de/produkt/adventskalender/" />
+    <meta property="og:description" content="Adventskalender mit steckbaren Figuren nach Wunsch
+" />
     <title>Holzwerkskunst.de</title>
 
     <link
@@ -110,23 +111,69 @@
     </div>
 
     <div id="main" class="p-4">
-      <div class="card">
-        <div class="card-body">
-          <h3 class="card-title">Impressum</h3>
-          <p class="card-text">
-            <h4>Angaben gem&auml;&szlig; &sect; 5 TMG</h4>
-            <p>Matthias Nick<br />
-            Lindenstrasse 7a<br />
-            84030 Ergolding</p>
-            
-            <h4>Kontakt</h4>
-            <p>Telefon: 01716447548<br />
-            E-Mail: mnick86@gmail.com</p>
-            
-            <p>Quelle: <a href="https://www.e-recht24.de">eRecht24</a></p>
-          </p>
-        </div>
-      </div>    </div>
+      <div class="d-flex justify-content-between">
+        <h2>adventskalender</h2>
+        <button type="button" class="btn btn-outline-secondary share">
+          <span class="bi bi-share"></span>
+        </button>
+      </div>
+      <div class="tags d-flex flex-wrap gap-2 mt-3">
+        <a
+          class="btn btn-outline-secondary btn-sm rounded-3"
+          href="/kategorie/Weihnachten.html"
+          role="button"
+          >Weihnachten</a
+        >
+      </div>
+      <p class="mt-2 lead">Adventskalender mit steckbaren Figuren nach Wunsch
+      </p>
+      <div class="d-flex flex-wrap gap-5 justify-content-center mt-4">
+        <a href="/produkt//adventskalender/10__1024_768.jpg"
+          ><img
+            class="d-block w-100 shadow rounded-4"
+            src="/produkt//adventskalender/10__400_300.jpg"
+            alt="adventskalender"
+        /></a>
+        <a href="/produkt//adventskalender/20__1024_768.jpg"
+          ><img
+            class="d-block w-100 shadow rounded-4"
+            src="/produkt//adventskalender/20__400_300.jpg"
+            alt="adventskalender"
+        /></a>
+        <a href="/produkt//adventskalender/30__1024_768.jpg"
+          ><img
+            class="d-block w-100 shadow rounded-4"
+            src="/produkt//adventskalender/30__400_300.jpg"
+            alt="adventskalender"
+        /></a>
+        <a href="/produkt//adventskalender/40__1024_768.jpg"
+          ><img
+            class="d-block w-100 shadow rounded-4"
+            src="/produkt//adventskalender/40__400_300.jpg"
+            alt="adventskalender"
+        /></a>
+      </div>
+      <div class="mt-5 text-center">
+        <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+          Kontakt / Anfragen
+        </button>
+      </div>
+      
+      <script>
+        const shareData = {
+          title: 'adventskalender',
+          text: 'Schau mal was ich gefunden habe',
+          url: 'https://www.holzwerkskunst.de/produkt/adventskalender/',
+        };
+      
+        const btn = document.querySelector('.share');
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.share(shareData);
+          } catch (err) {}
+        });
+      </script>
+    </div>
 
     <div class="text-center pt-2 pb-4">Made with ❤️ in Niederbayern</div>
 
