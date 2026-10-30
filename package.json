@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "start": "http-server ./dist/bootstrap/ --port 4200",
+    "prestart:image": "npm run build:image",
+    "start:image": "http-server dist/bootstrap/image -a 127.0.0.1 -p 4201 -c-1 -o /",
+    "build:image": "node image-studio/build.mjs",
+    "test:image": "node --test image-studio/test/studio.test.mjs image-studio/test/costs.test.mjs",
     "transform": "ts-node transform.ts",
     "mustache": "ts-node mustache.ts",
     "prettier": "prettier --write .",
@@ -11,10 +15,12 @@
   "private": true,
   "dependencies": {
     "image-size": "^1.1.1",
+    "openai": "^7.45.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@types/mustache": "^4.2.5",
+    "esbuild": "^0.28.2",
     "handlebars": "^4.7.9",
     "http-server": "^14.1.1",
     "jimp": "^0.22.10",

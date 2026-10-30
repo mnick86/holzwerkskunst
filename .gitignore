@@ -8,6 +8,8 @@
 
 # Node
 /node_modules
+/.env.image
+/.env.image.local
 npm-debug.log
 yarn-error.log
 

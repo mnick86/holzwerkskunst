@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fbfaf7" />
+    <title>Bildstudio · Holzwerkskunst</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://api.openai.com https://api.frankfurter.dev; object-src 'none'; base-uri 'none'; form-action 'self'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./studio.css" />
+    <script src="./studio.js" type="module"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Zum Arbeitsbereich</a>
+    <header class="studio-header">
+      <a class="brand" href="../"
+        >holzwerkskunst<span>.</span><span class="brand-divider" aria-hidden="true">/</span
+        ><span class="studio-name">Bildstudio</span></a
+      >
+      <div class="header-right">
+        <span class="connection-status" id="connection-status" role="status"
+          >Verbindung wird geprüft</span
+        ><button class="api-settings-toggle" type="button" data-open-api-settings>
+          API-Schlüssel
+        </button>
+      </div>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="studio-title">
+        <div>
+          <p class="eyebrow">Dein Produkt. Ein neuer Blick.</p>
+          <h1 id="studio-title">Aus einem Foto wird <em>dein Produktbild.</em></h1>
+          <p>
+            Bild hochladen, analysieren und deinen Produktbild-Prompt verfeinern.<br />Du
+            entscheidest, wann das neue Bild entsteht.
+          </p>
+        </div>
+        <button class="button button-primary add-images" type="button" data-add-images>
+          <span aria-hidden="true">+</span> Bilder hinzufügen
+        </button>
+      </section>
+      <div class="workspace-toolbar">
+        <div>
+          <span class="workspace-dot" aria-hidden="true"></span>
+          <h2>Dein Arbeitsbereich</h2>
+          <span class="image-count" id="image-count">Noch kein Bild</span>
+        </div>
+        <span class="workflow-note">Eine Zeile pro Bild. Jeder Schritt bleibt in deiner Hand.</span>
+      </div>
+      <details class="session-costs" id="session-costs">
+        <summary>
+          <span>API-Kosten dieser Sitzung <span class="cost-estimate-label">geschätzt</span></span>
+          <strong id="session-cost-total" aria-live="polite">0,0000 €</strong>
+        </summary>
+        <div class="cost-details">
+          <p>
+            Verbrauch laut API × veröffentlichter Modellpreis, umgerechnet mit dem EZB-Referenzkurs.
+            Schätzung ohne Steuern, Gebühren oder individuelle Rabatte; die Rechnung kann abweichen.
+            Abgebrochene Anfragen können trotzdem Kosten verursachen.
+            <a
+              href="https://developers.openai.com/api/docs/pricing"
+              target="_blank"
+              rel="noopener noreferrer"
+              >OpenAI-Preise</a
+            >
+            ·
+            <a
+              href="https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
+              target="_blank"
+              rel="noopener noreferrer"
+              >EZB-Kurs</a
+            >
+          </p>
+          <p id="cost-empty">
+            Noch keine API-Anfragen. Der Verlauf wird beim Neuladen zurückgesetzt.
+          </p>
+          <ol id="cost-history" class="cost-history" aria-label="Kosten je API-Anfrage"></ol>
+        </div>
+      </details>
+      <p class="upload-error" id="upload-error" role="alert" hidden></p>
+      <p class="scroll-hint">
+        Auf kleinen Bildschirmen kannst du den Arbeitsbereich seitlich verschieben.
+      </p>
+      <div
+        class="workspace-scroll"
+        id="workspace"
+        tabindex="0"
+        role="region"
+        aria-label="Bildbearbeitung in drei Spalten"
+      >
+        <div class="workspace-inner">
+          <div class="column-headings" aria-hidden="true">
+            <div><span>01</span> Originalbild</div>
+            <div><span>02</span> Produktbild-Prompt</div>
+            <div><span>03</span> Ergebnis</div>
+          </div>
+          <div id="image-rows"></div>
+        </div>
+      </div>
+      <button class="add-row-button" type="button" data-add-images>
+        <span aria-hidden="true">+</span> Weitere Bilder hinzufügen
+      </button>
+      <footer class="workspace-footer">
+        <p>
+          Bilder werden erst bei „Bild analysieren“, „Bild generieren“ oder „Bild anpassen“ direkt
+          an OpenAI übertragen. „Prompt verbessern“ überträgt nur deinen Text. Die API-Nutzung wird
+          separat abgerechnet.
+        </p>
+        <p>Ergebnisse vor dem Neuladen herunterladen.</p>
+      </footer>
+      <noscript
+        ><p class="setup-banner">
+          Bitte JavaScript aktivieren, um Bilder hochzuladen und zu bearbeiten.
+        </p></noscript
+      >
+      <div class="setup-banner" id="setup-banner" hidden>
+        <div>
+          <strong>API-Schlüssel hinzufügen, dann loslegen.</strong>
+          <p>
+            Trage deinen Schlüssel unten unter „OpenAI API-Schlüssel“ ein und speichere ihn in
+            diesem Browser.
+          </p>
+        </div>
+        <button class="button button-secondary" type="button" data-open-api-settings>
+          API-Schlüssel eingeben
+        </button>
+      </div>
+      <details class="api-settings" id="api-settings">
+        <summary>
+          <span>OpenAI API-Schlüssel</span><span id="api-key-source">Schlüssel wird geprüft</span>
+        </summary>
+        <div class="api-settings-content">
+          <p id="api-key-note">
+            Der Schlüssel wird unverschlüsselt im Local Storage dieses Browsers gespeichert.
+            Speichere ihn nur auf deinem eigenen Gerät. Bei API-Anfragen sendet dein Browser ihn
+            direkt an OpenAI.
+          </p>
+          <form id="api-key-form">
+            <label for="api-key-input">API-Schlüssel eingeben oder ersetzen</label>
+            <div class="api-key-controls">
+              <input
+                id="api-key-input"
+                type="password"
+                maxlength="4096"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="sk-…"
+                aria-describedby="api-key-note"
+                required
+              /><button class="button button-primary" type="submit">Im Browser speichern</button
+              ><button class="button button-secondary" id="api-key-delete" type="button" disabled>
+                Browser-Schlüssel löschen
+              </button>
+            </div>
+          </form>
+          <p id="api-key-feedback" role="status" aria-live="polite"></p>
+          <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer"
+            >OpenAI API-Schlüssel verwalten ↗</a
+          >
+        </div>
+      </details>
+    </main>
+    <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden />
+    <div class="drop-overlay" id="drop-overlay" hidden>
+      <div>Deine nächsten Lieblingsbilder.<span>Bilder hier ablegen</span></div>
+    </div>
+
+    <template id="image-row-template">
+      <article class="image-row" aria-label="Bildbearbeitung">
+        <div class="row-header">
+          <div class="row-identity">
+            <span class="row-number"></span>
+            <h3 class="row-filename">Ein neues Produktbild</h3>
+            <span class="file-meta"></span>
+          </div>
+          <div class="row-tools">
+            <span class="row-cost" hidden></span>
+            <span class="row-status">Bereit für dein Bild</span
+            ><span class="elapsed" aria-hidden="true"></span
+            ><button class="cancel-button" type="button" data-action="cancel" hidden>
+              Abbrechen</button
+            ><button
+              class="remove-button"
+              type="button"
+              data-action="remove"
+              aria-label="Bildzeile entfernen"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+        <div class="row-columns">
+          <section class="studio-column original-column" aria-label="Originalbild">
+            <button class="upload-zone" type="button" data-action="upload">
+              <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <path d="M16 21V5m-6 6 6-6 6 6M6 21v6h20v-6" /></svg
+              ><strong>Dein Foto beginnt hier.</strong><span>Bild auswählen oder hier ablegen</span
+              ><small>JPG, PNG oder WebP · bis 10 MB</small>
+            </button>
+            <div class="original-preview" hidden>
+              <img class="original-image" alt="" />
+              <div class="preview-caption">
+                <span class="image-dimensions"></span
+                ><button class="subtle-button" type="button" data-action="upload">
+                  Bild ersetzen
+                </button>
+              </div>
+              <button
+                class="button button-secondary edit-image-button"
+                type="button"
+                data-action="edit"
+              >
+                Drehen &amp; zuschneiden <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+            <p class="column-hint">Das Original bleibt die Referenz für dein neues Bild.</p>
+          </section>
+          <section class="studio-column prompt-column" aria-label="Produktbild-Prompt">
+            <div class="field-heading">
+              <label class="field-label generation-label">Dein Produktbild-Prompt</label
+              ><button class="subtle-button copy-prompt" type="button" data-action="copy" disabled>
+                Kopieren
+              </button>
+            </div>
+            <textarea
+              class="generation-prompt"
+              maxlength="16000"
+              placeholder="Klicke auf „Bild analysieren“, um einen Prompt aus deinem Foto zu erstellen. Oder schreibe deinen eigenen Prompt und verfeinere ihn mit „Prompt verbessern“."
+            ></textarea>
+            <p class="review-hint">
+              Frei editierbar. Analyse aus deinem Bild, Verbesserung aus deinem Text – jeweils als
+              deutscher Prompt.
+            </p>
+            <div class="prompt-tools">
+              <div>
+                <button
+                  class="button button-secondary analyze-button"
+                  type="button"
+                  data-action="analyze"
+                  disabled
+                >
+                  Bild analysieren <span aria-hidden="true">↗</span>
+                </button>
+                <p class="request-cost analyze-cost" hidden></p>
+              </div>
+              <div>
+                <button
+                  class="button button-secondary improve-button"
+                  type="button"
+                  data-action="improve"
+                  disabled
+                >
+                  Prompt verbessern <span aria-hidden="true">↗</span>
+                </button>
+                <p class="request-cost improve-cost" hidden></p>
+              </div>
+            </div>
+            <div class="format-field">
+              <label class="format-label">Ausgabeformat</label
+              ><select class="output-size">
+                <option value="1024x768">4:3 · Produktkatalog</option>
+                <option value="1024x1024">1:1 · Quadratisch</option>
+                <option value="768x1024">3:4 · Hochformat</option>
+              </select>
+            </div>
+            <button
+              class="button button-primary generate-button"
+              type="button"
+              data-action="generate"
+              disabled
+            >
+              Bild generieren <span aria-hidden="true">↗</span>
+            </button>
+            <p class="request-cost generate-cost" hidden></p>
+            <p class="approval-note">Erst dein Klick startet die Generierung.</p>
+          </section>
+          <section class="studio-column result-column" aria-label="Ergebnis">
+            <div class="result-preview">
+              <button
+                class="result-open"
+                type="button"
+                data-action="view"
+                aria-label="Ergebnisbild im Vollbild anzeigen"
+                aria-haspopup="dialog"
+                hidden
+              >
+                <img class="result-image" alt="Generiertes Produktbild" hidden />
+                <span class="result-expand" aria-hidden="true">⛶</span>
+              </button>
+              <div class="result-placeholder">
+                <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                  <rect x="4" y="5" width="24" height="22" rx="4" />
+                  <path d="m5 23 8-9 6 6 4-4 4 5" />
+                  <circle cx="23" cy="11" r="2" /></svg
+                ><strong>Platz für etwas Schönes.</strong
+                ><span>Dein neues Produktbild erscheint hier.</span>
+              </div>
+              <div class="working-overlay" hidden>
+                <span class="spinner" aria-hidden="true"></span><span>Dein Bild entsteht …</span>
+              </div>
+            </div>
+            <div class="result-caption" hidden>
+              <span>JPG-Download</span><span class="result-size"></span>
+            </div>
+            <p class="result-stale" hidden>Vorheriges Ergebnis · vor der Bildbearbeitung</p>
+            <a class="button button-download" hidden download
+              >JPG herunterladen <span aria-hidden="true">↓</span></a
+            >
+            <p class="result-note">
+              Das Ergebnis kann von deiner Vorlage abweichen. Details und Gravuren bitte prüfen.
+            </p>
+            <div class="result-refinement" hidden>
+              <label class="field-label refinement-label"
+                >Was möchtest du am Ergebnis ändern?</label
+              >
+              <textarea
+                class="refinement-prompt"
+                maxlength="4000"
+                placeholder="Zum Beispiel: Etwas wärmeres Licht und weniger Blumen im Hintergrund. Produkt und Gravur unverändert lassen."
+              ></textarea>
+              <div class="field-meta">
+                <span>Vorlage: aktuelles Ergebnisbild</span
+                ><span class="refinement-counter">0 / 4000</span>
+              </div>
+              <button
+                class="button button-secondary refine-button"
+                type="button"
+                data-action="refine"
+                disabled
+              >
+                Bild anpassen <span aria-hidden="true">↗</span>
+              </button>
+              <p class="request-cost refine-cost" hidden></p>
+              <p class="refinement-note">
+                Jeder Klick startet eine neue kostenpflichtige Bildgenerierung. Weitere Änderungen
+                bauen auf dem zuletzt angezeigten Ergebnis auf.
+              </p>
+            </div>
+          </section>
+        </div>
+        <p class="row-message" role="status" aria-live="polite">
+          Wähle ein Bild aus. Analysiere es oder gib deinen Produktbild-Prompt direkt ein.
+        </p>
+      </article>
+    </template>
+    <dialog
+      id="result-viewer"
+      class="result-viewer"
+      aria-labelledby="result-viewer-title"
+      aria-describedby="result-viewer-filename"
+    >
+      <div class="result-viewer-header">
+        <div>
+          <h2 id="result-viewer-title">Ergebnisbild</h2>
+          <p id="result-viewer-filename"></p>
+        </div>
+        <div class="result-viewer-actions">
+          <a id="result-viewer-download" class="button" download
+            >JPG herunterladen <span aria-hidden="true">↓</span></a
+          >
+          <button
+            class="result-viewer-close"
+            type="button"
+            aria-label="Vollbildansicht schließen"
+            autofocus
+          >
+            ×
+          </button>
+        </div>
+      </div>
+      <div class="result-viewer-stage"><img class="result-viewer-image" alt="" /></div>
+      <p class="result-viewer-hint">Zum Schließen Escape drücken oder × wählen.</p>
+    </dialog>
+    <dialog
+      id="image-editor"
+      class="image-editor"
+      aria-labelledby="editor-title"
+      aria-describedby="editor-description"
+    >
+      <div class="editor-header">
+        <div>
+          <p class="eyebrow">Dein Bild vorbereiten</p>
+          <h2 id="editor-title">Drehen &amp; zuschneiden</h2>
+        </div>
+        <button
+          class="remove-button"
+          type="button"
+          data-editor="cancel"
+          aria-label="Bildbearbeitung schließen"
+        >
+          ×
+        </button>
+      </div>
+      <p id="editor-description">
+        Ziehe einen Ausschnitt auf dem Bild. Verschiebe ihn oder ziehe an den Ecken. Du kannst die
+        Maße auch unten eingeben.
+      </p>
+      <div class="editor-toolbar">
+        <div class="editor-rotation">
+          <button
+            type="button"
+            class="editor-tool"
+            data-editor="left"
+            aria-label="90 Grad nach links drehen"
+          >
+            ↶ 90°
+          </button>
+          <button
+            type="button"
+            class="editor-tool"
+            data-editor="right"
+            aria-label="90 Grad nach rechts drehen"
+          >
+            ↷ 90°
+          </button>
+        </div>
+        <label for="crop-ratio"
+          >Ausschnitt
+          <select id="crop-ratio">
+            <option value="free">Frei</option>
+            <option value="4:3">4:3</option>
+            <option value="1:1">1:1</option>
+            <option value="3:4">3:4</option>
+          </select>
+        </label>
+        <button class="subtle-button" type="button" data-editor="reset">
+          Original wiederherstellen
+        </button>
+      </div>
+      <div class="editor-stage">
+        <canvas
+          id="crop-canvas"
+          aria-label="Vorschau des Bildausschnitts. Maße über die folgenden Eingabefelder ändern."
+        ></canvas>
+      </div>
+      <div class="editor-dimensions">
+        <label for="crop-x"
+          >Links (px)<input id="crop-x" data-crop="x" type="number" min="0" step="1"
+        /></label>
+        <label for="crop-y"
+          >Oben (px)<input id="crop-y" data-crop="y" type="number" min="0" step="1"
+        /></label>
+        <label for="crop-width"
+          >Breite (px)<input id="crop-width" data-crop="width" type="number" min="1" step="1"
+        /></label>
+        <label for="crop-height"
+          >Höhe (px)<input id="crop-height" data-crop="height" type="number" min="1" step="1"
+        /></label>
+      </div>
+      <p id="editor-output" class="editor-output" role="status"></p>
+      <p id="editor-error" class="upload-error" role="alert" hidden></p>
+      <div class="editor-footer">
+        <p>
+          Die Bearbeitung bleibt lokal. Übernehmen ersetzt die Referenz für die nächste Analyse.
+        </p>
+        <div>
+          <button class="button editor-tool" type="button" data-editor="cancel">Abbrechen</button>
+          <button class="button button-primary" type="button" data-editor="apply">
+            Änderungen übernehmen
+          </button>
+        </div>
+      </div>
+    </dialog>
+  </body>
+</html>
