@@ -1,0 +1,19 @@
+<div class="catalog-heading">
+  <h2 class="eyebrow" id="catalog-title">Unsere Produkte <span class="small-rule"></span></h2>
+  <div class="catalog-sort" data-sort-control hidden>
+    <label for="sortierung">Sortieren nach</label
+    ><select id="sortierung" name="sort" aria-label="Produkte sortieren">
+      <option value="default">Standard</option>
+      <option value="newest">Neueste zuerst</option>
+      <option value="name-asc">Name A–Z</option>
+      <option value="name-desc">Name Z–A</option>
+    </select>
+  </div>
+</div>
+<p class="sr-only" role="status" aria-live="polite" aria-atomic="true" data-result-count></p>
+<div class="product-grid" data-product-grid>{{#each products}}{{> preview}}{{/each}}</div>
+<div class="empty-state" data-empty hidden>
+  <h3>Hier ist es gerade noch still.</h3>
+  <p>In dieser Kategorie gibt es momentan keine Produkte. Entdecke die anderen Geschenkideen.</p>
+  <a class="button button-outline" href="/#produkte">Alle Kategorien anzeigen</a>
+</div>

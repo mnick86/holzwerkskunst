@@ -1,0 +1,11 @@
+<nav class="category-strip" id="kategorien" aria-label="Produktkategorien">
+  <div class="container category-strip-inner">
+    {{#each categoryFilters}}<a
+      class="category-filter"
+      href="{{#if tag}}{{categoryUrl tag}}{{else}}/#produkte{{/if}}"
+      data-category-tag="{{tag}}"
+      aria-current="{{#if active}}true{{else}}false{{/if}}"
+      >{{categoryIcon icon}}<span>{{label}}</span></a
+    >{{/each}}
+  </div>
+</nav>

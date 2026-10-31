@@ -1,0 +1,30 @@
+<div class="about-visual">
+  {{#if aboutPhoto}}<img
+    class="about-photo"
+    src="{{aboutPhoto}}"
+    width="800"
+    height="600"
+    alt="Ein persönlicher Einblick in Holzwerkskunst"
+    loading="lazy"
+    decoding="async"
+  />{{else}}
+  <!-- Replace this component's neutral placeholder with src/about-photo.jpg. -->
+  <div
+    class="about-photo-placeholder"
+    role="img"
+    aria-label="Logo von Holzwerkskunst als Platzhalter für ein persönliches Foto"
+  >
+    <img
+      class="about-brand-logo"
+      src="/assets/about-logo.png?v={{assetVersions.logo}}"
+      width="144"
+      height="144"
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+    <span class="placeholder-title">Holz. Herz. Handwerk.</span
+    ><span class="placeholder-caption">Aus Leidenschaft.</span>
+  </div>
+  {{/if}}
+</div>

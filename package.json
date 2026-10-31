@@ -10,7 +10,9 @@
     "transform": "ts-node transform.ts",
     "mustache": "ts-node mustache.ts",
     "prettier": "prettier --write .",
-    "check": "ts-node check.ts"
+    "check": "ts-node check.ts",
+    "check:site": "node scripts/check-site.mjs",
+    "check:branding": "node scripts/check-branding.mjs"
   },
   "private": true,
   "dependencies": {

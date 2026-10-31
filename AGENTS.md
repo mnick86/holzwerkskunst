@@ -19,11 +19,25 @@ extension, but `mustache.ts` renders them with Handlebars.
 - `mustache.ts`: reads generated product data, registers template partials, builds
   page models and Open Graph metadata, and writes static HTML.
 - `src/index.html.mustache`: shared page shell, navigation, contact dialog, and footer.
-- `src/site.css`: responsive design, typography, colors, and layout; uses local system fonts.
-- `src/site.js`: progressive enhancements for navigation, contact, catalog search,
+- `src/site.css`: responsive design, typography, colors, and layout; uses local serif headlines
+  and system sans-serif body fonts.
+- `src/site.js`: progressive enhancements for navigation, contact, category filtering and sorting,
   the product gallery, and sharing. No frontend framework or CDN assets are required.
 - `src/home.html.mustache`, `src/category.html.mustache`, and
   `src/preview.html.mustache`: catalog listings and reusable product cards.
+- `src/hero.html.mustache`, `src/personalization.html.mustache`: split text/photo hero and
+  sage-colored three-step personalization section.
+- `src/catalog.html.mustache`: compact catalog heading, sorting and product grid.
+- `src/category-nav.html.mustache`: all real product tags as clickable category icons.
+- `src/assets/icons/lucide/`: selected official category SVGs with a pinned upstream commit and license.
+  `mustache.ts` embeds them via `categoryIcon` and publishes the license at `assets/licenses/lucide.txt`.
+- `src/header.html.mustache`, `src/footer.html.mustache`, `src/brand.html.mustache`: shared navigation and branding.
+- `src/assets/logo.png`: shared original brand logo for all pages, the about placeholder and image studio.
+  Page and studio builds generate 144px logos and 48px PNG favicons with content-versioned URLs.
+- `src/about.html.mustache`, `src/about-photo.html.mustache`: about page and replaceable photo placeholder.
+  Optional `src/about-photo.jpg` is copied automatically by the page generator.
+- `scripts/check-site.mjs`: generated catalog audit for source preservation, links and images.
+- `scripts/check-branding.mjs`: checks every generated HTML page, including image studio, for current logos and favicons.
 - `src/product.html.mustache`: product details, images, and sharing behavior.
 - Other `src/*.mustache` files: legal and 404 pages.
 - `src/robots.txt`: copied into the generated site.
@@ -50,7 +64,8 @@ npm start
 
 - `check` validates source image dimensions; it is not a general test suite.
 - `transform` generates 400x300 and 1024x768 images and `products.json`.
-  It deletes and recreates `dist/bootstrap/produkt/`, so keep original assets in
+  It checks all source image dimensions first and reports all invalid images together.
+  Only after a successful check does it delete and recreate `dist/bootstrap/produkt/`, so keep original assets in
   `products/` and make source changes outside the generated directory.
 - `mustache` requires the generated `products.json` and product directories.
   It also copies `src/site.css` and `src/site.js` to `dist/bootstrap/assets/`.
@@ -60,6 +75,9 @@ npm start
   image studio tests using mocked OpenAI responses and no paid API calls.
   TypeScript can be checked separately
   with `npx --no-install tsc --noEmit`.
+- `npm run check:site` audits generated catalog pages after `transform` and `mustache`.
+  It checks product data against YAML sources, all image variants, local links and metadata.
+- `npm run check:branding` checks every generated HTML page after `mustache` and `build:image`.
 
 ## Product conventions
 
@@ -79,13 +97,16 @@ npm start
 - Edit templates, product sources, and generator scripts rather than generated
   HTML or JSON in `dist/`.
 - Keep user-facing copy in German and preserve UTF-8 characters and umlauts.
-- Keep the warm cream surfaces, soft sage accents, sand-colored footer, and clean
-  sans-serif typography consistent. Use the palette variables in `src/site.css`
+- Keep the warm cream surfaces, soft sage accents, sand-colored footer,
+  serif headlines and clean sans-serif body typography consistent. Use the palette variables in `src/site.css`
   for component colors and preserve readable text contrast.
-  Use the compact sticky header and keep all product tags visible as clickable,
-  wrapping labels in preview cards, including on mobile. Homepage
-  featured images are selected by product ID in `mustache.ts`; other products
-  remain alphabetically sorted. Preserve working links without JavaScript.
+  Use the compact sticky header. Product cards contain only the linked image, name and arrow;
+  keep tags and full descriptions on detail pages. The homepage order is photo hero, category icons,
+  complete catalog, three-step personalization, about section, footer. The hero image source
+  (`src/assets/werkstatt.png`) is configured and copied by `mustache.ts`; preserve its native aspect ratio.
+  The catalog defaults to alphabetical order and supports category pages and date/name sorting.
+  Category icons use native category-page links; never intercept them or encode categories in query parameters.
+  Keep search absent and preserve category and inquiry links without JavaScript.
 - Follow `.prettierrc`: two-space indentation, single quotes, no bracket spacing,
   a 100-character print width, and LF line endings. Format changed files only;
   `npm run prettier` rewrites the entire repository.

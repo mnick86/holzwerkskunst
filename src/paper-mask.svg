@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900" preserveAspectRatio="none">
+  <defs>
+    <filter id="edge" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency=".045"
+        numOctaves="3"
+        seed="7"
+        result="noise"
+      />
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="noise"
+        scale="12"
+        xChannelSelector="R"
+        yChannelSelector="G"
+      />
+    </filter>
+  </defs>
+  <path
+    fill="white"
+    filter="url(#edge)"
+    d="M70 38 190 28 330 34 480 24 630 38Q790 44 884 164L944 264Q984 359 971 484L959 642Q946 755 906 836L843 869 642 878 421 866 211 881 80 860Q38 842 29 745L27 551 36 339 29 192Q33 90 70 38Z"
+  />
+</svg>

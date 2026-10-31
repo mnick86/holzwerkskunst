@@ -1,47 +1,114 @@
-<div class="d-flex justify-content-between">
-  <h2>{{ product.name }}</h2>
-  <button type="button" class="btn btn-outline-secondary share">
-    <span class="bi bi-share"></span>
-  </button>
+<div class="container product-page">
+  <nav class="breadcrumbs" aria-label="Brotkrumennavigation">
+    <a href="/">Startseite</a><span aria-hidden="true">/</span><a href="/#produkte">Geschenkideen</a
+    ><span aria-hidden="true">/</span><span aria-current="page">{{product.name}}</span>
+  </nav>
+  <div class="product-layout">
+    <section class="gallery" data-gallery aria-label="Bildergalerie: {{product.name}}">
+      <div class="gallery-stage">
+        <a class="gallery-main-link" href="/produkt/{{product.images.0.large}}" data-enlarge
+          ><img
+            data-main-image
+            src="/produkt/{{product.images.0.large}}"
+            width="1024"
+            height="768"
+            alt="{{product.name}} – Ansicht 1"
+            fetchpriority="high" /></a
+        ><span class="gallery-hint">{{icon 'search'}} Zum Vergrößern öffnen</span>{{#if hasGallery}}
+        <div class="gallery-controls" data-gallery-controls hidden>
+          <button class="icon-button" type="button" data-previous aria-label="Vorheriges Bild">
+            {{icon 'chevron'}}</button
+          ><span data-image-count aria-live="polite">1 / {{product.images.length}}</span
+          ><button class="icon-button" type="button" data-next aria-label="Nächstes Bild">
+            {{icon 'chevron'}}
+          </button>
+        </div>
+        {{/if}}
+      </div>
+      <div class="gallery-thumbnails">
+        {{#each product.images}}<a
+          href="/produkt/{{large}}"
+          data-thumbnail
+          data-large="/produkt/{{large}}"
+          aria-label="{{../product.name}} – Bild öffnen"
+          aria-current="{{#if @first}}true{{else}}false{{/if}}"
+          ><img
+            src="/produkt/{{small}}"
+            width="400"
+            height="300"
+            alt="{{../product.name}} – Vorschaubild"
+            loading="lazy"
+            decoding="async" /></a
+        >{{/each}}
+      </div>
+      <dialog class="lightbox" data-lightbox aria-label="Vergrößerte Produktansicht">
+        <button
+          class="icon-button lightbox-close"
+          type="button"
+          data-close-dialog
+          aria-label="Vergrößerte Ansicht schließen"
+        >
+          {{icon 'close'}}</button
+        ><img
+          data-lightbox-image
+          width="1024"
+          height="768"
+          alt="{{product.name}} – vergrößerte Ansicht"
+        />
+        <div class="lightbox-controls">
+          <button class="icon-button" type="button" data-previous aria-label="Vorheriges Bild">
+            {{icon 'chevron'}}</button
+          ><span data-lightbox-count aria-live="polite"></span
+          ><button class="icon-button" type="button" data-next aria-label="Nächstes Bild">
+            {{icon 'chevron'}}
+          </button>
+        </div>
+      </dialog>
+    </section>
+    <div class="product-information">
+      <p class="eyebrow">Mit Liebe gestaltet · Für dich personalisiert</p>
+      <h1>{{product.name}}</h1>
+      <div class="tags">
+        {{#each product.tags}}<a class="tag" href="{{categoryUrl this}}">{{categoryLabel this}}</a
+        >{{/each}}
+      </div>
+      <div class="product-description">{{product.description}}</div>
+      <div class="product-personalization">
+        {{icon 'edit'}}
+        <div>
+          <strong>So persönlich wie deine Idee.</strong>
+          <p>
+            Wunschtext, Name oder Motiv? Frag uns nach den Gestaltungsmöglichkeiten für dieses
+            Produkt.
+          </p>
+        </div>
+      </div>
+      <a
+        class="button inquiry-button"
+        href="{{inquiryUrl product}}"
+        data-contact
+        data-product-name="{{product.name}}"
+        >Jetzt individuell anfragen {{icon 'arrow'}}</a
+      >
+      <p class="small-text">Persönliche Abstimmung statt Bestellung von der Stange.</p>
+      <div class="product-secondary">
+        <a href="mailto:mnick86@gmail.com">Eine Frage? Schreib uns.</a
+        ><button class="text-link" type="button" data-share data-title="{{product.name}}" hidden>
+          {{icon 'share'}} Teilen
+        </button>
+      </div>
+    </div>
+  </div>
+  {{#if related}}
+  <section class="section" aria-labelledby="related-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Noch ein wenig Inspiration</p>
+        <h2 id="related-title">Das könnte dir auch gefallen.</h2>
+      </div>
+      <a class="text-link" href="/#produkte">Alle Geschenkideen {{icon 'arrow'}}</a>
+    </div>
+    <div class="product-grid">{{#each related}}{{> preview}}{{/each}}</div>
+  </section>
+  {{/if}}
 </div>
-<div class="tags d-flex flex-wrap gap-2 mt-3">
-  {{#each product.tags}}
-  <a
-    class="btn btn-outline-secondary btn-sm rounded-3"
-    href="/kategorie/{{.}}.html"
-    role="button"
-    >{{ . }}</a
-  >
-  {{/each}}
-</div>
-<p class="mt-2 lead">{{ product.description }}</p>
-<div class="d-flex flex-wrap gap-5 justify-content-center mt-4">
-  {{#each product.images}}
-  <a href="/produkt/{{ this.id }}/{{ this.large }}"
-    ><img
-      class="d-block w-100 shadow rounded-4"
-      src="/produkt/{{ this.id }}/{{ this.small }}"
-      alt="{{ ../product.name }}"
-  /></a>
-  {{/each}}
-</div>
-<div class="mt-5 text-center">
-  <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-    Kontakt / Anfragen
-  </button>
-</div>
-
-<script>
-  const shareData = {
-    title: '{{metaAttributes.ogTitle}}',
-    text: 'Schau mal was ich gefunden habe',
-    url: '{{metaAttributes.ogUrl}}',
-  };
-
-  const btn = document.querySelector('.share');
-  btn.addEventListener('click', async () => {
-    try {
-      await navigator.share(shareData);
-    } catch (err) {}
-  });
-</script>

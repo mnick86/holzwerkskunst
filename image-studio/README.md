@@ -187,6 +187,8 @@ For visible changes also inspect the app in a browser, including at a nested
 
 - `build.mjs`: bundles the SDK with esbuild, verifies no external imports remain,
   and copies an explicit allowlist of public assets and the SDK license into the catalog output.
+  Logo and PNG favicon are generated from the shared `src/assets/logo.png`; their URLs carry a
+  content hash. After building both catalog and studio, `npm run check:branding` audits every page.
 - `public/index.html`, `studio.css`, `studio.js`: browser interface and row state.
 - `public/config.mjs`: public model settings and limits.
 - `public/openai.mjs`: validation and direct OpenAI calls using the official SDK.

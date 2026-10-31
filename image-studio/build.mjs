@@ -1,4 +1,6 @@
-import {copyFile, mkdir, writeFile} from 'node:fs/promises';
+import {copyFile, mkdir, writeFile, readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import Jimp from 'jimp';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {build} from 'esbuild';
 
@@ -11,20 +13,42 @@ export const PUBLIC_FILES = [
   'config.mjs',
   'openai.mjs',
   'costs.mjs',
-  'favicon.svg',
+  'logo.png',
+  'favicon.png',
   'openai.LICENSE.txt',
 ];
 export async function buildImageStudio(
   destination = new URL('../dist/bootstrap/image/', import.meta.url),
 ) {
   await mkdir(destination, {recursive: true});
-  for (const file of PUBLIC_FILES.filter((file) => file !== 'openai.mjs')) {
+  const logoSource = new URL('../src/assets/logo.png', import.meta.url);
+  const logoBytes = await readFile(logoSource);
+  const logoVersion = createHash('sha256').update(logoBytes).digest('hex').slice(0, 12);
+  for (const file of PUBLIC_FILES.filter(
+    (file) => !['openai.mjs', 'logo.png', 'favicon.png'].includes(file),
+  )) {
     const source =
       file === 'openai.LICENSE.txt'
         ? new URL('./LICENSE', import.meta.resolve('openai'))
         : new URL('./public/' + file, import.meta.url);
-    await copyFile(source, new URL(file, destination));
+    if (file === 'index.html') {
+      const html = (await readFile(source, 'utf8')).replaceAll('__LOGO_VERSION__', logoVersion);
+      await writeFile(new URL(file, destination), html);
+    } else await copyFile(source, new URL(file, destination));
   }
+  const logo = await Jimp.read(logoBytes);
+  await Promise.all([
+    logo
+      .clone()
+      .resize(144, Jimp.AUTO)
+      .deflateLevel(9)
+      .writeAsync(fileURLToPath(new URL('logo.png', destination))),
+    logo
+      .clone()
+      .resize(48, Jimp.AUTO)
+      .deflateLevel(9)
+      .writeAsync(fileURLToPath(new URL('favicon.png', destination))),
+  ]);
   const result = await build({
     entryPoints: [fileURLToPath(new URL('./public/openai.mjs', import.meta.url))],
     outfile: fileURLToPath(new URL('openai.mjs', destination)),

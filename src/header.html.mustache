@@ -1,0 +1,36 @@
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/" aria-label="Holzwerkskunst – Startseite">{{> brand}}</a>
+    <nav class="desktop-nav" aria-label="Hauptnavigation">
+      <a href="/#produkte">Produkte</a>
+      <details class="category-menu">
+        <summary>Anlässe</summary>
+        <div class="category-menu-links">
+          {{#each tags}}<a href="{{categoryUrl this}}">{{categoryLabel this}}</a>{{/each}}
+        </div>
+      </details>
+      <a href="/#kategorien">Kategorien</a><a href="/ueber-uns.html">Über uns</a
+      ><a href="{{inquiryUrl}}" data-contact>Kontakt</a>
+    </nav>
+    <a class="button button-small header-contact" href="{{inquiryUrl}}" data-contact
+      >Individuell anfragen</a
+    >
+    <details class="mobile-nav">
+      <summary class="icon-button" aria-label="Menü öffnen">{{icon 'menu'}}</summary>
+      <nav aria-label="Mobile Navigation">
+        <a href="/#produkte">Produkte</a><a href="/#kategorien">Kategorien</a>
+        <details>
+          <summary>Anlässe entdecken</summary>
+          <div class="mobile-categories">
+            {{#each tags}}<a href="{{categoryUrl this}}">{{categoryLabel this}}</a>{{/each}}
+          </div>
+        </details>
+        <a href="/ueber-uns.html">Über uns</a><a href="{{inquiryUrl}}" data-contact>Kontakt</a
+        ><a class="button" href="{{inquiryUrl}}" data-contact>Individuell anfragen</a>
+        <div class="mobile-legal">
+          <a href="/impressum.html">Impressum</a><a href="/datenschutz.html">Datenschutz</a>
+        </div>
+      </nav>
+    </details>
+  </div>
+</header>

@@ -1,34 +1,24 @@
-<div class="mt-2 mb-2">
-  <div class="h4">Servus.</div>
-  <p class="" style="text-align: justify">
-    <em>
-      Herzlich willkommen auf Holzwerkskunst.de – meiner Galerie von handgefertigten Bastelarbeiten
-      aus Papier und Holz! Erlebe eine Vielfalt von Bildern, die die Schönheit meiner Bastelarbeiten
-      einfangen. Von kunstvollen Holzarbeiten bis zu zauberhaften Papierkreationen präsentiert diese
-      Seite eine inspirierende Kollektion von schönen Handwerksstücken.
-      <br />
-      Hast du Fragen oder Anregungen? Kontaktiere mich doch gerne!
-      <br
-    /></em>
-    <br /><br />
-    <div class="text-center">
-      <a href="http://instagram.com/holzwerkskunst"><h2>@holzwerkskunst</h2></a>
+{{> hero}} {{> category-nav}}
+<div data-catalog data-initial-tag="">
+  <section class="container catalog-section" id="produkte" aria-labelledby="catalog-title">
+    {{> catalog}}
+  </section>
+</div>
+{{> personalization}}
+<section class="about-section" id="ueber-uns" aria-labelledby="about-title">
+  <div class="container about-layout">
+    {{> about-photo}}
+    <div class="about-copy">
+      <p class="eyebrow">Das sind wir <span class="small-rule"></span></p>
+      <h2 id="about-title">Mit Holz, Herz<br />und vielen Ideen.</h2>
+      <p>
+        Wir sind Alexandra Wiesmann &amp; Matthias Nick. Gemeinsam betreiben wir Holzwerkskunst und
+        teilen die Leidenschaft für individuelle Geschenkideen und liebevoll gestaltete Unikate. In
+        unserer kleinen Werkstatt in Niederbayern entstehen mit Kreativität, Sorgfalt und viel Liebe
+        zum Detail persönliche Geschenke aus Holz. Jedes Stück wird mit dem Wunsch gestaltet,
+        besondere Momente noch ein bisschen schöner zu machen.
+      </p>
+      <a class="button" href="/ueber-uns.html">Mehr über uns {{icon 'arrow'}}</a>
     </div>
-    <br /><br />
-
-    <figure class="text-center">
-      <blockquote class="blockquote">
-        <p>100% Holz, 0% Plastik.</p>
-      </blockquote>
-      <figcaption class="blockquote-footer">Holzwerkskunst.de</figcaption>
-    </figure>
-  </p>
-</div>
-
-<hr />
-
-<div class="d-flex flex-wrap gap-5 justify-content-center mt-4">
-  {{#each products}}
-  {{> preview}}
-  {{/each}}
-</div>
+  </div>
+</section>

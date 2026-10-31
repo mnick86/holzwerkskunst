@@ -263,8 +263,13 @@ img {
   letter-spacing: -1px;
   text-decoration: none;
 }
-.brand > span:first-child {
-  color: var(--sage);
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  margin-right: 10px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
 }
 .brand .brand-divider {
   margin-inline: 20px;
