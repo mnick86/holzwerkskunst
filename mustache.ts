@@ -23,7 +23,12 @@ const tags = [...new Set(products.flatMap((product) => product.tags))].sort((a, 
 );
 // Keep the homepage image independent of product image ordering.
 const heroSource = 'src/assets/werkstatt.png';
-const heroImage = '/assets/hero-werkstatt.png';
+const heroImage = '/assets/hero-werkstatt-768.jpg';
+const heroSocialImage = '/assets/hero-werkstatt-1440.jpg';
+const heroWidths = [480, 768, 1024, 1440];
+const heroJpegSrcset = heroWidths
+  .map((width) => `/assets/hero-werkstatt-${width}.jpg ${width}w`)
+  .join(', ');
 const logoSource = 'src/assets/logo.png';
 const categoryIcons: Record<string, string> = {
   Geschenk: 'heart',
@@ -103,8 +108,13 @@ Handlebars.registerHelper('excerpt', (description: string) => {
   const text = description.replace(/\s+/g, ' ').trim();
   return text.length > 145 ? `${text.slice(0, 142).trimEnd()}…` : text;
 });
-Handlebars.registerHelper('inquiryUrl', (product?: Product) => {
-  const hasProduct = product && typeof product.name === 'string';
+Handlebars.registerHelper('inquiryUrl', (product?: Product | Handlebars.HelperOptions) => {
+  // Handlebars passes its helper options as the first argument when no product is given.
+  const hasProduct =
+    product &&
+    'id' in product &&
+    typeof product.id === 'string' &&
+    typeof product.name === 'string';
   const subject = hasProduct ? `Anfrage: ${product.name}` : 'Meine individuelle Geschenkidee';
   const body = hasProduct
     ? `Hallo Alexandra und Matthias,\n\nich interessiere mich für „${product.name}“.\n${origin}/produkt/${product.id}/\n\nMeine Wünsche (Motiv, Name, Datum, Stückzahl, Wunschtermin):\n\n`
@@ -171,7 +181,7 @@ function render(
   description: string,
   url: string,
   model: Record<string, unknown> = {},
-  image = heroImage,
+  image = heroSocialImage,
 ) {
   writeFileSync(
     `dist/bootstrap/${file}`,
@@ -201,8 +211,8 @@ render(
   'Persönliche Geschenke. Mit Liebe gemacht.',
   'Individuelle Holzgravuren und liebevoll gestaltete Geschenkideen aus Niederbayern. Entdecke personalisierbare Geschenke aus Holz und Papier.',
   '/',
-  {products, heroImage},
-  heroImage,
+  {products, heroImage, heroJpegSrcset},
+  heroSocialImage,
 );
 for (const product of products) {
   const related = products
@@ -287,7 +297,6 @@ render(
 mkdirSync('dist/bootstrap/assets', {recursive: true});
 mkdirSync('dist/bootstrap/assets/licenses', {recursive: true});
 copyFileSync('src/assets/icons/lucide/LICENSE', 'dist/bootstrap/assets/licenses/lucide.txt');
-copyFileSync(heroSource, `dist/bootstrap${heroImage}`);
 for (const file of ['site.css', 'site.js', 'paper-mask.svg'])
   copyFileSync(`src/${file}`, `dist/bootstrap/assets/${file}`);
 if (aboutPhoto) copyFileSync(aboutPhotoSource, 'dist/bootstrap/assets/about-photo.jpg');
@@ -312,13 +321,29 @@ Jimp.read(logoSource)
         .writeAsync('dist/bootstrap/assets/favicon.png'),
     ]),
   )
-  .then(() =>
-    console.log(
-      `Generated ${products.length} products, ${tags.length} categories and shared pages.`,
+  .then(() => Jimp.read(heroSource))
+  .then((image) =>
+    Promise.all(
+      heroWidths.map((width) =>
+        image
+          .clone()
+          .resize(Math.min(width, image.getWidth()), Jimp.AUTO)
+          .quality(80)
+          .writeAsync(`dist/bootstrap/assets/hero-werkstatt-${width}.jpg`),
+      ),
     ),
   )
+  .then(() => {
+    for (const width of heroWidths) {
+      const obsolete = `dist/bootstrap/assets/hero-werkstatt-${width}.webp`;
+      if (existsSync(obsolete)) unlinkSync(obsolete);
+    }
+    console.log(
+      `Generated ${products.length} products, ${tags.length} categories and shared pages.`,
+    );
+  })
   .catch((error: Error) => {
-    console.error(`Logo generation failed: ${error.message}`);
+    console.error(`Asset generation failed: ${error.message}`);
     process.exitCode = 1;
   });
 

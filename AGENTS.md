@@ -27,6 +27,8 @@ extension, but `mustache.ts` renders them with Handlebars.
   `src/preview.html.mustache`: catalog listings and reusable product cards.
 - `src/hero.html.mustache`, `src/personalization.html.mustache`: split text/photo hero and
   sage-colored three-step personalization section.
+  `mustache.ts` uses the existing Jimp dependency to generate responsive JPEG hero variants from
+  `src/assets/werkstatt.png`; keep the template's `sizes` aligned with the CSS layout.
 - `src/catalog.html.mustache`: compact catalog heading, sorting and product grid.
 - `src/category-nav.html.mustache`: all real product tags as clickable category icons.
 - `src/assets/icons/lucide/`: selected official category SVGs with a pinned upstream commit and license.

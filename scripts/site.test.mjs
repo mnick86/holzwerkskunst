@@ -3,8 +3,73 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import test from 'node:test';
 import vm from 'node:vm';
+import sizeOf from 'image-size';
+
+test('hero serves compressed responsive images with matching width descriptors', async () => {
+  const html = readFileSync(new URL('../dist/bootstrap/index.html', import.meta.url), 'utf8');
+  const hero = html.match(/<figure class="hero-visual">[\s\S]*?<\/figure>/)?.[0];
+  assert(hero?.includes('srcset='));
+  assert(!hero.includes('.webp'));
+  assert(!hero.includes('hero-werkstatt.png'));
+  assert(hero.includes('fetchpriority="high"'));
+  const original = readFileSync(new URL('../src/assets/werkstatt.png', import.meta.url));
+  const srcsets = [...hero.matchAll(/srcset="([^"]+)"/g)];
+  assert.equal(srcsets.length, 1, 'Responsive JPEG images');
+  for (const [, srcset] of srcsets) {
+    const widths = [];
+    for (const candidate of srcset.split(',')) {
+      const [url, descriptor] = candidate.trim().split(/\s+/);
+      const image = readFileSync(new URL('../dist/bootstrap' + url, import.meta.url));
+      const metadata = sizeOf(image);
+      assert.equal(metadata.type, 'jpg');
+      const width = Number.parseInt(descriptor, 10);
+      widths.push(width);
+      assert.equal(metadata.width, width);
+      assert(Math.abs(metadata.height - (width * 941) / 1672) <= 1);
+      assert(image.length < original.length * 0.2, 'Hero variants must be materially smaller');
+    }
+    assert.deepEqual(widths, [480, 768, 1024, 1440]);
+  }
+});
 
 const source = readFileSync(new URL('../src/site.js', import.meta.url), 'utf8');
+
+test('general contact and product inquiries contain the correct email subject and body', () => {
+  const products = JSON.parse(
+    readFileSync(new URL('../dist/bootstrap/produkt/products.json', import.meta.url), 'utf8'),
+  );
+  const pages = [
+    ['index.html'],
+    ['ueber-uns.html'],
+    ...products.map((product) => [`produkt/${product.id}/index.html`, product]),
+  ];
+  let general = 0;
+  let specific = 0;
+  for (const [page, product] of pages) {
+    const html = readFileSync(new URL('../dist/bootstrap/' + page, import.meta.url), 'utf8');
+    for (const [, encoded] of html.matchAll(/href="(mailto:[^"]+)"/g)) {
+      const href = encoded.replaceAll('&amp;', '&').replaceAll('&#x3D;', '=');
+      const url = new URL(href);
+      if (!url.searchParams.has('subject')) continue;
+      const subject = url.searchParams.get('subject');
+      const body = url.searchParams.get('body');
+      assert(!subject.includes('inquiryUrl'), page);
+      assert(!body.includes('inquiryUrl') && !body.includes('undefined'), page);
+      assert(body.startsWith('Hallo Alexandra und Matthias,'), page);
+      if (subject === 'Meine individuelle Geschenkidee') {
+        assert(!body.includes('/produkt/'), page);
+        general++;
+      } else {
+        assert(product, page);
+        assert.equal(subject, `Anfrage: ${product.name}`);
+        assert(body.includes(`https://www.holzwerkskunst.de/produkt/${product.id}/`), page);
+        specific++;
+      }
+    }
+  }
+  assert(general > 0);
+  assert.equal(specific, products.length);
+});
 
 test('incomplete and older catalog markup leaves static navigation usable', () => {
   const required = [
