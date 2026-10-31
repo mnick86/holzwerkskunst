@@ -1,4 +1,12 @@
-import {readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync} from 'fs';
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  copyFileSync,
+  existsSync,
+  readdirSync,
+  unlinkSync,
+} from 'fs';
 import Handlebars from 'handlebars';
 import {createHash} from 'crypto';
 import Jimp from 'jimp';
@@ -30,7 +38,6 @@ const categoryIcons: Record<string, string> = {
   Home: 'house',
   Dankeschön: 'heart-handshake',
   'Vereine & Firmen': 'users-round',
-  Ostern: 'rabbit',
   Weihnachten: 'tree-pine',
   Silvester: 'party-popper',
 };
@@ -47,7 +54,6 @@ const categoryOrder = [
   'Home',
   'Dankeschön',
   'Vereine & Firmen',
-  'Ostern',
   'Weihnachten',
   'Silvester',
 ];
@@ -220,6 +226,13 @@ for (const product of products) {
   );
 }
 mkdirSync('dist/bootstrap/kategorie', {recursive: true});
+// Remove pages for categories that no longer occur in the product specifications.
+const categoryFiles = new Set(tags.map((tag) => `${tag}.html`));
+for (const file of readdirSync('dist/bootstrap/kategorie')) {
+  if (file.endsWith('.html') && !categoryFiles.has(file)) {
+    unlinkSync(`dist/bootstrap/kategorie/${file}`);
+  }
+}
 for (const tag of tags) {
   const selection = products.filter((product) => product.tags.includes(tag));
   render(
