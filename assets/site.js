@@ -146,6 +146,9 @@ document.querySelectorAll('[data-gallery]').forEach((gallery) => {
     index = (next + thumbnails.length) % thumbnails.length;
     const thumbnail = thumbnails[index];
     main.src = thumbnail.dataset.large;
+    if (thumbnail.dataset.small)
+      main.srcset = `${thumbnail.dataset.small} 400w, ${thumbnail.dataset.large} 1024w`;
+    else main.removeAttribute('srcset');
     main.alt = `${gallery.getAttribute('aria-label').replace('Bildergalerie: ', '')} – Ansicht ${
       index + 1
     }`;
