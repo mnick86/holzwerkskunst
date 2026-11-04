@@ -32,6 +32,21 @@ jobs:
       - name: Build image studio
         run: npm run build:image
 
+      - name: Verify catalog and links
+        run: npm run check:site
+
+      - name: Verify SEO output
+        run: npm run check:seo
+
+      - name: Verify branding
+        run: npm run check:branding
+
+      - name: Test SEO helpers
+        run: npm run test:seo
+
+      - name: Test website behavior
+        run: npm run test:site
+
       - name: Deploy
         if: success()
         uses: peaceiris/actions-gh-pages@v3

@@ -62,7 +62,7 @@ test('general contact and product inquiries contain the correct email subject an
       } else {
         assert(product, page);
         assert.equal(subject, `Anfrage: ${product.name}`);
-        assert(body.includes(`https://www.holzwerkskunst.de/produkt/${product.id}/`), page);
+        assert(body.includes(`https://holzwerkskunst.de/produkt/${product.id}/`), page);
         specific++;
       }
     }
@@ -156,4 +156,70 @@ test('category path wins over legacy tag parameters, including when sorting', ()
   sortEvents['change']();
   assert.equal(location.href, 'http://localhost:4200/kategorie/Geschenk.html?sort=newest');
   assert.equal(new URL(location.href).searchParams.has('tag'), false);
+});
+
+test('gallery selection changes responsive sources together and keeps the lightbox full resolution', () => {
+  const events = new Map();
+  const node = (name) => ({
+    addEventListener: (type, callback) => events.set(`${name}:${type}`, callback),
+    setAttribute() {},
+    removeAttribute(attribute) {
+      delete this[attribute];
+    },
+  });
+  const main = {
+    ...node('main'),
+    src: '/first-large.jpg',
+    srcset: '/first-small.jpg 400w, /first-large.jpg 1024w',
+  };
+  const enlarge = node('enlarge');
+  const fullImage = node('fullImage');
+  const counter = {};
+  const lightbox = {
+    open: false,
+    showModal() {
+      this.open = true;
+    },
+    querySelector: () => counter,
+  };
+  const thumbnails = [
+    {...node('first'), dataset: {small: '/first-small.jpg', large: '/first-large.jpg'}},
+    {...node('second'), dataset: {small: '/second-small.jpg', large: '/second-large.jpg'}},
+    {...node('legacy'), dataset: {large: '/legacy-large.jpg'}},
+  ];
+  const nodes = {
+    '[data-main-image]': main,
+    '[data-enlarge]': enlarge,
+    '[data-lightbox]': lightbox,
+    '[data-lightbox-image]': fullImage,
+    '[data-gallery-controls]': null,
+    '.gallery-stage': node('stage'),
+  };
+  const gallery = {
+    ...node('gallery'),
+    getAttribute: () => 'Bildergalerie: Holzprodukt',
+    querySelector: (selector) => nodes[selector],
+    querySelectorAll: (selector) => (selector === '[data-thumbnail]' ? thumbnails : []),
+  };
+  const document = {
+    querySelector: () => null,
+    querySelectorAll: (selector) => (selector === '[data-gallery]' ? [gallery] : []),
+    addEventListener() {},
+  };
+  vm.runInNewContext(source, {document, window: {}});
+  const click = {preventDefault() {}};
+  events.get('second:click')(click);
+  assert.equal(main.src, '/second-large.jpg');
+  assert.equal(main.srcset, '/second-small.jpg 400w, /second-large.jpg 1024w');
+  assert.equal(enlarge.href, '/second-large.jpg');
+  assert.equal(main.alt, 'Holzprodukt – Ansicht 2');
+  events.get('enlarge:click')(click);
+  assert(lightbox.open);
+  assert.equal(fullImage.src, '/second-large.jpg');
+  events.get('gallery:keydown')({key: 'ArrowLeft', preventDefault() {}});
+  assert.equal(main.srcset, '/first-small.jpg 400w, /first-large.jpg 1024w');
+  assert.equal(fullImage.src, '/first-large.jpg');
+  events.get('legacy:click')(click);
+  assert.equal(main.src, '/legacy-large.jpg');
+  assert.equal(main.srcset, undefined, 'Older markup must not keep the previously selected source');
 });

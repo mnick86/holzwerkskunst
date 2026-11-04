@@ -81,6 +81,38 @@ Zurücksetzen, Galerie, Anfrage, Fokus und reduzierte Bewegung.
 Das Image Studio unter `/image/` wird separat gebaut und bleibt vom Katalogdesign unabhängig.
 Ein Push auf `main` veröffentlicht über den bestehenden GitHub-Pages-Workflow.
 
+### SEO prüfen und pflegen
+
+Analyse, priorisierte Maßnahmen und Prüfergebnisse stehen in
+[docs/seo-massnahmenplan.md](docs/seo-massnahmenplan.md).
+`seo.ts` definiert die kanonische Katalog-Domain ohne `www`, die aus vorhandenen
+Inhalten abgeleiteten Metadaten, sicher serialisierte strukturierte Daten und die
+Bilder-Sitemap. `npm run mustache` erzeugt `dist/bootstrap/sitemap.xml`; `robots.txt`
+verweist darauf. Erstellungsdaten werden nicht als Änderungsdaten ausgegeben.
+Vollständige Produkttexte und bestehende Produkt-URLs bleiben erhalten.
+
+Nach beiden Builds prüfen:
+
+```sh
+npm run mustache
+npm run build:image
+npm run check:site
+npm run check:seo
+npm run check:branding
+npm run test:seo
+npm run test:site
+```
+
+Diese Ausgabe- und Regressionstests laufen auch vor dem GitHub-Pages-Deployment.
+Kategorieseiten enthalten ausschließlich zugeordnete Produkte. Bei Galerieänderungen
+müssen `src` und `srcset` gemeinsam wechseln; die Lightbox nutzt weiterhin das große Bild.
+Das Bildstudio und die Fehlerseite sind `noindex, follow` und fehlen bewusst in der Sitemap.
+Sie werden in robots.txt nicht gesperrt, damit Crawler die Anweisung lesen können.
+
+Nach Veröffentlichung die Sitemap in Search Console einreichen und die GitHub-Pages-
+Einstellung **Enforce HTTPS** prüfen. Ungeklärte Anschriften sowie fehlende Preis- und
+Bewertungsdaten werden nicht durch erfundene strukturierte Angaben ersetzt.
+
 ### Image studio
 
 With Node.js 22+ and dependencies installed, run `npm run start:image` to build and open the product-image studio.

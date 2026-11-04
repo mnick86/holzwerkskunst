@@ -11,8 +11,21 @@ import Handlebars from 'handlebars';
 import {createHash} from 'crypto';
 import Jimp from 'jimp';
 import type {Product, ProductImage} from './transform';
+import sizeOf from 'image-size';
+import {
+  SITE_ORIGIN,
+  absoluteUrl,
+  categoryUrl,
+  categoryTitle,
+  categoryDescription,
+  createSitemap,
+  metaDescription,
+  serializeJsonLd,
+  structuredData,
+} from './seo';
+import type {SeoPage, SitemapPage} from './seo';
 
-const origin = 'https://www.holzwerkskunst.de';
+const origin = SITE_ORIGIN;
 const products: Product[] = JSON.parse(
   readFileSync('dist/bootstrap/produkt/products.json', 'utf-8'),
 );
@@ -26,6 +39,11 @@ const heroSource = 'src/assets/werkstatt.png';
 const heroImage = '/assets/hero-werkstatt-768.jpg';
 const heroSocialImage = '/assets/hero-werkstatt-1440.jpg';
 const heroWidths = [480, 768, 1024, 1440];
+const heroDimensions = sizeOf(heroSource);
+const heroSocialWidth = Math.min(1440, heroDimensions.width!);
+const heroSocialHeight = Math.round(
+  (heroSocialWidth * heroDimensions.height!) / heroDimensions.width!,
+);
 const heroJpegSrcset = heroWidths
   .map((width) => `/assets/hero-werkstatt-${width}.jpg ${width}w`)
   .join(', ');
@@ -99,10 +117,8 @@ Handlebars.registerHelper('categoryIcon', (name: string) => {
 // Add an authentic photo here later; no invented portrait is shown in its absence.
 const aboutPhotoSource = 'src/about-photo.jpg';
 const aboutPhoto = existsSync(aboutPhotoSource) ? '/assets/about-photo.jpg' : undefined;
-Handlebars.registerHelper(
-  'categoryUrl',
-  (tag: string) => `/kategorie/${encodeURIComponent(tag)}.html`,
-);
+Handlebars.registerHelper('categoryUrl', categoryUrl);
+Handlebars.registerHelper('imageNumber', (index: number) => index + 1);
 Handlebars.registerHelper('json', (value: unknown) => JSON.stringify(value));
 Handlebars.registerHelper('excerpt', (description: string) => {
   const text = description.replace(/\s+/g, ' ').trim();
@@ -174,6 +190,7 @@ const assetVersions = {
   logo: createHash('sha256').update(readFileSync(logoSource)).digest('hex').slice(0, 12),
 };
 const common = {tags, aboutPhoto, assetVersions, year: new Date().getFullYear()};
+const sitemapPages: SitemapPage[] = [];
 function render(
   file: string,
   partial: string,
@@ -183,6 +200,48 @@ function render(
   model: Record<string, unknown> = {},
   image = heroSocialImage,
 ) {
+  const product = model['product'] as Product | undefined;
+  const tag = model['tag'] as string | undefined;
+  const socialImage = image.startsWith('/') ? image : `/produkt/${image}`;
+  const socialImageAlt = product
+    ? `${product.name} – Produktansicht`
+    : tag
+      ? `${categoryLabel(tag)} – ${((model['products'] as Product[]) || [])[0]?.name}`
+      : 'Lichtdurchflutete Holzwerkstatt mit Werkbank, Holzgravuren und Lasergerät';
+  const pageTitle = `${title} | Holzwerkskunst`;
+  const descriptionText = metaDescription(description);
+  const breadcrumbs =
+    product || tag
+      ? [
+          {name: 'Startseite', url: '/'},
+          {name: 'Geschenkideen', url: '/#produkte'},
+          {name: product?.name || categoryLabel(tag!), url},
+        ]
+      : partial === 'about'
+        ? [
+            {name: 'Startseite', url: '/'},
+            {name: 'Über uns', url},
+          ]
+        : undefined;
+  const pageType: SeoPage['type'] =
+    partial === 'home' || partial === 'category'
+      ? 'CollectionPage'
+      : product
+        ? 'ItemPage'
+        : partial === 'about'
+          ? 'AboutPage'
+          : 'WebPage';
+  if (!model['noindex'])
+    sitemapPages.push({
+      url,
+      images: product
+        ? product.images.map((image) => `/produkt/${image.large}`)
+        : partial === 'home'
+          ? [heroSocialImage]
+          : partial === 'about' && aboutPhoto
+            ? [aboutPhoto]
+            : [],
+    });
   writeFileSync(
     `dist/bootstrap/${file}`,
     template({
@@ -193,13 +252,32 @@ function render(
         active: category.tag === (model['tag'] || ''),
       })),
       mainTemplate: () => partial,
+      structuredData: model['noindex']
+        ? undefined
+        : new Handlebars.SafeString(
+            serializeJsonLd(
+              structuredData({
+                url,
+                title: pageTitle,
+                description: descriptionText,
+                image: socialImage,
+                imageAlt: socialImageAlt,
+                type: pageType,
+                breadcrumbs,
+                products: model['products'] as Product[] | undefined,
+              }),
+            ),
+          ),
       metaAttributes: {
-        ogTitle: `${title} | Holzwerkskunst`,
-        ogDescription: description.replace(/\s+/g, ' ').trim(),
-        ogImage: image.startsWith('/') ? `${origin}${image}` : `${origin}/produkt/${image}`,
+        ogTitle: pageTitle,
+        ogDescription: descriptionText,
+        ogImage: absoluteUrl(socialImage),
+        ogImageAlt: socialImageAlt,
+        ogImageWidth: product || tag ? 1024 : heroSocialWidth,
+        ogImageHeight: product || tag ? 768 : heroSocialHeight,
         ogSiteName: 'Holzwerkskunst.de',
         ogType: 'website',
-        ogUrl: `${origin}${url}`,
+        ogUrl: absoluteUrl(url),
       },
     }),
     'utf-8',
@@ -208,7 +286,7 @@ function render(
 render(
   'index.html',
   'home',
-  'Persönliche Geschenke. Mit Liebe gemacht.',
+  'Personalisierte Geschenke aus Holz',
   'Individuelle Holzgravuren und liebevoll gestaltete Geschenkideen aus Niederbayern. Entdecke personalisierbare Geschenke aus Holz und Papier.',
   '/',
   {products, heroImage, heroJpegSrcset},
@@ -229,7 +307,7 @@ for (const product of products) {
     `produkt/${product.id}/index.html`,
     'product',
     product.name,
-    product.description,
+    `${product.name}: ${product.description}`,
     `/produkt/${product.id}/`,
     {product, related, hasGallery: product.images.length > 1},
     product.images[0].large,
@@ -248,16 +326,14 @@ for (const tag of tags) {
   render(
     `kategorie/${tag}.html`,
     'category',
-    `Geschenkideen: ${categoryLabel(tag)}`,
-    `Entdecke persönliche Geschenkideen zum Thema ${categoryLabel(
-      tag,
-    )}. Individuelle Gravuren und handgemachte Produkte von Holzwerkskunst.`,
-    `/kategorie/${encodeURIComponent(tag)}.html`,
+    categoryTitle(tag),
+    categoryDescription(tag, selection),
+    categoryUrl(tag),
     {
       tag,
-      products: products.map((product) => ({
+      products: selection.map((product, index) => ({
         ...product,
-        initiallyHidden: !product.tags.includes(tag),
+        eagerImage: index < 2,
       })),
     },
     selection[0].images[0].large,
@@ -301,6 +377,7 @@ for (const file of ['site.css', 'site.js', 'paper-mask.svg'])
   copyFileSync(`src/${file}`, `dist/bootstrap/assets/${file}`);
 if (aboutPhoto) copyFileSync(aboutPhotoSource, 'dist/bootstrap/assets/about-photo.jpg');
 copyFileSync('src/robots.txt', 'dist/bootstrap/robots.txt');
+writeFileSync('dist/bootstrap/sitemap.xml', createSitemap(sitemapPages), 'utf-8');
 Jimp.read(logoSource)
   .then((image) =>
     Promise.all([

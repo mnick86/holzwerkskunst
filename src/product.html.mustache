@@ -10,6 +10,11 @@
           ><img
             data-main-image
             src="/produkt/{{product.images.0.large}}"
+            srcset="
+              /produkt/{{product.images.0.small}}  400w,
+              /produkt/{{product.images.0.large}} 1024w
+            "
+            sizes="(max-width: 700px) calc(100vw - 32px), (max-width: 900px) calc((100vw - 84px) / 2.15 * 1.15), (max-width: 1100px) calc((100vw - 116px) / 2.15 * 1.15), (max-width: 1200px) calc((100vw - 144px) / 2.15 * 1.15), (max-width: 1488px) calc((100vw - 192px) / 2.15 * 1.15), 694px"
             width="1024"
             height="768"
             alt="{{product.name}} – Ansicht 1"
@@ -30,13 +35,14 @@
           href="/produkt/{{large}}"
           data-thumbnail
           data-large="/produkt/{{large}}"
-          aria-label="{{../product.name}} – Bild öffnen"
+          data-small="/produkt/{{small}}"
+          aria-label="{{../product.name}} – Bild {{imageNumber @index}} öffnen"
           aria-current="{{#if @first}}true{{else}}false{{/if}}"
           ><img
             src="/produkt/{{small}}"
             width="400"
             height="300"
-            alt="{{../product.name}} – Vorschaubild"
+            alt="{{../product.name}} – Ansicht {{imageNumber @index}}"
             loading="lazy"
             decoding="async" /></a
         >{{/each}}

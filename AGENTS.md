@@ -18,6 +18,8 @@ extension, but `mustache.ts` renders them with Handlebars.
   and images into `dist/bootstrap/produkt/`.
 - `mustache.ts`: reads generated product data, registers template partials, builds
   page models and Open Graph metadata, and writes static HTML.
+- `seo.ts`: canonical catalog origin, concise metadata, safe JSON-LD serialization,
+  page/list/breadcrumb structured data and the XML image sitemap.
 - `src/index.html.mustache`: shared page shell, navigation, contact dialog, and footer.
 - `src/site.css`: responsive design, typography, colors, and layout; uses local serif headlines
   and system sans-serif body fonts.
@@ -40,6 +42,8 @@ extension, but `mustache.ts` renders them with Handlebars.
   Optional `src/about-photo.jpg` is copied automatically by the page generator.
 - `scripts/check-site.mjs`: generated catalog audit for source preservation, links and images.
 - `scripts/check-branding.mjs`: checks every generated HTML page, including image studio, for current logos and favicons.
+- `scripts/check-seo.mjs`: checks canonical/indexing consistency, unique metadata,
+  structured data, relevant category lists and full image-sitemap coverage after both builds.
 - `src/product.html.mustache`: product details, images, and sharing behavior.
 - Other `src/*.mustache` files: legal and 404 pages.
 - `src/robots.txt`: copied into the generated site.
@@ -80,6 +84,9 @@ npm start
 - `npm run check:site` audits generated catalog pages after `transform` and `mustache`.
   It checks product data against YAML sources, all image variants, local links and metadata.
 - `npm run check:branding` checks every generated HTML page after `mustache` and `build:image`.
+- `npm run check:seo` audits all generated catalog pages and the image studio after
+  those same builds. `npm run test:seo` checks SEO helpers; `npm run test:site` runs
+  website regression tests against the generated output.
 
 ## Product conventions
 
@@ -127,11 +134,36 @@ npm start
 The GitHub Actions workflow runs on pushes to `main` and manual dispatch. It
 installs dependencies, runs `transform`, `mustache`, and `build:image`, and publishes
 `dist/bootstrap/` to the `gh-pages` branch with the domain `holzwerkskunst.de`.
-The workflow currently does not run the image or TypeScript checks. A push to
-`main` therefore triggers publication of the website.
+Before deployment it runs catalog/link, SEO and branding audits plus SEO/helper and
+website regression tests. It does not run the image-studio API tests or a separate
+TypeScript check. A push to `main` triggers publication of the website.
 
 Keep this file aligned with architectural and workflow changes. Put human-facing
 setup and usage documentation in `README.md`.
+
+## SEO conventions
+
+- The canonical origin is `https://holzwerkskunst.de`, matching the Pages CNAME and
+  the existing www redirect. Keep canonicals, Open Graph, inquiry/share URLs,
+  structured data and sitemap consistent. Sorting parameters canonicalize to the base page.
+- Generate only the matching products on each category page; native category links
+  and sorting must still work with this smaller dataset. Never reintroduce hidden
+  copies of the entire catalog into every category page.
+- Keep full YAML descriptions on product pages. Shorten only metadata; do not add
+  hidden keyword content or change visible copy/design for technical SEO.
+- JSON-LD must use `serializeJsonLd`, including script-closing-character escaping.
+  Mark up only known facts. Do not invent prices, ratings, addresses or dates;
+  product-rich-result markup is deferred until its required data is available.
+  The conflicting contact/imprint addresses require verification before LocalBusiness markup.
+- The sitemap contains every canonical indexable catalog page and all large product
+  gallery images. Omit artificial lastmod, priority and changefreq values.
+  Keep `/image/` and the 404 page `noindex, follow` and out of the sitemap;
+  robots.txt must allow crawlers to read those directives.
+- If responsive gallery sources change, update both `src` and `srcset` on every
+  selection. Preserve full-resolution lightbox links, keyboard/swipe navigation,
+  contact fallback and unchanged product URLs. Keep `sizes` aligned with existing CSS.
+- See `docs/seo-massnahmenplan.md` for baseline findings, priorities, implementation
+  evidence and remaining account-level hosting/Search Console tasks.
 
 ## Image studio
 

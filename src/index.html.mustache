@@ -6,17 +6,31 @@
     <meta name="theme-color" content="#faf9f6" />
     <meta name="description" content="{{metaAttributes.ogDescription}}" />
     {{#if noindex}}
-    <meta name="robots" content="noindex" />
+    <meta name="robots" content="noindex, follow" />
+    {{else}}
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     {{/if}}
     <link rel="canonical" href="{{metaAttributes.ogUrl}}" />
     <meta property="og:image" content="{{metaAttributes.ogImage}}" />
-    <meta property="og:image:alt" content="{{metaAttributes.ogTitle}}" />
+    <meta property="og:image:alt" content="{{metaAttributes.ogImageAlt}}" />
+    <meta property="og:image:width" content="{{metaAttributes.ogImageWidth}}" />
+    <meta property="og:image:height" content="{{metaAttributes.ogImageHeight}}" />
     <meta property="og:title" content="{{metaAttributes.ogTitle}}" />
     <meta property="og:site_name" content="{{metaAttributes.ogSiteName}}" />
     <meta property="og:type" content="{{metaAttributes.ogType}}" />
     <meta property="og:locale" content="de_DE" />
     <meta property="og:url" content="{{metaAttributes.ogUrl}}" />
     <meta property="og:description" content="{{metaAttributes.ogDescription}}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{metaAttributes.ogTitle}}" />
+    <meta name="twitter:description" content="{{metaAttributes.ogDescription}}" />
+    <meta name="twitter:image" content="{{metaAttributes.ogImage}}" />
+    <meta name="twitter:image:alt" content="{{metaAttributes.ogImageAlt}}" />
+    {{#if structuredData}}
+    <script type="application/ld+json">
+      {{structuredData}}
+    </script>
+    {{/if}}
     <title>{{metaAttributes.ogTitle}}</title>
     <link rel="stylesheet" href="/assets/site.css?v={{assetVersions.css}}" />
     <link
@@ -52,7 +66,8 @@
       <p class="small-text">Öffnet dein E-Mail-Programm. Es wird nichts automatisch versendet.</p>
       <div class="contact-details">
         <strong>Alexandra Wiesmann &amp; Matthias Nick</strong
-        ><span>Käufelkofen-Siedlung 94 · 84030 Ergolding</span><a href="tel:+491716447548">0171 6447548</a
+        ><span>Käufelkofen-Siedlung 94 · 84030 Ergolding</span
+        ><a href="tel:+491716447548">0171 6447548</a
         ><a href="mailto:mnick86@gmail.com">mnick86@gmail.com</a>
       </div>
     </dialog>
