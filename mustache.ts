@@ -301,7 +301,7 @@ for (const product of products) {
     }))
     .filter(({score}) => score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
+    .slice(0, 6)
     .map(({candidate}) => candidate);
   render(
     `produkt/${product.id}/index.html`,
