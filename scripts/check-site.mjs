@@ -40,6 +40,7 @@ for (const folder of sources) {
 const pages = [
   'index.html',
   'ueber-uns.html',
+  'faq.html',
   'impressum.html',
   'datenschutz.html',
   '404.html',

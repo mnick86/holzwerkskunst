@@ -11,6 +11,7 @@ const tags = [...new Set(products.flatMap((product) => product.tags))];
 const pages = [
   'index.html',
   'ueber-uns.html',
+  'faq.html',
   'impressum.html',
   'datenschutz.html',
   '404.html',

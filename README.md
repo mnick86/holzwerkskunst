@@ -72,6 +72,11 @@ E-Mail-Link öffnet das eigene Mailprogramm. Bei Produktanfragen sind Titel und 
 vorausgefüllt. Es gibt keinen automatischen Versand und keinen neuen Backend-Dienst.
 Ohne JavaScript funktionieren Produkt-, Bild-, Kategorie- und E-Mail-Links weiterhin.
 
+Die FAQ-Seite unter `/faq.html` beantwortet häufige Fragen zu Personalisierung und Anfragen.
+Die Inhalte stehen in `src/faq.html.mustache`; die aufklappbaren Antworten funktionieren auch
+ohne JavaScript. Navigation und Footer verlinken die Seite. Metadaten, Breadcrumbs und die
+Aufnahme in die Sitemap erzeugt `npm run mustache` automatisch.
+
 `check:site` prüft nach der Generierung alle Katalogseiten, interne Links, responsive Bildquellen,
 vollständige Galerien, Überschriften und Metadaten. Produkttexte, Tags, Daten und URLs werden
 gegen die YAML-Quellen abgeglichen. Zusätzlich sollten Start-, Kategorie- und Produktseiten

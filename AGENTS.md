@@ -40,6 +40,10 @@ extension, but `mustache.ts` renders them with Handlebars.
   Page and studio builds generate 144px logos and 48px PNG favicons with content-versioned URLs.
 - `src/about.html.mustache`, `src/about-photo.html.mustache`: about page and replaceable photo placeholder.
   Optional `src/about-photo.jpg` is copied automatically by the page generator.
+- `src/faq.html.mustache`: German FAQ page at `/faq.html`, linked in desktop/mobile
+  navigation and the footer. Native details/summary elements work without JavaScript.
+  Keep answers grounded in known product and inquiry information; do not invent
+  prices, production times, shipping or payment policies.
 - `scripts/check-site.mjs`: generated catalog audit for source preservation, links and images.
 - `scripts/check-branding.mjs`: checks every generated HTML page, including image studio, for current logos and favicons.
 - `scripts/check-seo.mjs`: checks canonical/indexing consistency, unique metadata,

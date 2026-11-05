@@ -174,6 +174,7 @@ for (const name of [
   'category-nav',
   'about-photo',
   'about',
+  'faq',
   'header',
   'footer',
   'brand',
@@ -217,10 +218,10 @@ function render(
           {name: 'Geschenkideen', url: '/#produkte'},
           {name: product?.name || categoryLabel(tag!), url},
         ]
-      : partial === 'about'
+      : partial === 'about' || partial === 'faq'
         ? [
             {name: 'Startseite', url: '/'},
-            {name: 'Über uns', url},
+            {name: partial === 'faq' ? 'Häufige Fragen' : 'Über uns', url},
           ]
         : undefined;
   const pageType: SeoPage['type'] =
@@ -345,6 +346,13 @@ render(
   'Über uns',
   'Mit Holz, Herz und vielen Ideen. Persönliche Geschenkideen von Holzwerkskunst aus Niederbayern.',
   '/ueber-uns.html',
+);
+render(
+  'faq.html',
+  'faq',
+  'Häufige Fragen zu personalisierten Geschenken',
+  'Antworten zu Personalisierung, Produktanfragen, eigenen Motiven, Stückzahlen und Wunschterminen bei Holzwerkskunst.',
+  '/faq.html',
 );
 render(
   'impressum.html',
