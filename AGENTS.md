@@ -14,6 +14,13 @@ extension, but `mustache.ts` renders them with Handlebars.
 
 - `products/<folder>/spec.yaml`: product metadata (`id`, `name`, `description`,
   `date`, and `tags`). Images live alongside the specification.
+- `products/<folder>/<image-stem>.yaml`: optional image sidecar containing only `description`.
+  `image-descriptions.ts` validates these files; missing/invalid descriptions warn and fall back
+  to the product name. `transform` carries them into cards, galleries and social image alt text.
+- `scripts/generate-image-descriptions.ts`: separate, optional OpenAI image-analysis command.
+  `npm run describe:images` is a free preview; only `--generate` makes paid requests with a
+  locally supplied `OPENAI_API_KEY`. Never read `.env.image` or publish credentials. Keep
+  retries off, the API origin fixed, errors sanitized and existing sidecars untouched.
 - `transform.ts`: reads product folders, resizes images, and writes product data
   and images into `dist/bootstrap/produkt/`.
 - `mustache.ts`: reads generated product data, registers template partials, builds
@@ -95,6 +102,10 @@ npm start
 ## Product conventions
 
 - Each product folder needs a `spec.yaml` and at least one JPG, JPEG, or PNG image.
+- Image YAML sidecars contain only a nonempty `description` string, without hashes or review flags.
+  Rename a sidecar with its image. Same-stem image files and `spec.jpg` are ambiguous and rejected.
+  Generation skips every existing sidecar; replacing an image requires manually updating or
+  removing its YAML. Neither builds nor deployment may start AI generation.
 - Keep product IDs unique and suitable for URLs. IDs determine the public
   `/produkt/<id>/` paths; preserve existing IDs unless changing URLs is intended.
 - Follow existing YAML specifications; quote dates as `YYYY-MM-DD` strings.
@@ -129,6 +140,8 @@ npm start
   first if the required output is missing.
 - After generator changes, also run the TypeScript check and exercise the affected
   generation steps. No automated browser test suite is configured.
+- For image-description changes run `npm run test:descriptions` with mocked API responses;
+  verify gallery selection and lightbox alt text as well as HTML escaping and fallback behavior.
 - For visible changes, inspect the affected pages locally, including image links,
   category navigation, and mobile layout where relevant. Report checks actually
   performed and any verification limitations.

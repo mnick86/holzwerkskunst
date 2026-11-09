@@ -47,6 +47,9 @@ jobs:
       - name: Test website behavior
         run: npm run test:site
 
+      - name: Test image descriptions without API calls
+        run: npm run test:descriptions
+
       - name: Deploy
         if: success()
         uses: peaceiris/actions-gh-pages@v3

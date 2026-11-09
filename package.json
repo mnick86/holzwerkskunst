@@ -8,6 +8,8 @@
     "build:image": "node image-studio/build.mjs",
     "test:image": "node --test image-studio/test/studio.test.mjs image-studio/test/costs.test.mjs",
     "transform": "ts-node transform.ts",
+    "describe:images": "ts-node scripts/generate-image-descriptions.ts",
+    "test:descriptions": "node --test scripts/image-descriptions.test.mjs scripts/transform.test.mjs",
     "mustache": "ts-node mustache.ts",
     "prettier": "prettier --write .",
     "check": "ts-node check.ts",

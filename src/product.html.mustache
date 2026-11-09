@@ -17,7 +17,7 @@
             sizes="(max-width: 700px) calc(100vw - 32px), (max-width: 900px) calc((100vw - 84px) / 2.15 * 1.15), (max-width: 1100px) calc((100vw - 116px) / 2.15 * 1.15), (max-width: 1200px) calc((100vw - 144px) / 2.15 * 1.15), (max-width: 1488px) calc((100vw - 192px) / 2.15 * 1.15), 694px"
             width="1024"
             height="768"
-            alt="{{product.name}} – Ansicht 1"
+            alt="{{#if product.images.0.description}}{{product.images.0.description}}{{else}}{{product.name}}{{/if}}"
             fetchpriority="high" /></a
         ><span class="gallery-hint">{{icon 'search'}} Zum Vergrößern öffnen</span>{{#if hasGallery}}
         <div class="gallery-controls" data-gallery-controls hidden>
@@ -36,13 +36,14 @@
           data-thumbnail
           data-large="/produkt/{{large}}"
           data-small="/produkt/{{small}}"
-          aria-label="{{../product.name}} – Bild {{imageNumber @index}} öffnen"
+          data-description="{{#if description}}{{description}}{{else}}{{../product.name}}{{/if}}"
+          aria-label="Bild {{imageNumber @index}} öffnen: {{#if description}}{{description}}{{else}}{{../product.name}}{{/if}}"
           aria-current="{{#if @first}}true{{else}}false{{/if}}"
           ><img
             src="/produkt/{{small}}"
             width="400"
             height="300"
-            alt="{{../product.name}} – Ansicht {{imageNumber @index}}"
+            alt="{{#if description}}{{description}}{{else}}{{../product.name}}{{/if}}"
             loading="lazy"
             decoding="async" /></a
         >{{/each}}
@@ -59,7 +60,7 @@
           data-lightbox-image
           width="1024"
           height="768"
-          alt="{{product.name}} – vergrößerte Ansicht"
+          alt="{{#if product.images.0.description}}{{product.images.0.description}}{{else}}{{product.name}}{{/if}}"
         />
         <div class="lightbox-controls">
           <button class="icon-button" type="button" data-previous aria-label="Vorheriges Bild">

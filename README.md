@@ -1,5 +1,60 @@
 # Holzwerkskunst
 
+## set openapi key
+$env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new('', (Read-Host 'OpenAI API key' -AsSecureString)).Password
+
+### Bildbeschreibungen
+
+Zu jedem Produktbild kann eine gleichnamige YAML-Datei liegen, zum Beispiel `10.jpg` und
+`10.yaml` im selben Produktordner. Die Datei enthält ausschließlich:
+
+```yaml
+description: 'Holzbrett mit graviertem Feuerwehrmotiv und dem Namen Valentin'
+```
+
+`transform` übernimmt den Text in die Produktdaten. Die Website verwendet ihn als Alt-Text
+auf Produktkarten, Vorschaubildern, im Galeriebild und in der vergrößerten Ansicht.
+Fehlende oder ungültige Beschreibungen erzeugen eine Warnung; der Produktname dient als
+Fallback und der Build läuft weiter. Anführungszeichen werden beim Rendern sicher maskiert.
+Beim Umbenennen eines Bildes auch die zugehörige YAML-Datei umbenennen. Bilder in einem Ordner
+brauchen eindeutige Basisnamen: `10.jpg` und `10.png` können nicht beide zu `10.yaml` gehören.
+`spec.yaml` bleibt der Produktbeschreibung vorbehalten.
+
+Fehlende Dateien zunächst kostenlos auflisten:
+
+```sh
+npm run describe:images
+npm run describe:images -- --product brotzeitbrettchen --limit 5
+```
+
+Für die optionale KI-Erstellung wird ein lokal gesetzter `OPENAI_API_KEY` benötigt. Keine
+Schlüssel in Dateien, Git oder Befehlsargumenten hinterlegen. In PowerShell lässt sich der
+Schlüssel verdeckt eingeben:
+
+```powershell
+$env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new('', (Read-Host 'OpenAI API key' -AsSecureString)).Password
+npm run describe:images -- --generate --product brotzeitbrettchen --limit 5
+Remove-Item Env:OPENAI_API_KEY
+```
+
+Nur `--generate` startet kostenpflichtige Bildanalysen. Der Befehl verwendet den offiziellen
+OpenAI-SDK mit der Responses API, standardmäßig `gpt-4.1-mini`; `--model` erlaubt ein anderes
+bildfähiges Modell. Referenz: [OpenAI Images and vision](https://developers.openai.com/api/docs/guides/images-vision).
+Bilder werden lokal auf maximal 1024 Pixel Kantenlänge verkleinert und an OpenAI gesendet.
+Es gibt keine automatischen Wiederholungen. Bestehende YAML-Dateien werden nie überschrieben,
+auch nicht nach einem Abbruch oder wenn sie ungültig sind. Fehler hinterlassen bereits erfolgreich
+erstellte Dateien; beim nächsten Aufruf werden nur die noch fehlenden Dateien bearbeitet.
+Die Ausgabe nennt die gemeldete Token-Nutzung; sie ist keine Kontostands- oder Kostenanzeige.
+
+KI-Texte vor Veröffentlichung prüfen. Wenn ein Bild ersetzt wird, dessen YAML bewusst löschen
+oder selbst aktualisieren; es gibt keinen Hash und keine automatische Änderungserkennung.
+Nach Änderungen `npm run check`, `npm run transform` und `npm run mustache` ausführen.
+Build und Deployment rufen keine KI auf. Tests laufen ohne API-Key und ohne bezahlte Anfragen:
+
+```sh
+npm run test:descriptions
+```
+
 ### Katalog entwickeln und prüfen
 
 Die Website wird mit TypeScript und Handlebars statisch erzeugt. Voraussetzung: Node.js 22+

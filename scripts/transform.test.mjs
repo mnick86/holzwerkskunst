@@ -73,6 +73,8 @@ test('valid images pass preflight and generate both sizes and product data', asy
   const [data] = JSON.parse(fs.readFileSync(path.join(output, 'products.json'), 'utf8'));
   assert.equal(data.id, 'example');
   assert.equal(data.images.length, 1);
+  assert.equal(data.images[0].description, 'Beispiel');
+  assert.match(result.stderr, /10\.yaml/);
   for (const [size, width, height] of [
     ['small', 400, 300],
     ['large', 1024, 768],
@@ -81,4 +83,27 @@ test('valid images pass preflight and generate both sizes and product data', asy
     assert.equal(image.getWidth(), width);
     assert.equal(image.getHeight(), height);
   }
+});
+
+test('image sidecars reach generated data and malformed descriptions fall back', async (t) => {
+  const {cwd, product, output} = fixture(t);
+  for (const name of ['10.jpg', '20.png', '30.jpeg']) {
+    await new Jimp(400, 300, 0xffffffff).writeAsync(path.join(product, name));
+  }
+  fs.writeFileSync(
+    path.join(product, '10.yaml'),
+    'description: \'Holzbrett mit Motiv und "Valentin"\'\n',
+  );
+  fs.writeFileSync(path.join(product, '20.yaml'), 'description: [invalid]\n');
+  const result = run(cwd);
+  assert.equal(result.status, 0, result.stderr);
+  const [data] = JSON.parse(fs.readFileSync(path.join(output, 'products.json'), 'utf8'));
+  const descriptions = new Map(
+    data.images.map((image) => [path.parse(image.small).name, image.description]),
+  );
+  assert.equal(descriptions.get('10__400_300'), 'Holzbrett mit Motiv und "Valentin"');
+  assert.equal(descriptions.get('20__400_300'), 'Beispiel');
+  assert.equal(descriptions.get('30__400_300'), 'Beispiel');
+  assert.match(result.stderr, /20\.yaml/);
+  assert.match(result.stderr, /30\.yaml/);
 });

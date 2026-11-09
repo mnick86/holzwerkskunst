@@ -3,6 +3,11 @@ import * as fs from 'fs';
 import YAML from 'yaml';
 import path from 'path';
 import sizeOf from 'image-size';
+import {
+  assertUniqueImageSidecars,
+  isProductImage,
+  readImageDescription,
+} from './image-descriptions';
 
 const PRODUCTS_FOLDER = './products/';
 const DESTINATION_FOLDER = 'dist/bootstrap/produkt';
@@ -10,6 +15,7 @@ const DESTINATION_FOLDER = 'dist/bootstrap/produkt';
 export interface ProductImage {
   small: string;
   large: string;
+  description?: string;
 }
 
 export interface Product {
@@ -24,6 +30,7 @@ export interface Product {
 interface Image {
   name: string;
   path: string;
+  description: string;
 }
 interface OriginalData {
   folderName: string;
@@ -68,6 +75,7 @@ async function transform() {
       product.images.push({
         small: `${data.spec.id}/${smallFilename}`,
         large: `${data.spec.id}/${largeFilename}`,
+        description: image.description,
       });
     }
 
@@ -141,27 +149,23 @@ function parseOriginalData() {
       spec: {} as Spec,
       images: [],
     };
-    const imagesNames = fs.readdirSync(product.folderPath).filter(isImage);
-    const images: Image[] = imagesNames.map((imageName) => ({
-      name: imageName,
-      path: `${product.folderPath}/${imageName}`,
-    }));
-    product.images = images;
-
     const spec: Spec = YAML.parse(
       fs.readFileSync(`${product.folderPath}/spec.yaml`, {encoding: 'utf-8'}),
     );
+    const imagesNames = fs.readdirSync(product.folderPath).filter(isProductImage);
+    assertUniqueImageSidecars(imagesNames.map((name) => path.join(product.folderPath, name)));
+    const images: Image[] = imagesNames.map((imageName) => ({
+      name: imageName,
+      path: `${product.folderPath}/${imageName}`,
+      description: readImageDescription(path.join(product.folderPath, imageName), spec.name),
+    }));
+    product.images = images;
+
     product.spec = spec;
 
     result.push(product);
   }
   return result;
-}
-
-function isImage(filename: string): boolean {
-  const imageExtensions = ['.jpg', '.jpeg', '.png'];
-  const lowercasedFilename = filename.toLowerCase();
-  return imageExtensions.some((ext) => lowercasedFilename.endsWith(ext));
 }
 
 function is4by3(width: number, height: number) {

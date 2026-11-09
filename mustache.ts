@@ -205,7 +205,7 @@ function render(
   const tag = model['tag'] as string | undefined;
   const socialImage = image.startsWith('/') ? image : `/produkt/${image}`;
   const socialImageAlt = product
-    ? `${product.name} – Produktansicht`
+    ? product.images[0]?.description || product.name
     : tag
       ? `${categoryLabel(tag)} – ${((model['products'] as Product[]) || [])[0]?.name}`
       : 'Lichtdurchflutete Holzwerkstatt mit Werkbank, Holzgravuren und Lasergerät';

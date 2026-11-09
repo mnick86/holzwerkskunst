@@ -149,9 +149,9 @@ document.querySelectorAll('[data-gallery]').forEach((gallery) => {
     if (thumbnail.dataset.small)
       main.srcset = `${thumbnail.dataset.small} 400w, ${thumbnail.dataset.large} 1024w`;
     else main.removeAttribute('srcset');
-    main.alt = `${gallery.getAttribute('aria-label').replace('Bildergalerie: ', '')} – Ansicht ${
-      index + 1
-    }`;
+    main.alt =
+      thumbnail.dataset.description ||
+      gallery.getAttribute('aria-label').replace('Bildergalerie: ', '');
     enlarge.href = thumbnail.dataset.large;
     thumbnails.forEach((item, i) => {
       if (i === index) item.setAttribute('aria-current', 'true');
@@ -171,7 +171,11 @@ document.querySelectorAll('[data-gallery]').forEach((gallery) => {
   };
   if (controls) controls.hidden = false;
   thumbnails.forEach((thumbnail, i) => {
-    thumbnail.setAttribute('aria-label', `Ansicht ${i + 1} anzeigen`);
+    const description = thumbnail.dataset.description;
+    thumbnail.setAttribute(
+      'aria-label',
+      description ? `Ansicht ${i + 1} anzeigen: ${description}` : `Ansicht ${i + 1} anzeigen`,
+    );
     thumbnail.addEventListener('click', (event) => {
       if (event.ctrlKey || event.metaKey || event.shiftKey) return;
       event.preventDefault();

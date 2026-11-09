@@ -184,7 +184,14 @@ test('gallery selection changes responsive sources together and keeps the lightb
   };
   const thumbnails = [
     {...node('first'), dataset: {small: '/first-small.jpg', large: '/first-large.jpg'}},
-    {...node('second'), dataset: {small: '/second-small.jpg', large: '/second-large.jpg'}},
+    {
+      ...node('second'),
+      dataset: {
+        small: '/second-small.jpg',
+        large: '/second-large.jpg',
+        description: 'Holzbrett mit graviertem Feuerwehrmotiv und dem Namen Valentin',
+      },
+    },
     {...node('legacy'), dataset: {large: '/legacy-large.jpg'}},
   ];
   const nodes = {
@@ -212,14 +219,16 @@ test('gallery selection changes responsive sources together and keeps the lightb
   assert.equal(main.src, '/second-large.jpg');
   assert.equal(main.srcset, '/second-small.jpg 400w, /second-large.jpg 1024w');
   assert.equal(enlarge.href, '/second-large.jpg');
-  assert.equal(main.alt, 'Holzprodukt – Ansicht 2');
+  assert.equal(main.alt, thumbnails[1].dataset.description);
   events.get('enlarge:click')(click);
   assert(lightbox.open);
   assert.equal(fullImage.src, '/second-large.jpg');
+  assert.equal(fullImage.alt, thumbnails[1].dataset.description);
   events.get('gallery:keydown')({key: 'ArrowLeft', preventDefault() {}});
   assert.equal(main.srcset, '/first-small.jpg 400w, /first-large.jpg 1024w');
   assert.equal(fullImage.src, '/first-large.jpg');
   events.get('legacy:click')(click);
   assert.equal(main.src, '/legacy-large.jpg');
+  assert.equal(main.alt, 'Holzprodukt');
   assert.equal(main.srcset, undefined, 'Older markup must not keep the previously selected source');
 });
