@@ -1,5 +1,6 @@
 import {createImageEditor} from './image-editor.js';
 import {createOpenAIClient, StudioError} from './openai.mjs';
+import {initGitHubUI} from './github-ui.js';
 
 const rows = new Map();
 const rowsContainer = document.querySelector('#image-rows');
@@ -17,6 +18,11 @@ const apiKeyFeedback = document.querySelector('#api-key-feedback');
 let browserApiKey = '';
 let storedKeyPresent = false;
 const openAI = createOpenAIClient({getApiKey: () => browserApiKey});
+const github = initGitHubUI({
+  getRows: () => rows.values(),
+  onRowUpdate: updateRow,
+  describeImage: describeProductImage,
+});
 
 function keyFeedback(text, tone = '') {
   apiKeyFeedback.textContent = text;
@@ -176,9 +182,13 @@ const dollar = new Intl.NumberFormat('de-DE', {
   maximumFractionDigits: 4,
 });
 const actionName = (action) =>
-  ({analyze: 'Analyse', improve: 'Verbesserung', generate: 'Generierung', refine: 'Anpassung'})[
-    action
-  ];
+  ({
+    analyze: 'Analyse',
+    improve: 'Verbesserung',
+    generate: 'Generierung',
+    refine: 'Anpassung',
+    describe: 'Bildbeschreibung',
+  })[action];
 const euroAmount = (amount) => (amount > 0 && amount < 0.0001 ? '< 0,0001 €' : euro.format(amount));
 const hasEuro = (cost) =>
   ['estimated', 'not_requested'].includes(cost?.status) &&
@@ -253,7 +263,7 @@ function renderCosts() {
     const total = row.element.querySelector('.row-cost');
     total.hidden = entries.length === 0;
     total.textContent = `Zeile: ${costSummary(entries)}`;
-    for (const action of ['analyze', 'improve', 'generate', 'refine']) {
+    for (const action of ['analyze', 'improve', 'generate', 'refine', 'describe']) {
       const entry = entries.findLast((item) => item.action === action);
       const label = row.element.querySelector(`.${action}-cost`);
       label.hidden = !entry;
@@ -278,7 +288,7 @@ function promptCurrent(row) {
 }
 
 function updateRow(row) {
-  const busy = Boolean(row.busy);
+  const busy = Boolean(row.busy || row.githubBusy);
   const locked = busy || Boolean(row.editing);
   const viewButton = row.element.querySelector('[data-action="view"]');
   viewButton.hidden = !row.result;
@@ -291,9 +301,11 @@ function updateRow(row) {
     locked || !configured || !row.resultData || !row.refinement.value.trim();
   row.element.querySelector('.refinement-counter').textContent =
     `${row.refinement.value.length} / 4000`;
-  row.element.querySelectorAll('[data-action="upload"], [data-action="edit"]').forEach((button) => {
-    button.disabled = locked;
-  });
+  row.element
+    .querySelectorAll('[data-action="upload"], [data-action="upload-result"], [data-action="edit"]')
+    .forEach((button) => {
+      button.disabled = locked;
+    });
   row.element.querySelector('[data-action="analyze"]').disabled =
     locked || !configured || !row.image;
   row.element.querySelector('[data-action="improve"]').disabled =
@@ -311,6 +323,9 @@ function updateRow(row) {
   else if (row.busy === 'improve') status.textContent = 'Prompt wird verbessert';
   else if (row.busy === 'generate') status.textContent = 'Bild wird generiert';
   else if (row.busy === 'refine') status.textContent = 'Ergebnis wird angepasst';
+  else if (row.busy === 'describe') status.textContent = 'Bildbeschreibung wird erstellt';
+  else if (row.busy === 'import') status.textContent = 'Fertiges Bild wird geladen';
+  else if (row.resultImported) status.textContent = 'Fertiges Produktbild geladen';
   else if (row.draft.value.trim() && !promptCurrent(row)) status.textContent = 'Prompt prüfen';
   else if (row.result && row.resultPrompt === row.draft.value.trim() && promptCurrent(row))
     status.textContent = row.resultModified ? 'Produktbild angepasst' : 'Produktbild fertig';
@@ -320,6 +335,8 @@ function updateRow(row) {
   row.element.setAttribute('aria-busy', String(busy));
   row.element.querySelector('.result-stale').hidden =
     !row.result || row.resultImageRevision === row.imageRevision;
+  row.element.querySelector('[data-action="remove"]').disabled = Boolean(row.githubBusy);
+  github.updateRow(row);
 }
 
 async function editImage(row) {
@@ -362,7 +379,7 @@ async function editImage(row) {
 }
 
 function updateCount() {
-  const count = [...rows.values()].filter((row) => row.image).length;
+  const count = [...rows.values()].filter((row) => row.image || row.result).length;
   document.querySelector('#image-count').textContent = count
     ? `${count} ${count === 1 ? 'Bild' : 'Bilder'}`
     : 'Noch kein Bild';
@@ -378,8 +395,11 @@ function resetResult(row) {
   row.result = null;
   row.downloadUrl = null;
   row.resultData = null;
+  row.resultJpeg = null;
   row.resultSize = null;
   row.resultModified = false;
+  row.resultImported = false;
+  row.resultEditSize = null;
   row.resultPrompt = '';
   row.element.querySelector('.result-image').hidden = true;
   row.element.querySelector('[data-action="view"]').hidden = true;
@@ -409,8 +429,11 @@ function createRow() {
     result: null,
     downloadUrl: null,
     resultData: null,
+    resultJpeg: null,
     resultSize: null,
     resultModified: false,
+    resultImported: false,
+    resultEditSize: null,
     busy: null,
     controller: null,
     timer: null,
@@ -425,6 +448,12 @@ function createRow() {
   element.querySelector('.format-label').htmlFor = row.size.id;
   element.querySelector('.refinement-label').htmlFor = row.refinement.id;
   row.refinement.addEventListener('input', () => updateRow(row));
+  const resultFileInput = element.querySelector('.result-file-input');
+  resultFileInput.addEventListener('change', async () => {
+    const file = resultFileInput.files[0];
+    resultFileInput.value = '';
+    if (file) await importResult(row, file);
+  });
   row.size.addEventListener('change', () => {
     if (row.draft.value.trim())
       message(
@@ -445,7 +474,8 @@ function createRow() {
     if (action === 'upload') {
       uploadTarget = id;
       fileInput.click();
-    } else if (action === 'edit') await editImage(row);
+    } else if (action === 'upload-result') resultFileInput.click();
+    else if (action === 'edit') await editImage(row);
     else if (action === 'view') viewResult(row);
     else if (['analyze', 'improve', 'generate', 'refine'].includes(action))
       await processRow(row, action);
@@ -471,6 +501,7 @@ function createRow() {
   });
   rows.set(id, row);
   rowsContainer.append(element);
+  github.registerRow(row);
   updateCount();
   updateRow(row);
   return row;
@@ -499,7 +530,11 @@ async function addFiles(files, targetId = null) {
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
           throw new Error('Bitte JPG, PNG oder WebP verwenden.');
         if (file.size > 10 * 1024 * 1024) throw new Error('Das Bild ist größer als 10 MB.');
-        if ([...rows.values()].filter((row) => row.image).length >= 20 && !target?.image)
+        if (
+          [...rows.values()].filter((row) => row.image || row.result).length >= 20 &&
+          !target?.image &&
+          !target?.result
+        )
           throw new Error('Maximal 20 Bilder pro Sitzung. Entferne zuerst eine andere Zeile.');
         const bitmap = await createImageBitmap(file);
         const width = bitmap.width;
@@ -511,7 +546,7 @@ async function addFiles(files, targetId = null) {
         let row =
           target && rows.has(target.id)
             ? target
-            : [...rows.values()].find((item) => !item.image && !item.busy);
+            : [...rows.values()].find((item) => !item.image && !item.result && !item.busy);
         if (!row) row = createRow();
         target = null;
         if (row.busy || row.editing) throw new Error('Diese Zeile wird gerade verarbeitet.');
@@ -593,6 +628,167 @@ async function createJpegDownload(blob) {
   }
 }
 
+function setResult(
+  row,
+  {
+    blob,
+    jpeg,
+    data,
+    size,
+    prompt = '',
+    imageRevision,
+    modified = false,
+    imported = false,
+    filename,
+  },
+) {
+  const resultUrl = URL.createObjectURL(blob);
+  let downloadUrl;
+  try {
+    downloadUrl = URL.createObjectURL(jpeg);
+  } catch (error) {
+    URL.revokeObjectURL(resultUrl);
+    throw error;
+  }
+  resetResult(row);
+  row.result = resultUrl;
+  row.downloadUrl = downloadUrl;
+  row.resultData = data;
+  row.resultJpeg = jpeg;
+  row.resultSize = size;
+  row.resultPrompt = prompt;
+  row.resultImageRevision = imageRevision;
+  row.resultModified = modified;
+  row.resultImported = imported;
+  const [width, height] = size.split('x').map(Number);
+  row.resultEditSize = imported
+    ? width === height
+      ? '1024x1024'
+      : width > height
+        ? '1024x768'
+        : '768x1024'
+    : size;
+  row.refinement.value = '';
+  const name = filename || row.filename || 'Produktbild';
+  if (!row.filename) {
+    row.filename = name;
+    row.element.querySelector('.row-filename').textContent = name;
+    row.element.setAttribute('aria-label', `Bildbearbeitung: ${name}`);
+  }
+  const result = row.element.querySelector('.result-image');
+  result.src = row.result;
+  result.alt = `${imported ? 'Hochgeladenes' : 'Generiertes'} Produktbild: ${name}`;
+  result.hidden = false;
+  row.element.querySelector('.result-placeholder').hidden = true;
+  row.element.querySelector('.result-caption').hidden = false;
+  row.element.querySelector('.result-size').textContent = size.replace('x', ' × ') + ' px';
+  const download = row.element.querySelector('.button-download');
+  download.href = row.downloadUrl;
+  download.download =
+    name
+      .replace(/\.[^.]+$/, '')
+      .replace(/[^\p{L}\p{N}._-]+/gu, '-')
+      .slice(0, 80) + (imported ? '.jpg' : '-produkt.jpg');
+  download.hidden = false;
+  updateCount();
+}
+
+async function importResult(row, file) {
+  if (row.busy || row.githubBusy || row.editing) return;
+  row.busy = 'import';
+  const controller = new AbortController();
+  row.controller = controller;
+  updateRow(row);
+  try {
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
+      throw new Error('Bitte JPG, PNG oder WebP verwenden.');
+    if (file.size > 10 * 1024 * 1024) throw new Error('Das Bild ist größer als 10 MB.');
+    if (
+      [...rows.values()].filter((item) => item.image || item.result).length >= 20 &&
+      !row.image &&
+      !row.result
+    )
+      throw new Error('Maximal 20 Bilder pro Sitzung. Entferne zuerst eine andere Zeile.');
+    const bitmap = await createImageBitmap(file);
+    const {width, height} = bitmap;
+    bitmap.close();
+    if (!width || !height || width * height > 40_000_000)
+      throw new Error('Bitte ein Bild mit höchstens 40 Megapixeln verwenden.');
+    const jpeg = await createJpegDownload(file);
+    if (jpeg.size > 10 * 1024 * 1024)
+      throw new Error('Die JPG-Datei ist größer als 10 MB. Bitte das Bild vorher verkleinern.');
+    const data = await readFile(file);
+    if (!rows.has(row.id)) return;
+    if (controller.signal.aborted) {
+      message(row, 'Laden abgebrochen. Dein bisheriges Ergebnis bleibt erhalten.');
+      return;
+    }
+    setResult(row, {
+      blob: file,
+      jpeg,
+      data,
+      size: `${width}x${height}`,
+      imageRevision: row.imageRevision,
+      imported: true,
+      filename: file.name,
+    });
+    message(
+      row,
+      Math.abs(width / height - 4 / 3) < 0.01
+        ? 'Fertiges Bild geladen. Du kannst es direkt zu Produkten hinzufügen.'
+        : 'Fertiges Bild geladen. Für den Produktkatalog muss das Bild im 4:3-Format vorliegen.',
+      'success',
+    );
+  } catch (error) {
+    if (rows.has(row.id))
+      message(row, error.message || 'Das fertige Bild konnte nicht geladen werden.', 'error');
+  } finally {
+    if (rows.has(row.id)) {
+      row.busy = null;
+      row.controller = null;
+      updateRow(row);
+    }
+  }
+}
+
+async function describeProductImage(row, product, signal) {
+  if (row.busy || row.editing || [...rows.values()].filter((item) => item.busy).length >= 3)
+    throw new StudioError(409, 'Bitte laufende Bildanfragen abwarten.');
+  row.controller = new AbortController();
+  const combined = AbortSignal.any([signal, row.controller.signal]);
+  row.busy = 'describe';
+  const entry = {
+    rowId: row.id,
+    filename: row.filename,
+    action: 'describe',
+    time: new Date().toLocaleTimeString('de-DE'),
+    cost: {status: 'pending'},
+  };
+  costHistory.push(entry);
+  renderCosts();
+  updateRow(row);
+  try {
+    const image = await readFile(row.resultJpeg);
+    if (combined.aborted)
+      throw new StudioError(499, 'Anfrage abgebrochen.', {status: 'not_requested', usd: 0, eur: 0});
+    const data = await callApi(
+      'describe',
+      {image, productName: product.name, productDescription: product.description || ''},
+      combined,
+    );
+    entry.cost = data.cost;
+    return data.description;
+  } catch (error) {
+    entry.cost = error.cost || {status: 'unavailable', reason: 'usage_missing'};
+    throw error;
+  } finally {
+    row.busy = null;
+    row.controller = null;
+    renderCosts();
+    if (rows.has(row.id)) updateRow(row);
+  }
+}
+
 async function processRow(row, action) {
   if (row.busy || row.editing || !configured) return;
   if ([...rows.values()].filter((item) => item.busy).length >= 3) {
@@ -605,7 +801,7 @@ async function processRow(row, action) {
   if (action === 'improve' && !row.draft.value.trim()) return;
   if (action === 'generate' && (!row.image || !promptCurrent(row))) return;
   const prompt = refining ? row.refinement.value.trim() : row.draft.value.trim();
-  const size = refining ? row.resultSize : row.size.value;
+  const size = refining ? row.resultEditSize || row.resultSize : row.size.value;
   const image = refining ? row.resultData : row.image;
   const basePrompt = refining ? row.resultPrompt : prompt;
   const imageRevision = refining ? row.resultImageRevision : row.imageRevision;
@@ -684,38 +880,15 @@ async function processRow(row, action) {
       if (!rows.has(row.id)) return;
       if (row.controller.signal.aborted)
         throw new DOMException('Anfrage abgebrochen.', 'AbortError');
-      const resultUrl = URL.createObjectURL(blob);
-      let downloadUrl;
-      try {
-        downloadUrl = URL.createObjectURL(jpeg);
-      } catch (error) {
-        URL.revokeObjectURL(resultUrl);
-        throw error;
-      }
-      resetResult(row);
-      row.result = resultUrl;
-      row.downloadUrl = downloadUrl;
-      row.resultData = data.image;
-      row.resultSize = data.size;
-      row.resultPrompt = basePrompt;
-      row.resultImageRevision = imageRevision;
-      row.resultModified = refining;
-      row.refinement.value = '';
-      const result = row.element.querySelector('.result-image');
-      result.src = row.result;
-      result.alt = `Generiertes Produktbild für ${row.filename}`;
-      result.hidden = false;
-      row.element.querySelector('.result-placeholder').hidden = true;
-      row.element.querySelector('.result-caption').hidden = false;
-      row.element.querySelector('.result-size').textContent = data.size.replace('x', ' × ') + ' px';
-      const download = row.element.querySelector('.button-download');
-      download.href = row.downloadUrl;
-      download.download =
-        row.filename
-          .replace(/\.[^.]+$/, '')
-          .replace(/[^\p{L}\p{N}._-]+/gu, '-')
-          .slice(0, 80) + '-produkt.jpg';
-      download.hidden = false;
+      setResult(row, {
+        blob,
+        jpeg,
+        data: data.image,
+        size: data.size,
+        prompt: basePrompt,
+        imageRevision,
+        modified: refining,
+      });
       message(
         row,
         refining
@@ -789,7 +962,11 @@ updateKeyState();
 if (!configured) apiSettings.open = true;
 
 window.addEventListener('beforeunload', (event) => {
-  if ([...rows.values()].some((row) => row.image || row.draft.value || row.refinement.value)) {
+  if (
+    [...rows.values()].some(
+      (row) => row.image || row.result || row.draft.value || row.refinement.value,
+    )
+  ) {
     event.preventDefault();
     event.returnValue = '';
   }
