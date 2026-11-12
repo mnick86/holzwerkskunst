@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22
+          check-latest: true
 
       - name: Install dependencies
         run: npm install
@@ -49,6 +50,9 @@ jobs:
 
       - name: Test image descriptions without API calls
         run: npm run test:descriptions
+
+      - name: Test image studio without remote API calls
+        run: npm run test:image
 
       - name: Deploy
         if: success()

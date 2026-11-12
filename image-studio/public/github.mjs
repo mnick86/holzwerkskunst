@@ -110,7 +110,7 @@ export function compareCatalogImages(a, b) {
     const value = Number.parseInt(name(path), 10);
     return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
   };
-  const smallName = (path) => name(path).replace(/(\.[^.]+)$/, '__400_300$1');
+  const smallName = (path) => name(path).replace(/(\.[^.]+)$/, '__400_300.webp');
   return order(a) - order(b) || smallName(a).localeCompare(smallName(b), 'de');
 }
 

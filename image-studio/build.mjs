@@ -1,6 +1,6 @@
 import {copyFile, mkdir, writeFile, readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import Jimp from 'jimp';
+import sharp from 'sharp';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {build} from 'esbuild';
 
@@ -52,18 +52,17 @@ export async function buildImageStudio(
     const license = new URL('../LICENSE', import.meta.resolve(dependency));
     await copyFile(license, new URL(`${dependency}.LICENSE.txt`, destination));
   }
-  const logo = await Jimp.read(logoBytes);
   await Promise.all([
-    logo
-      .clone()
-      .resize(144, Jimp.AUTO)
-      .deflateLevel(9)
-      .writeAsync(fileURLToPath(new URL('logo.png', destination))),
-    logo
-      .clone()
-      .resize(48, Jimp.AUTO)
-      .deflateLevel(9)
-      .writeAsync(fileURLToPath(new URL('favicon.png', destination))),
+    ...[
+      {width: 144, filename: 'logo.png'},
+      {width: 48, filename: 'favicon.png'},
+    ].map(({width, filename}) =>
+      sharp(logoBytes)
+        .rotate()
+        .resize({width})
+        .png({compressionLevel: 9})
+        .toFile(fileURLToPath(new URL(filename, destination))),
+    ),
   ]);
   const result = await build({
     entryPoints: ['openai.mjs', 'github.mjs'].map((file) =>

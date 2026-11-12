@@ -1,4 +1,4 @@
-import Jimp from 'jimp';
+import sharp from 'sharp';
 import * as fs from 'fs';
 import YAML from 'yaml';
 import path from 'path';
@@ -13,6 +13,8 @@ const PRODUCTS_FOLDER = './products/';
 const DESTINATION_FOLDER = 'dist/bootstrap/produkt';
 
 export interface ProductImage {
+  id: string;
+  filename: string;
   small: string;
   large: string;
   description?: string;
@@ -73,6 +75,8 @@ async function transform() {
       const smallFilename = await transformImage(destinalFolder, image, 400, 300);
       const largeFilename = await transformImage(destinalFolder, image, 1024, 768);
       product.images.push({
+        id: path.parse(image.name).name,
+        filename: image.name,
         small: `${data.spec.id}/${smallFilename}`,
         large: `${data.spec.id}/${largeFilename}`,
         description: image.description,
@@ -116,27 +120,17 @@ function validateImages(products: OriginalData[]) {
   console.log(`Bildprüfung erfolgreich: ${checked} Bilder im 4:3-Format.`);
 }
 
-function transformImage(folder: string, image: Image, w: number, h: number): Promise<string> {
+async function transformImage(folder: string, image: Image, w: number, h: number): Promise<string> {
   const imageName = path.parse(image.name).name;
-  const imageExtension = path.parse(image.name).ext;
-  const destinationName = `${imageName}__${w}_${h}${imageExtension}`;
+  const destinationName = `${imageName}__${w}_${h}.webp`;
   const destinationFile = `${folder}/${destinationName}`;
   console.log(' - transform ' + image.name + ' --> ' + destinationName);
-  return Jimp.read(image.path)
-    .then((decoded) => {
-      const height = decoded.getHeight();
-      const width = decoded.getWidth();
-      if (!is4by3(width, height)) {
-        throw Error(`Bild ${image.path} ist nicht im 4:3-Format (${width} × ${height} Pixel).`);
-      }
-      return decoded
-        .contain(w, h)
-        .quality(95) // set JPEG quality
-        .writeAsync(destinationFile); // Wait for image output before generating pages.
-    })
-    .then(() => {
-      return destinationName;
-    });
+  await sharp(image.path)
+    .rotate()
+    .resize(w, h, {fit: 'contain', background: {r: 255, g: 255, b: 255, alpha: 0}})
+    .webp({quality: 85})
+    .toFile(destinationFile);
+  return destinationName;
 }
 
 function parseOriginalData() {

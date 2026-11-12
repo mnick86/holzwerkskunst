@@ -5,7 +5,7 @@
 Holzwerkskunst.de is a German-language catalog of handmade wood and paper products.
 Visitors browse products and categories and contact the maker with inquiries.
 
-This repository builds a static website with Node.js, TypeScript, Jimp, YAML, and
+This repository builds a static website with Node.js, TypeScript, Sharp, YAML, and
 Handlebars. Despite the directory name and Angular remnants in `tsconfig.json`,
 the current application does not use Angular. Templates have a `.mustache`
 extension, but `mustache.ts` renders them with Handlebars.
@@ -36,8 +36,9 @@ extension, but `mustache.ts` renders them with Handlebars.
   `src/preview.html.mustache`: catalog listings and reusable product cards.
 - `src/hero.html.mustache`, `src/personalization.html.mustache`: split text/photo hero and
   sage-colored three-step personalization section.
-  `mustache.ts` uses the existing Jimp dependency to generate responsive JPEG hero variants from
-  `src/assets/werkstatt.png`; keep the template's `sizes` aligned with the CSS layout.
+  `mustache.ts` uses Sharp to generate responsive WebP hero variants from
+  `src/assets/werkstatt.png` and a separate 1440px JPEG for social previews;
+  keep the template's `sizes` aligned with the CSS layout.
 - `src/catalog.html.mustache`: compact catalog heading, sorting and product grid.
 - `src/category-nav.html.mustache`: all real product tags as clickable category icons.
 - `src/assets/icons/lucide/`: selected official category SVGs with a pinned upstream commit and license.
@@ -46,7 +47,7 @@ extension, but `mustache.ts` renders them with Handlebars.
 - `src/assets/logo.png`: shared original brand logo for all pages, the about placeholder and image studio.
   Page and studio builds generate 144px logos and 48px PNG favicons with content-versioned URLs.
 - `src/about.html.mustache`, `src/about-photo.html.mustache`: about page and replaceable photo placeholder.
-  Optional `src/about-photo.jpg` is copied automatically by the page generator.
+  Optional `src/about-photo.jpg` is converted to WebP (maximum 1440px wide) by the page generator.
 - `src/faq.html.mustache`: German FAQ page at `/faq.html`, linked in desktop/mobile
   navigation and the footer. Native details/summary elements work without JavaScript.
   Keep answers grounded in known product and inquiry information; do not invent
@@ -70,6 +71,7 @@ extension, but `mustache.ts` renders them with Handlebars.
 ## Local workflow
 
 Run commands from the repository root with Node.js 22 or newer. Deployment uses Node.js 22.
+The jsdom regression tests require Node.js 22.22.2+, 24.15.0+, or 26+.
 
 ```sh
 npm ci
@@ -80,7 +82,7 @@ npm start
 ```
 
 - `check` validates source image dimensions; it is not a general test suite.
-- `transform` generates 400x300 and 1024x768 images and `products.json`.
+- `transform` generates 400x300 and 1024x768 WebP images at quality 85 with Sharp, plus `products.json`.
   It checks all source image dimensions first and reports all invalid images together.
   Only after a successful check does it delete and recreate `dist/bootstrap/produkt/`, so keep original assets in
   `products/` and make source changes outside the generated directory.
@@ -88,8 +90,10 @@ npm start
   It also copies `src/site.css` and `src/site.js` to `dist/bootstrap/assets/`.
 - `start` serves `dist/bootstrap/` at `http://localhost:4200`; it does not build
   or watch source files. Rerun generation after edits.
-- There is no `build` or general `test` npm script. `npm run test:image` runs the
-  image studio tests using mocked OpenAI and GitHub responses, with no paid calls or remote writes.
+- `npm test` runs SEO, description/transform, website, and image-studio regression suites.
+  Generate products and pages and run `build:image` first for tests against generated output.
+  `npm run test:image` runs the image studio tests using mocked OpenAI and GitHub responses,
+  with no paid calls or remote writes. There is no general `build` script.
   TypeScript can be checked separately
   with `npx --no-install tsc --noEmit`.
 - `npm run check:site` audits generated catalog pages after `transform` and `mustache`.
@@ -111,6 +115,10 @@ npm start
 - Follow existing YAML specifications; quote dates as `YYYY-MM-DD` strings.
 - Source photos must have a 4:3 aspect ratio, with the existing ratio tolerance
   of 0.01. Image processing uses containment rather than cropping.
+  Keep originals as JPG/JPEG/PNG and sidecars alongside them. Only generated catalog variants
+  use `.webp`; honor EXIF orientation, preserve transparency and keep image ordering unchanged.
+  Sharp also generates page and studio logos/favicons as PNG and description-script inputs as JPEG.
+  Keep original photo/logo files unchanged; do not add Sharp to the browser runtime.
 - Products are displayed alphabetically by name. Numeric filename prefixes such
   as `100__photo.jpg` control image ordering; unnumbered images sort afterward.
 - Tags generate navigation entries and `/kategorie/<tag>.html` pages directly.
@@ -139,7 +147,8 @@ npm start
   and pages. After template-only changes, regenerate pages; generate products
   first if the required output is missing.
 - After generator changes, also run the TypeScript check and exercise the affected
-  generation steps. No automated browser test suite is configured.
+  generation steps. Website and studio DOM regressions use jsdom with simulated canvas,
+  image decoding and dialogs; they do not verify native browser rendering or layout.
 - For image-description changes run `npm run test:descriptions` with mocked API responses;
   verify gallery selection and lightbox alt text as well as HTML escaping and fallback behavior.
 - For visible changes, inspect the affected pages locally, including image links,
@@ -151,8 +160,8 @@ npm start
 The GitHub Actions workflow runs on pushes to `main` and manual dispatch. It
 installs dependencies, runs `transform`, `mustache`, and `build:image`, and publishes
 `dist/bootstrap/` to the `gh-pages` branch with the domain `holzwerkskunst.de`.
-Before deployment it runs catalog/link, SEO and branding audits plus SEO/helper and
-website regression tests. It does not run the image-studio API tests or a separate
+Before deployment it runs catalog/link, SEO and branding audits plus SEO, description/transform,
+website and image-studio regression tests. Remote APIs are mocked. It does not run a separate
 TypeScript check. A push to `main` triggers publication of the website.
 
 Studio publishing merges the active branch through its PR into `main`, triggering the same
@@ -185,6 +194,14 @@ setup and usage documentation in `README.md`.
 - If responsive gallery sources change, update both `src` and `srcset` on every
   selection. Preserve full-resolution lightbox links, keyboard/swipe navigation,
   contact fallback and unchanged product URLs. Keep `sizes` aligned with existing CSS.
+- Product image IDs are original filename stems, emitted with the original filename by `transform`.
+  Keep gallery selection in the URL fragment (`/produkt/<id>/#10`) using replaceState, without
+  scrolling/reloading or adding history entries. Restore valid selections on load/hashchange/popstate;
+  invalid or missing IDs fall back to the first image. Match only IDs in that product's gallery.
+  Share the canonical product URL plus the selected fragment; keep canonical and SEO metadata
+  independent of gallery state. Product-page mailto links must include the product URL with the
+  selected image fragment, without separate filename/direct-image lines. Keep spaces percent-encoded
+  and never send emails automatically.
 - See `docs/seo-massnahmenplan.md` for baseline findings, priorities, implementation
   evidence and remaining account-level hosting/Search Console tasks.
 

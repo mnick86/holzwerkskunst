@@ -9,7 +9,7 @@ import {
 } from 'fs';
 import Handlebars from 'handlebars';
 import {createHash} from 'crypto';
-import Jimp from 'jimp';
+import sharp from 'sharp';
 import type {Product, ProductImage} from './transform';
 import sizeOf from 'image-size';
 import {
@@ -36,7 +36,7 @@ const tags = [...new Set(products.flatMap((product) => product.tags))].sort((a, 
 );
 // Keep the homepage image independent of product image ordering.
 const heroSource = 'src/assets/werkstatt.png';
-const heroImage = '/assets/hero-werkstatt-768.jpg';
+const heroImage = '/assets/hero-werkstatt-768.webp';
 const heroSocialImage = '/assets/hero-werkstatt-1440.jpg';
 const heroWidths = [480, 768, 1024, 1440];
 const heroDimensions = sizeOf(heroSource);
@@ -44,8 +44,8 @@ const heroSocialWidth = Math.min(1440, heroDimensions.width!);
 const heroSocialHeight = Math.round(
   (heroSocialWidth * heroDimensions.height!) / heroDimensions.width!,
 );
-const heroJpegSrcset = heroWidths
-  .map((width) => `/assets/hero-werkstatt-${width}.jpg ${width}w`)
+const heroSrcset = heroWidths
+  .map((width) => `/assets/hero-werkstatt-${width}.webp ${width}w`)
   .join(', ');
 const logoSource = 'src/assets/logo.png';
 const categoryIcons: Record<string, string> = {
@@ -116,7 +116,7 @@ Handlebars.registerHelper('categoryIcon', (name: string) => {
 });
 // Add an authentic photo here later; no invented portrait is shown in its absence.
 const aboutPhotoSource = 'src/about-photo.jpg';
-const aboutPhoto = existsSync(aboutPhotoSource) ? '/assets/about-photo.jpg' : undefined;
+const aboutPhoto = existsSync(aboutPhotoSource) ? '/assets/about-photo.webp' : undefined;
 Handlebars.registerHelper('categoryUrl', categoryUrl);
 Handlebars.registerHelper('imageNumber', (index: number) => index + 1);
 Handlebars.registerHelper('json', (value: unknown) => JSON.stringify(value));
@@ -290,7 +290,7 @@ render(
   'Personalisierte Geschenke aus Holz',
   'Individuelle Holzgravuren und liebevoll gestaltete Geschenkideen aus Niederbayern. Entdecke personalisierbare Geschenke aus Holz und Papier.',
   '/',
-  {products, heroImage, heroJpegSrcset},
+  {products, heroImage, heroSrcset},
   heroSocialImage,
 );
 for (const product of products) {
@@ -383,46 +383,56 @@ mkdirSync('dist/bootstrap/assets/licenses', {recursive: true});
 copyFileSync('src/assets/icons/lucide/LICENSE', 'dist/bootstrap/assets/licenses/lucide.txt');
 for (const file of ['site.css', 'site.js', 'paper-mask.svg'])
   copyFileSync(`src/${file}`, `dist/bootstrap/assets/${file}`);
-if (aboutPhoto) copyFileSync(aboutPhotoSource, 'dist/bootstrap/assets/about-photo.jpg');
 copyFileSync('src/robots.txt', 'dist/bootstrap/robots.txt');
 writeFileSync('dist/bootstrap/sitemap.xml', createSitemap(sitemapPages), 'utf-8');
-Jimp.read(logoSource)
-  .then((image) =>
-    Promise.all([
-      image
-        .clone()
-        .resize(144, Jimp.AUTO)
-        .deflateLevel(9)
-        .writeAsync('dist/bootstrap/assets/logo.png'),
-      image
-        .clone()
-        .resize(288, Jimp.AUTO)
-        .deflateLevel(9)
-        .writeAsync('dist/bootstrap/assets/about-logo.png'),
-      image
-        .clone()
-        .resize(48, Jimp.AUTO)
-        .deflateLevel(9)
-        .writeAsync('dist/bootstrap/assets/favicon.png'),
-    ]),
-  )
-  .then(() => Jimp.read(heroSource))
-  .then((image) =>
-    Promise.all(
-      heroWidths.map((width) =>
-        image
-          .clone()
-          .resize(Math.min(width, image.getWidth()), Jimp.AUTO)
-          .quality(80)
-          .writeAsync(`dist/bootstrap/assets/hero-werkstatt-${width}.jpg`),
-      ),
+async function generateAssets() {
+  await Promise.all([
+    ...[
+      {width: 144, filename: 'logo.png'},
+      {width: 288, filename: 'about-logo.png'},
+      {width: 48, filename: 'favicon.png'},
+    ].map(({width, filename}) =>
+      sharp(logoSource)
+        .rotate()
+        .resize({width})
+        .png({compressionLevel: 9})
+        .toFile(`dist/bootstrap/assets/${filename}`),
     ),
-  )
+    ...heroWidths.map((width) =>
+      sharp(heroSource)
+        .rotate()
+        .resize({width, withoutEnlargement: true})
+        .webp({quality: 85})
+        .toFile(`dist/bootstrap/assets/hero-werkstatt-${width}.webp`),
+    ),
+    sharp(heroSource)
+      .rotate()
+      .resize({width: 1440, withoutEnlargement: true})
+      .jpeg({quality: 80})
+      .toFile(`dist/bootstrap${heroSocialImage}`),
+    ...(aboutPhoto
+      ? [
+          sharp(aboutPhotoSource)
+            .rotate()
+            .resize({width: 1440, withoutEnlargement: true})
+            .webp({quality: 85})
+            .toFile(`dist/bootstrap${aboutPhoto}`),
+        ]
+      : []),
+  ]);
+  // Keep the JPEG used for sharing; remove replaced website variants from earlier builds.
+  const obsoleteAssets = [
+    ...heroWidths.filter((width) => width !== 1440).map((width) => `hero-werkstatt-${width}.jpg`),
+    'about-photo.jpg',
+    ...(!aboutPhoto ? ['about-photo.webp'] : []),
+  ];
+  for (const filename of obsoleteAssets) {
+    const obsolete = `dist/bootstrap/assets/${filename}`;
+    if (existsSync(obsolete)) unlinkSync(obsolete);
+  }
+}
+generateAssets()
   .then(() => {
-    for (const width of heroWidths) {
-      const obsolete = `dist/bootstrap/assets/hero-werkstatt-${width}.webp`;
-      if (existsSync(obsolete)) unlinkSync(obsolete);
-    }
     console.log(
       `Generated ${products.length} products, ${tags.length} categories and shared pages.`,
     );

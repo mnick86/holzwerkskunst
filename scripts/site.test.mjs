@@ -9,19 +9,20 @@ test('hero serves compressed responsive images with matching width descriptors',
   const html = readFileSync(new URL('../dist/bootstrap/index.html', import.meta.url), 'utf8');
   const hero = html.match(/<figure class="hero-visual">[\s\S]*?<\/figure>/)?.[0];
   assert(hero?.includes('srcset='));
-  assert(!hero.includes('.webp'));
+  assert(hero.includes('.webp'));
+  assert(!hero.includes('.jpg'));
   assert(!hero.includes('hero-werkstatt.png'));
   assert(hero.includes('fetchpriority="high"'));
   const original = readFileSync(new URL('../src/assets/werkstatt.png', import.meta.url));
   const srcsets = [...hero.matchAll(/srcset="([^"]+)"/g)];
-  assert.equal(srcsets.length, 1, 'Responsive JPEG images');
+  assert.equal(srcsets.length, 1, 'Responsive WebP images');
   for (const [, srcset] of srcsets) {
     const widths = [];
     for (const candidate of srcset.split(',')) {
       const [url, descriptor] = candidate.trim().split(/\s+/);
       const image = readFileSync(new URL('../dist/bootstrap' + url, import.meta.url));
       const metadata = sizeOf(image);
-      assert.equal(metadata.type, 'jpg');
+      assert.equal(metadata.type, 'webp');
       const width = Number.parseInt(descriptor, 10);
       widths.push(width);
       assert.equal(metadata.width, width);
@@ -45,6 +46,7 @@ test('general contact and product inquiries contain the correct email subject an
   ];
   let general = 0;
   let specific = 0;
+  const productsWithInquiry = new Set();
   for (const [page, product] of pages) {
     const html = readFileSync(new URL('../dist/bootstrap/' + page, import.meta.url), 'utf8');
     for (const [, encoded] of html.matchAll(/href="(mailto:[^"]+)"/g)) {
@@ -63,12 +65,14 @@ test('general contact and product inquiries contain the correct email subject an
         assert(product, page);
         assert.equal(subject, `Anfrage: ${product.name}`);
         assert(body.includes(`https://holzwerkskunst.de/produkt/${product.id}/`), page);
+        productsWithInquiry.add(product.id);
         specific++;
       }
     }
   }
   assert(general > 0);
-  assert.equal(specific, products.length);
+  assert.equal(productsWithInquiry.size, products.length);
+  assert(specific >= products.length, 'Every product needs at least one contextual inquiry link');
 });
 
 test('incomplete and older catalog markup leaves static navigation usable', () => {
@@ -213,7 +217,13 @@ test('gallery selection changes responsive sources together and keeps the lightb
     querySelectorAll: (selector) => (selector === '[data-gallery]' ? [gallery] : []),
     addEventListener() {},
   };
-  vm.runInNewContext(source, {document, window: {}});
+  vm.runInNewContext(source, {
+    document,
+    window: {
+      location: {hash: ''},
+      addEventListener: (type, callback) => events.set(`window:${type}`, callback),
+    },
+  });
   const click = {preventDefault() {}};
   events.get('second:click')(click);
   assert.equal(main.src, '/second-large.jpg');

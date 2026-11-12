@@ -60,6 +60,7 @@ npm run test:descriptions
 
 Die Website wird mit TypeScript und Handlebars statisch erzeugt. Voraussetzung: Node.js 22+
 und installierte Abhängigkeiten (`npm ci`).
+Die jsdom-Regressionstests benötigen Node.js 22.22.2+, 24.15.0+ oder 26+.
 
 ```sh
 npm run check
@@ -70,9 +71,21 @@ npx --no-install tsc --noEmit
 npm start
 ```
 
+Nach `transform`, `mustache` und `build:image` führt `npm test` alle Regressionstests aus.
+Einzeln lassen sie sich mit `test:seo`, `test:descriptions`, `test:site` und `test:image` starten.
+OpenAI-, GitHub- und Wechselkurs-Anfragen werden simuliert; es entstehen keine API-Kosten,
+echten GitHub-Änderungen oder E-Mails. DOM-Tests prüfen Galerie, Bildlinks, Kontakt und
+Studio-Dialoge mit jsdom. Canvas und Bilddekodierung sind dort simuliert; Layout und native
+Browser-Funktionen müssen weiterhin im Browser geprüft werden. Die Transform-Tests prüfen
+WebP-Abmessungen und Transparenz zusätzlich mit echter Sharp-Bildverarbeitung.
+
 Die lokale Vorschau läuft unter `http://localhost:4200`. Nach Änderungen an Vorlagen,
 `src/site.css` oder `src/site.js` erneut `npm run mustache` ausführen. Der Server beobachtet
 keine Quelldateien. `transform` verarbeitet alle Bilder neu; nicht gleichzeitig mehrfach starten.
+Aus den JPG-/JPEG-/PNG-Originalen erzeugt Sharp WebP-Dateien in 400 × 300 und 1024 × 768 Pixeln
+mit Qualität 85. Die Bilder werden eingepasst, nicht zugeschnitten; Transparenz bleibt erhalten.
+Quelldateien und Bildbeschreibungen bleiben unverändert. Produktdaten, Vorlagen und Sitemap
+verwenden automatisch die erzeugten `.webp`-Dateinamen. Alle Bildverarbeitungsskripte verwenden Sharp.
 Vorher prüft `transform` alle Bildabmessungen und meldet sämtliche ungültigen oder nicht lesbaren
 Bilder zusammen. Erst wenn alle Bilder das 4:3-Format erfüllen, wird der Ausgabeordner neu erstellt.
 Bei Fehlern bleiben die bisherigen Ausgabedateien erhalten. Die Vorabprüfung lässt sich mit
@@ -84,7 +97,9 @@ Generierung diese URLs und die sichere Initialisierung bei unvollständigem Kata
 Das Designsystem liegt in `src/site.css`: warme Cremeflächen, Salbeigrün, lokale Serifenschriften
 für Headlines und Systemschriften für Fließtext. Externe Schrift- und UI-CDNs sind nicht nötig.
 Die Hero-Bildquelle wird in `mustache.ts` gewählt. Aktuell wird
-`src/assets/werkstatt.png` direkt als Hero-Asset kopiert und im Originalseitenverhältnis gezeigt. Die Startseite
+`src/assets/werkstatt.png` als WebP in 480, 768, 1024 und 1440 Pixel Breite erzeugt und im
+Originalseitenverhältnis gezeigt. Für Social-Media-Vorschauen bleibt zusätzlich eine JPEG-Version
+mit 1440 Pixel Breite erhalten. Die Startseite
 folgt dem Aufbau Header → geteilter Hero → Kategorie-Icons → alle Produkte → Personalisierung
 in drei Schritten → „Das sind wir“ → Footer. Der Hero zeigt links den Text und rechts das Foto
 mit überlappender Bildunterschrift. „Das sind wir“ steht direkt vor dem Footer.
@@ -92,7 +107,7 @@ Die Produktkarten zeigen nur Bild, Name und Pfeil. Beschreibungen und Tags bleib
 Detailseiten erhalten.
 
 Das eigene Logo liegt in `src/assets/logo.png` und erscheint in Header, Footer und im
-Bildplatzhalter auf Start- und Über-uns-Seite. `npm run mustache` erzeugt mit Jimp eine
+Bildplatzhalter auf Start- und Über-uns-Seite. `npm run mustache` erzeugt mit Sharp eine
 144 × 144 px große Webversion und ein 48 × 48 px großes Favicon. `npm run build:image`
 verwendet dieselbe Quelldatei für Logo und Favicon des Bildstudios. Die Originaldatei bleibt
 unverändert; Inhalts-Hashes verhindern veraltete Logos im Browser-Cache.
@@ -120,12 +135,21 @@ Die Vorstellung befindet sich in `src/home.html.mustache` und `src/about.html.mu
 die eigene Seite wird unter `/ueber-uns.html` erzeugt. Der Text ist der vorläufige Entwurf.
 Mangels authentischem Foto zeigt `src/about-photo.html.mustache` eine neutrale Illustration.
 Für ein echtes Foto einfach `src/about-photo.jpg` ergänzen und `npm run mustache` ausführen.
+Sharp erzeugt daraus `/assets/about-photo.webp` mit maximal 1440 Pixel Breite; die Quelle bleibt unverändert.
 Der Generator kopiert das Bild und ersetzt den Platzhalter auf beiden Seiten automatisch.
 
 Produktgalerien unterstützen Vorschaubilder, Pfeiltasten, Wischgesten und eine vergrößerte
 Dialogansicht. Escape schließt Dialoge. Anfragen öffnen zuerst die Kontaktdaten; erst der
 E-Mail-Link öffnet das eigene Mailprogramm. Bei Produktanfragen sind Titel und Produktlink
-vorausgefüllt. Es gibt keinen automatischen Versand und keinen neuen Backend-Dienst.
+vorausgefüllt. Jede Bildauswahl aktualisiert die URL ohne Neuladen, zum Beispiel
+`/produkt/brotzeitbrettchen/#10` für `10.jpg`. Der Bildname ohne Dateiendung ist die Kennung;
+Sortierung und WebP-Bildgrößen ändern diese Kennung nicht. Geteilte Links wählen das passende
+Bild beim Öffnen aus. Fehlende oder ungültige Kennungen zeigen das erste Bild.
+„Teilen“ und E-Mail-Anfragen übernehmen den Produktlink mit der ausgewählten Bildkennung.
+Separate Dateinamen und direkte Bildlinks werden nicht in die E-Mail eingefügt. Die Browser-Historie erhält beim
+Bildwechsel keine zusätzlichen Einträge. Canonical-URLs und Social-Media-Vorschaubilder bleiben
+produktbezogen; Umbenennen oder Löschen eines Originals macht alte Bildkennungen ungültig.
+Es gibt keinen automatischen Versand und keinen neuen Backend-Dienst.
 Ohne JavaScript funktionieren Produkt-, Bild-, Kategorie- und E-Mail-Links weiterhin.
 
 Die FAQ-Seite unter `/faq.html` beantwortet häufige Fragen zu Personalisierung und Anfragen.

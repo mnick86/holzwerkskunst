@@ -185,7 +185,8 @@ automatic retries are disabled. GitHub and OpenAI never receive each other's key
 2. Generate an image or click **Platz für etwas Schönes** to upload a finished image, then choose **Zu Produkten hinzufügen** below its result. The upload
    dialog has a **Kategorie / Produktordner** dropdown at the top. Choose the destination
    product folder; below it, small previews show existing JPG/JPEG/PNG images with their
-   filenames as captions. Their order matches `mustache.ts`: numeric filename prefixes
+   filenames as captions. Source files remain JPG/JPEG/PNG; the catalog build emits WebP variants.
+   Their order matches `mustache.ts`: numeric filename prefixes
    first, unnumbered names last, with the German generated-image filename tie-breaker.
    The first image is labelled **Titelbild**, matching the homepage product card.
    Previews come from immutable Git blobs in the active branch, including images added
@@ -341,14 +342,20 @@ there is no automatic model substitution or retry.
 ## Development and checks
 
 `npm run test:image` runs protocol, credential, cancellation, pricing, exchange-rate,
-GitHub multi-image/PR/merge and static-build checks with mocked API responses. It makes
-no paid OpenAI calls or real GitHub writes.
+GitHub multi-image/PR/merge and static-build checks with mocked API responses. DOM tests
+also cover lazy folder loading, branch previews, editable description/YAML uploads, tag
+validation, finished-image imports and retained cost history. It makes no paid OpenAI calls
+or real GitHub writes. These tests run before deployment.
+The jsdom tests require Node.js 22.22.2+, 24.15.0+, or 26+. `npm test` runs all repository
+regression suites after `transform`, `mustache` and `build:image` have generated the site.
+Canvas, image decoding and dialogs are simulated in DOM tests; native browser rendering
+and exported canvas pixels still need browser verification.
 For visible changes also inspect the app in a browser, including at a nested
 `/image/` path and on a narrow screen.
 
 - `build.mjs`: bundles the SDKs with esbuild, verifies no external imports remain,
   and copies an explicit allowlist of public assets and their licenses into the catalog output.
-  Logo and PNG favicon are generated from the shared `src/assets/logo.png`; their URLs carry a
+  Logo and PNG favicon are generated with Sharp from the shared `src/assets/logo.png`; their URLs carry a
   content hash. After building both catalog and studio, `npm run check:branding` audits every page.
 - `public/index.html`, `studio.css`, `studio.js`: browser interface and row state.
 - `public/config.mjs`: public model settings and limits.
@@ -360,6 +367,7 @@ For visible changes also inspect the app in a browser, including at a nested
 - `public/github-ui.js`: token settings, category/product dropdown and sorted image previews inside the upload dialog,
   per-image target selection and PR/product/image dialogs.
 - `test/github-fixture.mjs`: in-memory GitHub API for unit and browser checks.
+- `test/dom-fixture.mjs`, `test/ui.test.mjs`: simulated browser environment and dialog/row regressions.
 
 There are no `/api/` routes, backend modules, or environment-file configuration.
 The public HTML restricts scripts to its own origin and connections to its own

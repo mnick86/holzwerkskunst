@@ -29,9 +29,11 @@ export function createGitHubFixture() {
   const calls = [];
   let next = 1;
   const state = {
-    validation: 'success',
     deployment: 'queued',
     fail: null,
+    failureStatus: 503,
+    stalePulls: false,
+    onMerge: null,
     refs,
     trees,
     commits,
@@ -41,6 +43,21 @@ export function createGitHubFixture() {
   };
   const json = (value, status = 200) =>
     new Response(JSON.stringify(value), {status, headers: {'content-type': 'application/json'}});
+  const ancestors = (sha) => {
+    const visited = new Set();
+    const pending = [sha];
+    while (pending.length) {
+      const current = pending.pop();
+      if (!current || visited.has(current)) continue;
+      visited.add(current);
+      pending.push(...(commits.get(current)?.parents || []));
+    }
+    return visited;
+  };
+  const ahead = (base, head) => {
+    const known = ancestors(base);
+    return [...ancestors(head)].filter((sha) => !known.has(sha)).length;
+  };
   const prData = (p) => ({
     number: p.number,
     title: p.title,
@@ -48,15 +65,23 @@ export function createGitHubFixture() {
     merged: Boolean(p.merged),
     draft: false,
     merge_commit_sha: p.mergeSha,
-    head: {ref: p.head, sha: refs.get(p.head), repo: {full_name: 'mnick86/holzwerkskunst'}},
+    head: {
+      ref: p.head,
+      sha: state.stalePulls ? p.baseSha : refs.get(p.head) || p.headSha,
+      repo: {full_name: 'mnick86/holzwerkskunst'},
+    },
     base: {ref: 'main'},
+    commits: state.stalePulls ? 0 : ahead(refs.get('main'), refs.get(p.head) || p.headSha),
   });
   const files = (p) => {
     const base = trees.get(commits.get(p.baseSha).tree);
-    const current = trees.get(commits.get(refs.get(p.head)).tree);
-    return [...current]
-      .filter(([name, sha]) => base.get(name) !== sha)
-      .map(([filename]) => ({filename, status: base.has(filename) ? 'modified' : 'added'}));
+    const current = trees.get(commits.get(refs.get(p.head) || p.headSha).tree);
+    return [...new Set([...base.keys(), ...current.keys()])]
+      .filter((name) => base.get(name) !== current.get(name))
+      .map((filename) => ({
+        filename,
+        status: !current.has(filename) ? 'removed' : base.has(filename) ? 'modified' : 'added',
+      }));
   };
   state.fetch = async (url, options = {}) => {
     const u = new URL(url);
@@ -74,7 +99,7 @@ export function createGitHubFixture() {
     });
     if (options.signal?.aborted) throw new DOMException('Aborted', 'AbortError');
     if (state.fail === `${method} ${route}`)
-      return json({message: 'PRIVATE simulated server detail'}, 503);
+      return json({message: 'PRIVATE simulated server detail'}, state.failureStatus);
     if (!route)
       return json({default_branch: 'main', permissions: {push: true}, allow_squash_merge: true});
     if (method === 'GET' && route === '/branches') {
@@ -90,7 +115,7 @@ export function createGitHubFixture() {
       const changes = [...current]
         .filter(([name, value]) => base.get(name) !== value)
         .map(([filename]) => ({filename, status: base.has(filename) ? 'modified' : 'added'}));
-      return json({files: changes, ahead_by: sha === refs.get('main') ? 0 : 1});
+      return json({files: changes, ahead_by: ahead(refs.get('main'), sha)});
     }
     if (route.startsWith('/git/ref/heads/')) {
       const sha = refs.get(route.slice('/git/ref/heads/'.length));
@@ -112,6 +137,7 @@ export function createGitHubFixture() {
     if (method === 'GET' && route.startsWith('/git/blobs/'))
       return json(blobs.get(route.split('/').at(-1)));
     if (method === 'POST' && route === '/git/refs') {
+      if (refs.has(body.ref.replace('refs/heads/', ''))) return json({}, 422);
       refs.set(body.ref.replace('refs/heads/', ''), body.sha);
       return json({object: {sha: body.sha}}, 201);
     }
@@ -141,6 +167,13 @@ export function createGitHubFixture() {
       refs.set(branch, body.sha);
       return json({object: {sha: body.sha}});
     }
+    if (method === 'DELETE' && route.startsWith('/git/refs/heads/')) {
+      const branch = route.slice('/git/refs/heads/'.length);
+      if (!refs.has(branch)) return json({}, 422);
+      if (['main', 'gh-pages'].includes(branch)) return json({}, 403);
+      refs.delete(branch);
+      return new Response(null, {status: 204});
+    }
     if (route === '/pulls' && method === 'GET') {
       const head = u.searchParams.get('head')?.split(':')[1];
       return json([...prs.values()].filter((p) => !head || p.head === head).map(prData));
@@ -158,14 +191,16 @@ export function createGitHubFixture() {
     if (/^\/pulls\/\d+\/files$/.test(route)) {
       const p = prs.get(Number(route.split('/')[2]));
       const start = (Number(u.searchParams.get('page') || 1) - 1) * 100;
-      return json(files(p).slice(start, start + 100));
+      return json(state.stalePulls ? [] : files(p).slice(start, start + 100));
     }
     if (/^\/pulls\/\d+\/merge$/.test(route) && method === 'PUT') {
       const p = prs.get(Number(route.split('/')[2]));
       if (body.sha !== refs.get(p.head)) return json({}, 409);
       p.merged = true;
       p.mergeSha = body.sha;
+      p.headSha = body.sha;
       refs.set('main', body.sha);
+      state.onMerge?.(p);
       return json({merged: true, sha: body.sha});
     }
     if (/^\/pulls\/\d+$/.test(route)) {
@@ -173,14 +208,13 @@ export function createGitHubFixture() {
       return p ? json(prData(p)) : json({}, 404);
     }
     if (route.startsWith('/actions/workflows/')) {
-      const validation = route.includes('validate-products.yaml');
-      const value = validation ? state.validation : state.deployment;
+      const value = state.deployment;
       if (value === 'unavailable') return json({}, 403);
       if (value === 'waiting') return json({workflow_runs: []});
       return json({
         workflow_runs: [
           {
-            id: validation ? 100 : 200,
+            id: 200,
             head_sha: u.searchParams.get('head_sha'),
             status: ['success', 'failure', 'cancelled'].includes(value) ? 'completed' : value,
             conclusion: ['success', 'failure', 'cancelled'].includes(value) ? value : null,

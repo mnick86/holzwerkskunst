@@ -6,7 +6,7 @@ import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import test from 'node:test';
-import Jimp from 'jimp';
+import sharp from 'sharp';
 import YAML from 'yaml';
 import Handlebars from 'handlebars';
 
@@ -34,7 +34,9 @@ async function fixture(t) {
     'id: beispiel\nname: Holzbrett\ndescription: Ein Brett mit Gravur\n',
   );
   const image = path.join(folder, '10.JPG');
-  await new Jimp(400, 300, 0xffffffff).writeAsync(image);
+  await sharp({create: {width: 400, height: 300, channels: 3, background: '#ffffff'}}).toFile(
+    image,
+  );
   return {cwd, products, folder, image, file: path.join(folder, '10.yaml')};
 }
 

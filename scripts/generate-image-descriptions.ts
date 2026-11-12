@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import OpenAI from 'openai';
-import Jimp from 'jimp';
+import sharp from 'sharp';
 import YAML from 'yaml';
 import {
   assertUniqueImageSidecars,
@@ -74,8 +74,12 @@ export async function generateDescriptions(
   for (const task of tasks) {
     signal?.throwIfAborted();
     if (fs.existsSync(task.file)) continue;
-    const image = await Jimp.read(task.image);
-    const bytes = await image.scaleToFit(1024, 1024).quality(85).getBufferAsync(Jimp.MIME_JPEG);
+    const bytes = await sharp(task.image)
+      .rotate()
+      .resize({width: 1024, height: 1024, fit: 'inside'})
+      .flatten({background: '#ffffff'})
+      .jpeg({quality: 85})
+      .toBuffer();
     const request: OpenAI.Responses.ResponseCreateParamsNonStreaming = {
       model,
       store: false,

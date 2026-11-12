@@ -21,7 +21,7 @@ document.querySelectorAll('[data-contact]').forEach((link) => {
     contactTrigger = link;
     document.querySelector('#contact-email').href = link.href;
     document.querySelector('[data-contact-context]').textContent = link.dataset.productName
-      ? `Du interessierst dich für „${link.dataset.productName}“? Produktname und Link stehen bereits in deiner E-Mail-Anfrage.`
+      ? `Du interessierst dich für „${link.dataset.productName}“?`
       : 'Erzähl uns von deinem Wunschprodukt, einem Motiv oder einem besonderen Anlass.';
     document.querySelector('.mobile-nav')?.removeAttribute('open');
     contact.showModal();
@@ -141,8 +141,46 @@ document.querySelectorAll('[data-gallery]').forEach((gallery) => {
   const lightbox = gallery.querySelector('[data-lightbox]');
   const lightboxImage = gallery.querySelector('[data-lightbox-image]');
   const controls = gallery.querySelector('[data-gallery-controls]');
+  if (!thumbnails.length || !main || !enlarge || !lightbox || !lightboxImage) return;
+  const canonical = document.querySelector('link[rel="canonical"]');
+  const inquiry = document.querySelector('[data-product-inquiry]');
+  const inquiryBase = inquiry ? new URL(inquiry.href) : null;
+  const inquiryBody = inquiryBase?.searchParams.get('body') || '';
+  const updateImageLinks = (thumbnail, updateUrl) => {
+    const imageId = thumbnail.dataset.imageId;
+    if (!imageId || !canonical) return;
+    const productUrl = new URL(canonical.href);
+    const selectedUrl = new URL(productUrl);
+    selectedUrl.hash = encodeURIComponent(imageId);
+    gallery.dataset.shareUrl = selectedUrl.href;
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      url.hash = selectedUrl.hash;
+      if (url.href !== window.location.href) history.replaceState(history.state, '', url);
+    }
+    if (!inquiryBase) return;
+    const mailto = new URL(inquiryBase);
+    mailto.searchParams.set(
+      'body',
+      inquiryBody.includes(productUrl.href)
+        ? inquiryBody.replace(productUrl.href, selectedUrl.href)
+        : `${inquiryBody}\nProduktlink: ${selectedUrl.href}\n`,
+    );
+    // mailto clients need percent-encoded spaces, rather than form-style plus signs.
+    mailto.search = [...mailto.searchParams]
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+    document.querySelectorAll('a[href^="mailto:"]').forEach((link) => {
+      if (new URL(link.href).pathname.toLowerCase() !== inquiryBase.pathname.toLowerCase()) return;
+      link.href = mailto.href;
+      if (link.hasAttribute('data-contact')) {
+        link.dataset.productName = inquiry.dataset.productName;
+        link.dataset.imageId = imageId;
+      }
+    });
+  };
   let index = 0;
-  const select = (next) => {
+  const select = (next, updateUrl = true) => {
     index = (next + thumbnails.length) % thumbnails.length;
     const thumbnail = thumbnails[index];
     main.src = thumbnail.dataset.large;
@@ -168,6 +206,7 @@ document.querySelectorAll('[data-gallery]').forEach((gallery) => {
         thumbnails.length
       }`;
     }
+    updateImageLinks(thumbnail, updateUrl);
   };
   if (controls) controls.hidden = false;
   thumbnails.forEach((thumbnail, i) => {
@@ -231,12 +270,27 @@ document.querySelectorAll('[data-gallery]').forEach((gallery) => {
   touchSurface(gallery.querySelector('.gallery-stage'));
   touchSurface(lightboxImage);
   if (thumbnails.length < 2) lightbox.querySelector('.lightbox-controls').hidden = true;
+  const readSelection = () => {
+    let imageId = '';
+    try {
+      imageId = decodeURIComponent(window.location.hash.slice(1));
+    } catch {
+      // Invalid fragments fall back to the first image, without rewriting other page anchors.
+    }
+    const requested = thumbnails.findIndex((thumbnail) => thumbnail.dataset.imageId === imageId);
+    select(requested < 0 ? 0 : requested, false);
+  };
+  window.addEventListener('hashchange', readSelection);
+  window.addEventListener('popstate', readSelection);
+  readSelection();
 });
 
 document.querySelectorAll('[data-share]').forEach((button) => {
   button.hidden = false;
   button.addEventListener('click', async () => {
-    const url = document.querySelector('link[rel="canonical"]').href;
+    const url =
+      document.querySelector('[data-gallery]')?.dataset.shareUrl ||
+      document.querySelector('link[rel="canonical"]').href;
     try {
       if (navigator.share) await navigator.share({title: button.dataset.title, url});
       else if (navigator.clipboard) {

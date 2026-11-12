@@ -34,6 +34,8 @@
         {{#each product.images}}<a
           href="/produkt/{{large}}"
           data-thumbnail
+          data-image-id="{{id}}"
+          data-image-filename="{{filename}}"
           data-large="/produkt/{{large}}"
           data-small="/produkt/{{small}}"
           data-description="{{#if description}}{{description}}{{else}}{{../product.name}}{{/if}}"
@@ -94,12 +96,13 @@
         class="button inquiry-button"
         href="{{inquiryUrl product}}"
         data-contact
+        data-product-inquiry
         data-product-name="{{product.name}}"
         >Jetzt individuell anfragen {{icon 'arrow'}}</a
       >
       <p class="small-text">Persönliche Abstimmung statt Bestellung von der Stange.</p>
       <div class="product-secondary">
-        <a href="mailto:mnick86@gmail.com">Eine Frage? Schreib uns.</a
+        <a href="{{inquiryUrl product}}">Eine Frage? Schreib uns.</a
         ><button class="text-link" type="button" data-share data-title="{{product.name}}" hidden>
           {{icon 'share'}} Teilen
         </button>

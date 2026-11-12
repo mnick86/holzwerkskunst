@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import YAML from 'yaml';
+import sizeOf from 'image-size';
 
 // Run after transform + mustache. This audits the actual static deliverable.
 const root = path.resolve('dist/bootstrap');
@@ -27,12 +28,22 @@ for (const folder of sources) {
   assert.equal(product.images.length, sourceImages.length, `Images omitted: ${spec.id}`);
   const html = fs.readFileSync(path.join(root, `produkt/${spec.id}/index.html`), 'utf8');
   for (const image of product.images) {
+    assert(
+      sourceImages.includes(image.filename),
+      `Unknown source image: ${spec.id}/${image.filename}`,
+    );
+    assert.equal(image.id, path.parse(image.filename).name, `Unstable image ID: ${spec.id}`);
     for (const size of ['small', 'large']) {
       assert(
         fs.existsSync(path.join(root, 'produkt', image[size])),
         `Missing image: ${image[size]}`,
       );
       assert(html.includes(image[size]), `Gallery image omitted: ${image[size]}`);
+      const metadata = sizeOf(path.join(root, 'produkt', image[size]));
+      assert(image[size].endsWith('.webp'), `Expected WebP filename: ${image[size]}`);
+      assert.equal(metadata.type, 'webp', `Expected WebP encoding: ${image[size]}`);
+      assert.equal(metadata.width, size === 'small' ? 400 : 1024, image[size]);
+      assert.equal(metadata.height, size === 'small' ? 300 : 768, image[size]);
       images++;
     }
   }
