@@ -267,8 +267,11 @@ with the reviewed commit SHA. External branch changes require reviewing the refr
 file list. Repository protection rules and merge conflicts still apply; the app never
 force-pushes or bypasses GitHub rules.
 
-The merge targets **main**, which triggers the existing GitHub Pages deployment. The
-panel shows the last loaded deployment status and a run link for its current progress.
+The merge targets **main**, which triggers the GitHub Pages workflow. After all build checks,
+the catalog and studio deploy together from a Pages artifact; generated files are not committed
+to `gh-pages`. GitHub Pages must use **GitHub Actions** as its publishing source (see the
+[repository deployment instructions](../README.md#veröffentlichung-mit-github-pages)).
+The panel shows the last loaded deployment status and a run link for its current progress.
 Repository data reloads when connecting, selecting a branch and after uploads.
 **Aktualisieren** reloads the branches, selected catalog, changes and commit count manually;
 there is no background polling. Reconnecting with **Mit GitHub verbinden** also reloads the session.

@@ -158,8 +158,16 @@ npm start
 ## Deployment
 
 The GitHub Actions workflow runs on pushes to `main` and manual dispatch. It
-installs dependencies, runs `transform`, `mustache`, and `build:image`, and publishes
-`dist/bootstrap/` to the `gh-pages` branch with the domain `holzwerkskunst.de`.
+installs locked dependencies with `npm ci`, runs `transform`, `mustache`, and `build:image`,
+and uploads only `dist/bootstrap/` with `actions/upload-pages-artifact` (one-day retention).
+After a successful build, a separate `deploy` job uses `actions/configure-pages` and
+`actions/deploy-pages` in the `github-pages` environment, with Pages write and OIDC permissions.
+Only `main` may deploy; builds need only contents read permission. The `pages` concurrency
+group serializes runs without cancelling an active deployment.
+GitHub Settings → Pages must use **GitHub Actions** as the publishing source, with the
+custom domain `holzwerkskunst.de` configured there. The `github-pages` environment must
+allow deployments from `main`. Generated files are never committed
+to `gh-pages`; the old branch and existing Git history are retained until separately cleaned.
 Before deployment it runs catalog/link, SEO and branding audits plus SEO, description/transform,
 website and image-studio regression tests. Remote APIs are mocked. It does not run a separate
 TypeScript check. A push to `main` triggers publication of the website.
@@ -175,7 +183,7 @@ setup and usage documentation in `README.md`.
 
 ## SEO conventions
 
-- The canonical origin is `https://holzwerkskunst.de`, matching the Pages CNAME and
+- The canonical origin is `https://holzwerkskunst.de`, matching the Pages custom domain and
   the existing www redirect. Keep canonicals, Open Graph, inquiry/share URLs,
   structured data and sitemap consistent. Sorting parameters canonicalize to the base page.
 - Generate only the matching products on each category page; native category links

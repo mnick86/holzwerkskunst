@@ -194,6 +194,25 @@ müssen `src` und `srcset` gemeinsam wechseln; die Lightbox nutzt weiterhin das 
 Das Bildstudio und die Fehlerseite sind `noindex, follow` und fehlen bewusst in der Sitemap.
 Sie werden in robots.txt nicht gesperrt, damit Crawler die Anweisung lesen können.
 
+### Veröffentlichung mit GitHub Pages
+
+`.github/workflows/deploy.yaml` baut nach einem Push auf `main` oder einem manuellen Start
+die Website und das Bildstudio mit `npm ci`. Nach allen Prüfungen wird ausschließlich
+`dist/bootstrap/` als Pages-Artefakt hochgeladen und in einem separaten Job veröffentlicht.
+Der Veröffentlichungsjob läuft nur für `main`; parallele Läufe werden nacheinander ausgeführt.
+Das Upload-Artefakt wird einen Tag aufbewahrt; die veröffentlichte Website bleibt danach erreichbar.
+
+Für den Wechsel einmalig im GitHub-Repository unter **Settings → Pages → Build and deployment →
+Source** die Option **GitHub Actions** auswählen. Unter **Custom domain** muss weiterhin
+`holzwerkskunst.de` stehen. Die Umgebung **Settings → Environments → github-pages** muss
+Deployments von `main` zulassen; eine bisherige Beschränkung auf `gh-pages` entsprechend ändern.
+Anschließend den Workflow auf `main` ausführen oder die Änderung dorthin pushen.
+Es werden keine zusätzlichen PATs oder Secrets benötigt.
+
+Die erzeugten Dateien werden künftig nicht mehr in `gh-pages` eingecheckt. Der bisherige Branch
+und alte Bildversionen bleiben erhalten; diese Umstellung verkleinert die vorhandene Git-Historie
+nicht automatisch. Neue und ersetzte Originalbilder unter `products/` bleiben weiterhin versioniert.
+
 Nach Veröffentlichung die Sitemap in Search Console einreichen und die GitHub-Pages-
 Einstellung **Enforce HTTPS** prüfen. Ungeklärte Anschriften sowie fehlende Preis- und
 Bewertungsdaten werden nicht durch erfundene strukturierte Angaben ersetzt.
