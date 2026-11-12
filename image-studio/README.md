@@ -1,14 +1,16 @@
 # Holzwerkskunst Bildstudio
 
 A static browser application for turning reference photos into product images.
-It runs without a Node.js backend and sends requests directly to OpenAI.
+It runs without a Node.js backend and sends requests directly to OpenAI. Generated
+images can optionally be added to the catalog through a GitHub pull request.
 
 ## Hosting and local preview
 
 The GitHub Pages workflow runs `npm run build:image` after generating the catalog.
 This bundles the official [OpenAI JavaScript SDK](https://github.com/openai/openai-node)
-with esbuild and writes a self-contained browser module plus the public assets
-and SDK license to `dist/bootstrap/image/`. No CDN or runtime package imports are needed.
+and [Octokit](https://github.com/octokit/octokit.js/) with esbuild and writes
+self-contained browser modules, public assets and licenses to `dist/bootstrap/image/`.
+No CDN or runtime package imports are needed.
 After deployment the studio is available at **https://holzwerkskunst.de/image/**.
 No server process, environment variables, or shared API key are needed on the host.
 The built contents of `dist/bootstrap/image/` can be served by any static HTTP(S) host.
@@ -96,6 +98,16 @@ formats are also available. After changing the image or output format, check and
 edit the prompt, improve it, or analyze again before generating. Manually editing
 the text marks it as reviewed for the current reference and format.
 
+Clicking **Platz für etwas Schönes** in the empty result column loads an existing JPG, PNG or WebP
+locally, without analysis or image generation and without requiring an OpenAI key.
+It works in an empty row too. The image retains its dimensions; a 95% quality JPEG
+with white behind transparency is prepared for downloads and catalog uploads. The
+source remains available for the preview and optional paid follow-up edits. Failed
+or cancelled imports preserve the previous result. Catalog uploads accept any 4:3
+dimensions within the size limits. Optional follow-up generation uses the nearest
+supported landscape, square or portrait output format. Selecting a product folder in
+the upload dialog offers the usual paid description generation or manual description entry.
+
 Neither uploads nor results are automatically saved to the repository or browser
 storage. Download results before reloading or closing the page. Generated images
 are not automatically added to `products/`. Check lettering and product details
@@ -121,11 +133,153 @@ the next analysis and generation receive the edited reference. JPEG references
 remain JPEG; other formats export as PNG to preserve transparency. The same 10 MB
 limit applies to the edited image. Source files on disk are never modified.
 
+## GitHub products and pull requests
+
+The **GitHub · Produktbilder** panel connects directly to the fixed repository
+`mnick86/holzwerkskunst` using the bundled Octokit REST client. The hosted studio
+remains a vanilla JavaScript app with no Node.js backend.
+
+### Save a personal access token
+
+Create a fine-grained GitHub personal access token scoped to this repository with
+**Contents: Read and write** and **Pull requests: Read and write**. **Actions: Read-only**
+is optional for displaying deployment status and is not needed to merge.
+The GitHub account must already have write access to the repository. No workflow-write
+permission is needed. Configure an expiry and any required organization approval.
+Enter the replacement token only in **GitHub-Token → Token speichern**, then choose
+**Mit GitHub verbinden**. Never paste tokens into chat, source files or Git. Revoke any
+token previously shared in chat before using the feature.
+
+The masked field clears after saving. The token is stored separately from the OpenAI
+key under `holzwerkskunst.image-studio.github-token` in unencrypted, origin-specific
+Local Storage. Only use it in a trusted browser profile. **Token löschen** removes it;
+storage failures are reported. Requests snapshot the current token and send it only
+in the Authorization header to `https://api.github.com`. Redirects, SDK logs and
+automatic retries are disabled. GitHub and OpenAI never receive each other's keys.
+
+### Add images or create a product
+
+1. Connect GitHub. **Branch für Uploads und Merge** lists all repository branches,
+   including branches outside `image-studio/`, except **main** and **gh-pages**.
+   Choose a branch to load its product folders, images and changes relative to main.
+   Selection is read-only: it reuses an existing open PR targeting main but creates
+   no new PR until an upload or merge. All branch-list pages are loaded.
+   Connecting and selecting branches read repository/ref/tree/change metadata without
+   downloading every product's `spec.yaml`. Choosing a product folder in the upload dialog
+   loads only that folder's specification. Creating a new product loads all specifications
+   to validate unique IDs and existing tags, with at most four concurrent reads.
+   Parsed specifications are cached in memory
+   by immutable blob SHA and reused across refreshes, branches and image-only uploads.
+   Only new or changed specifications require another blob request. Reloading the page or
+   disconnecting clears this cache. The selected branch head and file tree are still checked
+   afresh; image thumbnails are fetched only while the upload dialog is open.
+   Alternatively choose **Neuen Branch erstellen** and enter a title. This creates
+   an `image-studio/<title>` branch from **main**, for example `test` becomes
+   `image-studio/test`. The preview shows the normalized branch name: lowercase, German
+   umlauts transliterated, and spaces/punctuation replaced by hyphens. Existing branches
+   get a numeric suffix (`test-2`, `test-3`, ...); they are never reused or overwritten.
+   Existing saved sessions keep their branch names, including previous UUID names. GitHub requires a
+   commit before a PR can exist, so the first image upload creates the actual PR.
+   New branches are automatically selected. Uploads and the final merge use the
+   currently selected branch, also shown beside each upload destination.
+2. Generate an image or click **Platz für etwas Schönes** to upload a finished image, then choose **Zu Produkten hinzufügen** below its result. The upload
+   dialog has a **Kategorie / Produktordner** dropdown at the top. Choose the destination
+   product folder; below it, small previews show existing JPG/JPEG/PNG images with their
+   filenames as captions. Their order matches `mustache.ts`: numeric filename prefixes
+   first, unnumbered names last, with the German generated-image filename tie-breaker.
+   The first image is labelled **Titelbild**, matching the homepage product card.
+   Previews come from immutable Git blobs in the active branch, including images added
+   to the PR. They are loaded with Octokit, at most three simultaneously, and locally
+   reduced to 240 × 180 pixels. Requests are cancelled and object URLs revoked when
+   changing folders, disconnecting or closing the dialog. A failed preview keeps its
+   filename visible. YAML and other non-image files are not shown as picture previews.
+   The dropdown starts empty each time the dialog opens; its folder options come from
+   the already loaded branch file tree. Opening it makes no new GitHub or OpenAI requests.
+   The main workspace retains only
+   its three image-workflow columns.
+   Choosing a folder reloads the catalog from the selected branch before
+   showing previews or allowing uploads. The gallery identifies that branch and reads
+   immutable blobs from its commit tree. After uploading, it loads the confirmed upload
+   commit directly so the new image appears even if GitHub's branch ref is briefly delayed.
+   A reload failure shows an error instead of presenting an old file list as current.
+3. Alternatively choose **Neues Produkt erstellen** inside the upload dialog. Its dialog requires a product name,
+   unique product ID, description, date and at least one category. IDs use lowercase
+   ASCII letters, numbers, hyphens or underscores; the name suggests an editable ID.
+   The date defaults to today in Europe/Berlin and categories are comma-separated,
+   with existing tags listed below the field. Only tags already used by committed products
+   in the selected branch are allowed, with matching spelling and capitalization.
+   Unknown tags show a field validation error and prevent creating or uploading the new product.
+   The ID becomes both the folder name
+   and public `/produkt/<id>/` URL.
+4. Selecting a product folder (or preparing a new product) automatically sends the result JPEG and the selected product's
+   name/description to the OpenAI Responses API for a German image description, using
+   the same instructions and default `gpt-4.1-mini` model as `generate-image-descriptions.ts`.
+   This is a separate paid image-analysis request, recorded as **Bildbeschreibung** in
+   the row and session costs. No GitHub file is written when opening the dialog.
+   Enter a filename, such as `20.jpg`, then review/edit the description in the upload
+   dialog. The main workspace has no description input. Existing drafts for the same result
+   are reused without another request, including when selecting another target folder.
+   A changed result gets its own draft. **Beschreibung neu erstellen** explicitly starts another paid request;
+   failure/cancellation preserves the previous text. Closing the dialog aborts analysis.
+   Without a key or after an error, you can supply the required description manually.
+   Files are real JPEGs, encoded locally at the same 95% quality as downloads.
+   Catalog uploads require **4:3** results matching the current reference. Imported images retain their dimensions.
+   Square, portrait and outdated results remain downloadable but cannot be added.
+5. Confirm the upload with **Hinzufügen**. The reviewed description is
+   required and creates `<filename-stem>.yaml` containing only `description`. Existing image or YAML stems
+   are never overwritten. Suggested names increment the largest numeric prefix by 10.
+   Each image is one commit; a new product's first image, `spec.yaml` and image
+   description are committed together. The YAML date is quoted. Add as many images and
+   products as needed to this same PR, choosing a target for each upload.
+
+New products are local drafts until their first image is added, so the branch never
+contains an empty product folder. Unused drafts must be uploaded or removed with
+**Produktentwurf verwerfen** before publishing. The active branch, PR and product drafts
+are saved under `holzwerkskunst.image-studio.github-session`. After reloading, connect
+GitHub to resume the last selected branch. Switching branches keeps their unuploaded
+product drafts separately in memory; only the currently active session persists on reload.
+Images and prompts stay only in memory: download them or add them
+before closing the page.
+
+### Merge and deploy
+
+The top panel lists changes on the selected branch and links to its PR when one exists.
+**Branch mergen** directly merges that entire branch through its PR into `main`,
+including pre-existing modifications and changes outside products. An existing open
+PR is reused; otherwise the merge action creates one. A branch with existing changes
+can be merged without uploading an image first. Comparison previews show at most 300
+files before a PR exists, with a `+` count when capped; PR file lists show up to 3000.
+The merge always includes all branch changes.
+The merge button shows the number of commits ahead of `main`, for example
+**Branch mergen · 2 Commits**. The count comes from a direct comparison using the
+actual branch head, rather than potentially delayed PR metadata. After uploading,
+the studio reloads the branch and its comparison automatically.
+After a successful merge, the studio deletes the selected branch and removes it from the
+dropdown. A branch already deleted by GitHub is treated as deleted. If the branch has
+new commits or deletion fails, the successful merge is preserved and a warning asks you
+to check the branch on GitHub. `main` and `gh-pages` are never deletion targets.
+There is no separate validation workflow or successful-check requirement in the studio.
+The button is available for an active connected session with changes to merge and no
+unfinished local product drafts; the button tooltip explains any disabled state.
+It refreshes the PR and merges
+with the reviewed commit SHA. External branch changes require reviewing the refreshed
+file list. Repository protection rules and merge conflicts still apply; the app never
+force-pushes or bypasses GitHub rules.
+
+The merge targets **main**, which triggers the existing GitHub Pages deployment. The
+panel shows the last loaded deployment status and a run link for its current progress.
+Repository data reloads when connecting, selecting a branch and after uploads.
+**Aktualisieren** reloads the branches, selected catalog, changes and commit count manually;
+there is no background polling. Reconnecting with **Mit GitHub verbinden** also reloads the session.
+An interrupted upload can leave committed files on the branch: reconnect before retrying. Errors preserve
+local images and prompts; committed files remain available through the GitHub PR link.
+
 ## Configuration
 
 Public model names, supported sizes, and input limits are in
 `public/config.mjs`. Never put credentials there. The default analysis model is
 `gpt-5.6-terra`; image generation uses `gpt-image-2.5-sunburst`.
+Catalog image descriptions use `DEFAULT_DESCRIPTION_MODEL`, currently `gpt-4.1-mini`.
 Model access depends on the visitor's API project.
 
 Analysis uses the [Responses API](https://developers.openai.com/api/docs/guides/images-vision)
@@ -178,15 +332,22 @@ These are reference-price estimates, not invoice amounts. Taxes, payment fees,
 negotiated discounts, other applications' usage, and account billing adjustments
 are excluded. Check the OpenAI dashboard for actual billing.
 
+For descriptions, GPT-4.1 mini (including snapshot `2025-04-14`) uses $0.40 input,
+$0.10 cached input and $1.60 output per million tokens, checked on 2026-11-12 against
+the [official model documentation](https://developers.openai.com/api/docs/models/gpt-4.1-mini).
+Its reported image input is included in input tokens. Inaccessible models show an error;
+there is no automatic model substitution or retry.
+
 ## Development and checks
 
 `npm run test:image` runs protocol, credential, cancellation, pricing, exchange-rate,
-and static-build checks with mocked API responses. It makes no paid OpenAI calls.
+GitHub multi-image/PR/merge and static-build checks with mocked API responses. It makes
+no paid OpenAI calls or real GitHub writes.
 For visible changes also inspect the app in a browser, including at a nested
 `/image/` path and on a narrow screen.
 
-- `build.mjs`: bundles the SDK with esbuild, verifies no external imports remain,
-  and copies an explicit allowlist of public assets and the SDK license into the catalog output.
+- `build.mjs`: bundles the SDKs with esbuild, verifies no external imports remain,
+  and copies an explicit allowlist of public assets and their licenses into the catalog output.
   Logo and PNG favicon are generated from the shared `src/assets/logo.png`; their URLs carry a
   content hash. After building both catalog and studio, `npm run check:branding` audits every page.
 - `public/index.html`, `studio.css`, `studio.js`: browser interface and row state.
@@ -194,7 +355,12 @@ For visible changes also inspect the app in a browser, including at a nested
 - `public/openai.mjs`: validation and direct OpenAI calls using the official SDK.
 - `public/costs.mjs`: versioned USD prices and cached EUR conversion.
 - `public/image-editor.js`: local rotation/cropping dialog and canvas export.
+- `public/github.mjs`: Octokit REST client, product/YAML validation, atomic Git commits,
+  resumable PR sessions and expected-SHA merging without a validation-workflow gate.
+- `public/github-ui.js`: token settings, category/product dropdown and sorted image previews inside the upload dialog,
+  per-image target selection and PR/product/image dialogs.
+- `test/github-fixture.mjs`: in-memory GitHub API for unit and browser checks.
 
 There are no `/api/` routes, backend modules, or environment-file configuration.
 The public HTML restricts scripts to its own origin and connections to its own
-origin, OpenAI, and the public currency feed through a Content Security Policy.
+origin, OpenAI, GitHub's API and the public currency feed through a Content Security Policy.

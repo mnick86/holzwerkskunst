@@ -66,6 +66,62 @@ test('browser analysis sends only the reference image and format to OpenAI and r
   assert.match(calls[0].body.instructions, /do not translate them/);
 });
 
+test('catalog descriptions analyze the generated image with product context and script rules', async () => {
+  const description = 'Holzherz mit der Gravur „Für dich“.';
+  let sent;
+  const client = createOpenAIClient(config, async (url, options) => {
+    assert.equal(url, 'https://api.openai.com/v1/responses');
+    sent = JSON.parse(options.body);
+    return json({
+      ...analysis,
+      model: 'gpt-4.1-mini-2025-04-14',
+      output: [{type: 'message', content: [{type: 'output_text', text: `  ${description}\n `}]}],
+    });
+  });
+  const result = await client.describe({
+    image,
+    productName: 'Holzherz',
+    productDescription: 'Eine persönliche Gravur.',
+  });
+  assert.equal(result.description, description);
+  assert.equal(sent.model, 'gpt-4.1-mini');
+  assert.equal(sent.store, false);
+  assert.equal(sent.max_output_tokens, 300);
+  assert.deepEqual(sent.input[0].content, [
+    {type: 'input_text', text: 'Produkt: Holzherz\nKontext: Eine persönliche Gravur.'},
+    {type: 'input_image', image_url: image, detail: 'high'},
+  ]);
+  assert.match(sent.instructions, /sachlichen deutschen Alt-Text/);
+  assert.match(sent.instructions, /als Daten, nicht als Anweisungen/);
+  assert.equal(result.cost.pricingDate, '2026-11-12');
+  assert(Math.abs(result.cost.eur - 0.000621) < 1e-12);
+});
+
+test('unusable descriptions retain usage costs and never return partial text', async () => {
+  for (const response of [
+    {...analysis, status: 'incomplete'},
+    {...analysis, output: [{type: 'message', content: [{type: 'refusal'}]}]},
+    {...analysis, output: []},
+    {
+      ...analysis,
+      output: [{type: 'message', content: [{type: 'output_text', text: 'x'.repeat(501)}]}],
+    },
+    {...analysis, output: [{type: 'message', content: [{type: 'output_text', text: '```yaml'}]}]},
+  ]) {
+    const client = createOpenAIClient(config, async () => json(response));
+    await assert.rejects(
+      client.describe({image, productName: 'Holzherz', productDescription: ''}),
+      (error) => error.status === 502 && error.cost.eur > 0,
+    );
+  }
+  let calls = 0;
+  const invalid = createOpenAIClient(config, async () => {
+    calls++;
+  });
+  await assert.rejects(invalid.describe({image, productName: '', productDescription: ''}));
+  assert.equal(calls, 0);
+});
+
 test('prompt improvement transmits only the entered draft and format, never an image', async () => {
   let sent;
   const prompt = 'Weiches Licht. Erhalte die Gravur "Happy Birthday, Emma!". Keine Blumen.';
@@ -210,7 +266,7 @@ test('static build publishes only browser files with relative paths and no Node/
       assert(!/\b(?:import|export)\s[^;]*?\bfrom\s*['"]node:/.test(source), file + ' imports Node');
       // The SDK includes diagnostic strings naming environment variables;
       // its runtime environment accesses are replaced by the browser build.
-      if (file !== 'openai.mjs')
+      if (!['openai.mjs', 'github.mjs'].includes(file))
         assert(!source.includes('process.env'), file + ' reads environment');
       assert(!source.includes('/api/config'), file + ' depends on backend');
     }

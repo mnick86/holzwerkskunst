@@ -1089,9 +1089,20 @@ select {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: 100%;
+  height: 100%;
   padding: 20px 10px;
+  border: 0;
+  background: transparent;
   text-align: center;
+}
+.result-placeholder:not(:disabled):hover {
+  background: var(--sage-soft);
+}
+.result-placeholder:focus-visible {
+  outline-offset: -4px;
 }
 .result-caption {
   display: flex;
@@ -1293,5 +1304,273 @@ select {
   *::after {
     animation-duration: 0s !important;
     transition: none !important;
+  }
+}
+
+.github-panel,
+.github-product-browser {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+}
+.github-panel {
+  margin-bottom: 28px;
+}
+.github-panel-heading,
+.github-actions,
+.github-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.github-panel-heading {
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.github-panel h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.github-panel p,
+.github-dialog p {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.github-panel details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+#github-token-state {
+  margin-left: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.github-actions {
+  margin-block: 16px 10px;
+}
+.github-actions .button {
+  width: auto;
+}
+.github-token-form {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-block: 14px 22px;
+}
+.github-token-form label {
+  flex-basis: 100%;
+}
+.github-token-form input {
+  flex: 1 1 240px;
+}
+.github-panel input,
+.github-panel select,
+.github-dialog input,
+.github-dialog select,
+.github-dialog textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+.github-token-form input {
+  width: auto;
+}
+.github-branch-picker {
+  margin-block: 18px;
+  max-width: 400px;
+}
+.github-branch-picker select {
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.github-branch-picker label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.github-branch-picker p {
+  margin-top: 6px;
+  color: var(--muted);
+}
+.github-links {
+  font-size: 12px;
+}
+.text-button {
+  border: 0;
+  background: transparent;
+  padding: 6px 0;
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--sage-dark);
+  font: inherit;
+}
+.github-changes {
+  max-height: 180px;
+  overflow: auto;
+  padding-left: 20px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+#github-message[data-tone='error'],
+.github-dialog-error {
+  color: var(--error);
+}
+.github-product-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.github-product-controls select {
+  flex: 1;
+  min-width: 0;
+}
+.github-product-controls .button {
+  flex: 0 0 auto;
+}
+.github-image-previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  align-content: start;
+  gap: 12px;
+  max-height: 390px;
+  overflow: auto;
+}
+.github-image-preview {
+  min-width: 0;
+  margin: 0;
+}
+.github-preview-frame {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--paper);
+}
+.github-preview-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.github-preview-frame span {
+  padding: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  text-align: center;
+}
+.github-image-preview figcaption {
+  margin-top: 4px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.github-image-preview small {
+  color: var(--sage-dark);
+  font-size: 10px;
+}
+.github-image-previews > p {
+  grid-column: 1 / -1;
+}
+.github-row-upload {
+  margin-block: 18px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--sage-soft);
+}
+.github-target,
+.github-row-status {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.github-row-upload .small-note {
+  margin-block: 6px 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.github-add {
+  width: 100%;
+}
+.github-dialog {
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--ink);
+}
+.github-dialog::backdrop {
+  background: rgb(35 50 42 / 50%);
+}
+.github-dialog label {
+  display: block;
+  font-weight: 600;
+  margin: 16px 0 6px;
+}
+.github-dialog h2 {
+  margin-top: 0;
+}
+.github-dialog .small-note {
+  color: var(--muted);
+  font-size: 11px;
+}
+#github-image-dialog {
+  width: min(980px, calc(100% - 32px));
+}
+.github-upload-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.github-product-browser {
+  min-width: 0;
+  padding: 16px;
+}
+.github-product-browser h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+.github-upload-fields {
+  min-width: 0;
+}
+@media (max-width: 700px) {
+  .github-panel {
+    padding: 16px;
+  }
+  #github-image-dialog {
+    padding: 18px;
+  }
+  .github-upload-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .github-product-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .github-image-previews {
+    max-height: 260px;
+  }
+  .github-actions > .button,
+  .github-token-form .button {
+    width: 100%;
+  }
+  .github-panel-heading > a {
+    overflow-wrap: anywhere;
+    font-size: 12px;
   }
 }

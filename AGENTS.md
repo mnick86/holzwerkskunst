@@ -63,7 +63,7 @@ extension, but `mustache.ts` renders them with Handlebars.
 - `dist/`, `node_modules/`, and `.angular/cache/`: ignored generated content.
 - `image-studio/`: static browser app for image analysis and generation; see
   `image-studio/README.md`. Its `public/` assets run without a Node.js backend.
-  `npm run build:image` bundles the official `openai` SDK with esbuild and copies a public-file allowlist to
+  `npm run build:image` bundles the official `openai` and `octokit` SDKs with esbuild and copies a public-file allowlist to
   `dist/bootstrap/image/`, deployed with the catalog at `/image/`.
   `npm run start:image` provides an optional local static preview.
 
@@ -89,7 +89,7 @@ npm start
 - `start` serves `dist/bootstrap/` at `http://localhost:4200`; it does not build
   or watch source files. Rerun generation after edits.
 - There is no `build` or general `test` npm script. `npm run test:image` runs the
-  image studio tests using mocked OpenAI responses and no paid API calls.
+  image studio tests using mocked OpenAI and GitHub responses, with no paid calls or remote writes.
   TypeScript can be checked separately
   with `npx --no-install tsc --noEmit`.
 - `npm run check:site` audits generated catalog pages after `transform` and `mustache`.
@@ -155,6 +155,12 @@ Before deployment it runs catalog/link, SEO and branding audits plus SEO/helper 
 website regression tests. It does not run the image-studio API tests or a separate
 TypeScript check. A push to `main` triggers publication of the website.
 
+Studio publishing merges the active branch through its PR into `main`, triggering the same
+deployment. No separate validation workflow is required. GitHub repository protection rules apply.
+After a successful merge, the studio deletes the merged source branch. Never delete `main`,
+`gh-pages` or a branch whose head has changed since merging. Deletion failures must leave the
+successful merge intact and show a separate warning.
+
 Keep this file aligned with architectural and workflow changes. Put human-facing
 setup and usage documentation in `README.md`.
 
@@ -213,14 +219,80 @@ setup and usage documentation in `README.md`.
   endpoint. Keep its output size and source revision; no fresh analysis is needed.
   Keep the prior result and prompt on failure/cancellation, and account for each
   refinement as a separate paid request in the existing cost history.
+- Allow loading a finished JPG/PNG/WebP directly into the result column without OpenAI.
+  Use the empty "Platz für etwas Schönes" preview as a keyboard-accessible upload button,
+  rather than adding a separate upload button above the preview.
+  Preserve its dimensions and original preview/edit source, and prepare a local JPEG download.
+  Imports require the existing 10 MB/40 MP limits; catalog uploads accept any 4:3 dimensions.
+  Preserve previous results on failed or cancelled imports. Imported results work without a reference
+  image or API key; optional follow-up generation uses a supported output size for their orientation.
+  Keep imported results in row counts, unload warnings and upload destination validation.
 - Generate draft product-image prompts in German, regardless of the input language.
   Preserve names and product inscriptions in their original spelling and language;
   forward the reviewed prompt verbatim to generation.
-- Source images and results stay in memory; adding products to the catalog is a
-  separate manual task. Preserve uploads and prompts when showing request errors.
+- Source images and results stay in memory. Adding to the catalog requires the explicit
+  GitHub upload action; generation must never commit or publish automatically. Preserve uploads
+  and prompts when showing request errors.
+- `public/github.mjs` uses bundled Octokit REST calls directly to `https://api.github.com`.
+  `public/github-ui.js` owns the PR/product/image dialogs. Keep each image in its existing
+  three-column row; show its selected GitHub target in the result column. Folder selection
+  and file browsing belong inside "Zu Produkten hinzufügen", with no sidebar on the main page.
+  The upload dialog has a category/product-folder dropdown at the top, followed by small image
+  previews captioned with their filenames. Sort exactly like `mustache.ts` sortImages (numeric
+  prefixes, then generated small-image filenames in German order); label the first image as title
+  image. Load immutable image blobs through Octokit with the PAT only in Authorization headers,
+  limit concurrency, and revoke preview URLs/abort reads on folder change, close or disconnect.
+  Start the product-folder dropdown empty on every dialog opening. Populate options from the
+  existing branch tree without fetching product YAML, thumbnails or an OpenAI description.
+  Reload the selected branch catalog after a folder is selected; show loading/errors instead
+  of stale previews. Include branch/commit identity in gallery caching. After upload, load the
+  confirmed commit tree directly so new files are visible without waiting for branch-ref caches.
+  Connecting/selecting branches must not eagerly download every product specification. Load
+  only the selected folder's YAML on demand and cache validated specs in memory by blob SHA.
+  Load all specifications only when creating a product, for unique IDs and allowed-tag validation.
+  Refresh branch/tree metadata to detect changes, but reuse immutable spec contents across branches
+  and image-only commits. Clear the spec cache on disconnect; never store tokens or images in it.
+  There is no Node.js backend, CDN runtime import or shared server credential.
+- Save GitHub PATs only through explicit masked browser settings, separately from OpenAI keys.
+  Clear the input after saving; support deletion, storage failures and cross-tab token changes.
+  Tokens are unencrypted and origin-specific. Send a snapshotted token only in an Authorization
+  header to the fixed GitHub API origin; reject redirects and disable logs and automatic retries.
+  Never put real tokens in source, tests, error messages, logs or OpenAI requests.
+- Only upload new JPEGs and YAML files under `products/` on the user-selected repository branch.
+  List all branches with pagination except `main` and `gh-pages`, and reject those two names in
+  saved sessions, selection and writes. Other branch names, including non-image-studio branches,
+  are valid. Selecting a branch must reload its catalog and changes without creating a PR.
+  Provide a manual refresh button and show commits ahead of main in the merge button.
+  Read the actual branch ref and compare its SHA against main after uploads and on refresh;
+  delayed PR metadata must not overwrite the uploaded head or block a valid merge.
+  Check filenames, existing stems, unique IDs and actual JPEG pixels/4:3 dimensions.
+  New products may only use tags already present on committed products in the selected branch,
+  with exact spelling and capitalization. Validate both the dialog field and the product creation/
+  first-upload paths; pending drafts must not introduce allowed tags themselves.
+  New branch names derive from the PR title, with a numeric suffix on collision. Preserve existing
+  sessions; never overwrite an existing branch when creating a new one. Existing branches can
+  be selected for uploads. Reusing a deleted branch name must create a new PR,
+  without attaching to a previously closed or merged PR with the same head name.
+  Commit a new product's `spec.yaml` with its first image atomically; pending products stay local
+  until then. Image sidecars contain only `description`. Never overwrite existing files
+  or force-push. Persist session metadata and drafts, not image bytes or generated prompts.
+- Publishing is an explicit separate action: refresh and review PR files, then merge with an
+  expected head SHA. Do not gate merging on an Actions validation workflow. Merging includes all
+  changes on the selected branch, including existing changes outside products. Reuse an open PR
+  targeting main, or create it on upload/merge. Show PR and deployment links/status; missing
+  Actions read access or deployment-status failures must not prevent a successful merge.
+  Remote writes in tests must be mocked.
+- Selecting a product folder or preparing a new product in "Zu Produkten hinzufügen" analyzes
+  the result JPEG through OpenAI Responses using
+  the description script's German alt-text instructions and `DEFAULT_DESCRIPTION_MODEL`.
+  Display the editable draft only in the upload dialog, with no description input below the result; reuse it for the same
+  result, retaining it when the target folder changes. Regeneration is explicit and paid. Require a nonempty reviewed description and
+  upload its same-stem YAML atomically with the JPEG. Never write to GitHub merely on dialog open.
+  Abort analysis on close; retain drafts/results on failures and record every attempt, including
+  cancellation and reported failure usage, in existing row/session costs. Mock description calls.
 - Result downloads must be real JPEG files with a `.jpg` extension, at the
   generated pixel dimensions. Convert locally at 95% quality with white behind
-  transparency. Keep the unmodified PNG for previews and subsequent API edits,
+  transparency. Keep the unmodified image source (PNG for generated results) for previews and subsequent API edits,
   and revoke both preview and download object URLs when replacing/removing results.
 - Rotate/crop edits run locally in `public/image-editor.js`. Keep the initial
   upload for restoration and render edits from it. Apply edits to the reference

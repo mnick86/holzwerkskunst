@@ -41,6 +41,17 @@ test('long-context pricing applies above the documented threshold', () => {
   );
 });
 
+test('image description costs use the verified GPT-4.1 mini prices and reported cache usage', () => {
+  for (const model of ['gpt-4.1-mini', 'gpt-4.1-mini-2025-04-14']) {
+    const cost = calculateUsdCost('analyze', model, {
+      ...usage,
+      input_tokens_details: {cached_tokens: 100},
+    });
+    close(cost.usd, 0.00069);
+    assert.equal(cost.pricingDate, '2026-11-12');
+  }
+});
+
 test('direct image edits price text input, image input, and image output separately without cache discounts', () => {
   const imageUsage = {
     input_tokens: 1100,

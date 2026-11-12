@@ -13,9 +13,13 @@ export const PUBLIC_FILES = [
   'config.mjs',
   'openai.mjs',
   'costs.mjs',
+  'github.mjs',
+  'github-ui.js',
   'logo.png',
   'favicon.png',
   'openai.LICENSE.txt',
+  'octokit.LICENSE.txt',
+  'yaml.LICENSE.txt',
 ];
 export async function buildImageStudio(
   destination = new URL('../dist/bootstrap/image/', import.meta.url),
@@ -25,7 +29,15 @@ export async function buildImageStudio(
   const logoBytes = await readFile(logoSource);
   const logoVersion = createHash('sha256').update(logoBytes).digest('hex').slice(0, 12);
   for (const file of PUBLIC_FILES.filter(
-    (file) => !['openai.mjs', 'logo.png', 'favicon.png'].includes(file),
+    (file) =>
+      ![
+        'openai.mjs',
+        'github.mjs',
+        'logo.png',
+        'favicon.png',
+        'octokit.LICENSE.txt',
+        'yaml.LICENSE.txt',
+      ].includes(file),
   )) {
     const source =
       file === 'openai.LICENSE.txt'
@@ -35,6 +47,10 @@ export async function buildImageStudio(
       const html = (await readFile(source, 'utf8')).replaceAll('__LOGO_VERSION__', logoVersion);
       await writeFile(new URL(file, destination), html);
     } else await copyFile(source, new URL(file, destination));
+  }
+  for (const dependency of ['octokit', 'yaml']) {
+    const license = new URL('../LICENSE', import.meta.resolve(dependency));
+    await copyFile(license, new URL(`${dependency}.LICENSE.txt`, destination));
   }
   const logo = await Jimp.read(logoBytes);
   await Promise.all([
@@ -50,8 +66,11 @@ export async function buildImageStudio(
       .writeAsync(fileURLToPath(new URL('favicon.png', destination))),
   ]);
   const result = await build({
-    entryPoints: [fileURLToPath(new URL('./public/openai.mjs', import.meta.url))],
-    outfile: fileURLToPath(new URL('openai.mjs', destination)),
+    entryPoints: ['openai.mjs', 'github.mjs'].map((file) =>
+      fileURLToPath(new URL('./public/' + file, import.meta.url)),
+    ),
+    outdir: fileURLToPath(destination),
+    outExtension: {'.js': '.mjs'},
     bundle: true,
     platform: 'browser',
     format: 'esm',

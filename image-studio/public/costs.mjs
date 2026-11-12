@@ -2,10 +2,16 @@
 // Sources: https://developers.openai.com/api/docs/models/gpt-5.6-terra
 // https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst
 // https://developers.openai.com/api/docs/guides/prompt-caching
+// Description model prices checked 2026-11-12:
+// https://developers.openai.com/api/docs/models/gpt-4.1-mini
 export const PRICING_DATE = '2026-10-30';
 // CORS-enabled public ECB reference rates, no credentials sent.
 export const RATE_URL = 'https://api.frankfurter.dev/v2/rate/USD/EUR?providers=ecb';
-const ANALYSIS_PRICES = new Map([['gpt-5.6-terra', {input: 2, cached: 0.2, output: 12}]]);
+const ANALYSIS_PRICES = new Map([
+  ['gpt-5.6-terra', {input: 2, cached: 0.2, output: 12}],
+  ['gpt-4.1-mini', {input: 0.4, cached: 0.1, output: 1.6, date: '2026-11-12'}],
+  ['gpt-4.1-mini-2025-04-14', {input: 0.4, cached: 0.1, output: 1.6, date: '2026-11-12'}],
+]);
 const IMAGE_MODELS = new Set([
   'gpt-image-2.5-sunburst',
   'gpt-image-2.5-sunburst-2026-09-08',
@@ -86,9 +92,11 @@ export function calculateUsdCost(action, model, usage, serviceTier) {
   const output = usage.output_tokens;
   let usd;
   let breakdown;
+  let pricingDate = PRICING_DATE;
   if (action === 'analyze') {
     const prices = ANALYSIS_PRICES.get(model);
     if (!prices) return unavailableCost(model, 'model_price_unknown');
+    pricingDate = prices.date || PRICING_DATE;
     const details = usage.input_tokens_details || {};
     const cached = details.cached_tokens ?? 0;
     const writeDetails = details.cache_write_tokens_details;
@@ -105,7 +113,7 @@ export function calculateUsdCost(action, model, usage, serviceTier) {
       return unavailableCost(model, 'usage_incomplete');
     }
     const ordinary = input - cached - writes;
-    const longContext = input > 272_000;
+    const longContext = model === 'gpt-5.6-terra' && input > 272_000;
     usd =
       ((ordinary * prices.input +
         cached * prices.cached +
@@ -145,7 +153,7 @@ export function calculateUsdCost(action, model, usage, serviceTier) {
       imageOutputTokens: imageOutput,
     };
   }
-  return {status: 'estimated', model, usd, eur: null, usage: breakdown, pricingDate: PRICING_DATE};
+  return {status: 'estimated', model, usd, eur: null, usage: breakdown, pricingDate};
 }
 
 export function createCostEstimator(exchangeRateProvider) {

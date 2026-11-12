@@ -1,6 +1,7 @@
 # Holzwerkskunst
 
 ## set openapi key
+
 $env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new('', (Read-Host 'OpenAI API key' -AsSecureString)).Password
 
 ### Bildbeschreibungen
@@ -183,6 +184,22 @@ The GitHub Action includes it at `https://holzwerkskunst.de/image/` after the ne
 and prepares the public assets in `dist/bootstrap/image/` for static hosting.
 Node.js is only needed for local npm commands and the repository's build, not for the hosted studio.
 See [image-studio/README.md](image-studio/README.md) for setup, the three-column workflow, and checks.
+
+Im Bereich **GitHub · Produktbilder** lässt sich ein eigener GitHub-Token separat im Browser
+speichern. Der Dialog **Zu Produkten hinzufügen** bietet oben eine Kategorie-/Produktordner-Auswahl
+und darunter kleine Bildvorschauen mit Dateinamen in derselben Reihenfolge wie auf der Website;
+**Neues Produkt erstellen** öffnet dort einen Dialog für Name, ID, Beschreibung, Datum und Kategorien.
+Über **Zu Produkten hinzufügen**
+erstellt OpenAI eine editierbare deutsche Bildbeschreibung aus dem fertigen JPEG (kostenpflichtig).
+Erst nach Prüfung werden Bild und gleichnamige YAML-Datei in einem gemeinsamen Pull Request gesammelt.
+Die Hauptansicht besteht weiterhin aus den drei Spalten Original, Prompt und Ergebnis.
+Im GitHub-Bereich lässt sich jeder vorhandene Branch außer `main` und `gh-pages` auswählen.
+Uploads landen im gewählten Branch; **Branch mergen** übernimmt dessen sämtliche Änderungen nach `main`.
+Bei neuen Produkten kommt die `spec.yaml` zusammen mit dem ersten Bild hinzu. Erst
+**Branch mergen** übernimmt den geprüften Stand nach `main` und startet das Deployment.
+Ein zusätzlicher Validierungsworkflow ist dafür nicht erforderlich.
+Token-Rechte, Sitzung fortsetzen und Veröffentlichung sind im
+[Studio-Handbuch](image-studio/README.md#github-products-and-pull-requests) beschrieben.
 
 ### DNS
 

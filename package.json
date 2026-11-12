@@ -6,7 +6,7 @@
     "prestart:image": "npm run build:image",
     "start:image": "http-server dist/bootstrap/image -a 127.0.0.1 -p 4201 -c-1 -o /",
     "build:image": "node image-studio/build.mjs",
-    "test:image": "node --test image-studio/test/studio.test.mjs image-studio/test/costs.test.mjs",
+    "test:image": "node --test image-studio/test/studio.test.mjs image-studio/test/costs.test.mjs image-studio/test/github.test.mjs",
     "transform": "ts-node transform.ts",
     "describe:images": "ts-node scripts/generate-image-descriptions.ts",
     "test:descriptions": "node --test scripts/image-descriptions.test.mjs scripts/transform.test.mjs",
@@ -22,6 +22,7 @@
   "private": true,
   "dependencies": {
     "image-size": "^1.1.1",
+    "octokit": "^5.0.5",
     "openai": "^7.45.1",
     "tslib": "^2.3.0"
   },
@@ -33,8 +34,9 @@
     "jimp": "^0.22.10",
     "mustache": "^4.2.0",
     "prettier": "^3.1.1",
+    "sharp": "^0.35.5",
     "ts-node": "^10.9.2",
     "typescript": "~5.2.2",
-    "yaml": "^2.3.4"
+    "yaml": "^2.9.1"
   }
 }

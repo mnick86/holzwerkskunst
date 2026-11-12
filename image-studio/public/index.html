@@ -9,7 +9,7 @@
     <link rel="canonical" href="https://holzwerkskunst.de/image/" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://api.openai.com https://api.frankfurter.dev; object-src 'none'; base-uri 'none'; form-action 'self'"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://api.openai.com https://api.frankfurter.dev https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'self'"
     />
     <meta name="referrer" content="no-referrer" />
     <link rel="icon" href="./favicon.png?v=__LOGO_VERSION__" type="image/png" sizes="48x48" />
@@ -51,6 +51,78 @@
         <button class="button button-primary add-images" type="button" data-add-images>
           <span aria-hidden="true">+</span> Bilder hinzufügen
         </button>
+      </section>
+      <section class="github-panel" aria-labelledby="github-title">
+        <div class="github-panel-heading">
+          <div>
+            <p class="eyebrow">Vom Bild zum Produkt</p>
+            <h2 id="github-title">GitHub · Produktbilder</h2>
+          </div>
+          <a
+            href="https://github.com/mnick86/holzwerkskunst"
+            target="_blank"
+            rel="noopener noreferrer"
+            >mnick86/holzwerkskunst ↗</a
+          >
+        </div>
+        <details id="github-settings">
+          <summary>GitHub-Token <span id="github-token-state">Nicht gespeichert</span></summary>
+          <p>
+            Der Token wird unverschlüsselt im Local Storage dieses Browsers gespeichert. Nur auf dem
+            eigenen Gerät speichern. Er wird ausschließlich direkt an api.github.com gesendet.
+            Benötigt: Contents und Pull requests lesen/schreiben, Actions lesen.
+          </p>
+          <form id="github-token-form" class="github-token-form">
+            <label for="github-token">Personal Access Token</label>
+            <input
+              id="github-token"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              maxlength="4096"
+              placeholder="GitHub-Token eingeben"
+            />
+            <button class="button button-secondary" type="submit">Token speichern</button>
+            <button class="button button-secondary" id="github-token-delete" type="button">
+              Token löschen
+            </button>
+          </form>
+        </details>
+        <div class="github-actions">
+          <button class="button button-secondary" id="github-connect" type="button">
+            Mit GitHub verbinden
+          </button>
+          <button class="button button-secondary" id="github-new-pr" type="button" disabled>
+            Neuen Branch erstellen
+          </button>
+          <button class="button button-secondary" id="github-refresh" type="button" disabled>
+            Aktualisieren
+          </button>
+          <button class="button button-primary" id="github-publish" type="button" disabled>
+            Branch mergen · 0 Commits
+          </button>
+        </div>
+        <div class="github-branch-picker">
+          <label for="github-branch">Branch für Uploads und Merge</label>
+          <select id="github-branch" aria-describedby="github-branch-note" disabled>
+            <option value="">Mit GitHub verbinden, um Branches zu laden</option>
+          </select>
+          <p id="github-branch-note">Wähle einen vorhandenen Branch oder erstelle einen neuen.</p>
+        </div>
+        <p id="github-deploy-state"></p>
+        <div class="github-links">
+          <a id="github-pr-link" target="_blank" rel="noopener noreferrer" hidden
+            >Pull Request auf GitHub öffnen ↗</a
+          ><a id="github-run-link" target="_blank" rel="noopener noreferrer" hidden
+            >GitHub-Deployment ↗</a
+          >
+        </div>
+        <ul
+          id="github-changes"
+          class="github-changes"
+          aria-label="Änderungen im ausgewählten Branch"
+        ></ul>
+        <p id="github-message" role="status" aria-live="polite"></p>
       </section>
       <div class="workspace-toolbar">
         <div>
@@ -115,11 +187,19 @@
       </button>
       <footer class="workspace-footer">
         <p>
-          Bilder werden erst bei „Bild analysieren“, „Bild generieren“ oder „Bild anpassen“ direkt
-          an OpenAI übertragen. „Prompt verbessern“ überträgt nur deinen Text. Die API-Nutzung wird
-          separat abgerechnet.
+          „Bild analysieren“, „Bild generieren“ und „Bild anpassen“ senden Bilder direkt an OpenAI.
+          „Zu Produkten hinzufügen“ startet dort die Bildbeschreibung; „Beschreibung neu erstellen“
+          startet eine weitere Analyse. „Prompt verbessern“ überträgt nur deinen Text. Die
+          API-Nutzung wird separat abgerechnet.
         </p>
-        <p>Ergebnisse vor dem Neuladen herunterladen.</p>
+        <p>
+          Erst „Zum Pull Request hinzufügen“ überträgt das JPEG und die geprüften Produkt- und
+          Bildtexte an GitHub in deinen aktiven PR. Erst „Branch mergen“ übernimmt ihn nach main.
+        </p>
+        <p>
+          Ergebnisse vor dem Neuladen herunterladen oder zum PR hinzufügen. Nicht übertragene Bilder
+          bleiben nur im Arbeitsspeicher.
+        </p>
       </footer>
       <noscript
         ><p class="setup-banner">
@@ -289,6 +369,13 @@
             <p class="approval-note">Erst dein Klick startet die Generierung.</p>
           </section>
           <section class="studio-column result-column" aria-label="Ergebnis">
+            <input
+              class="result-file-input"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              aria-label="Fertiges Produktbild auswählen"
+              hidden
+            />
             <div class="result-preview">
               <button
                 class="result-open"
@@ -301,14 +388,19 @@
                 <img class="result-image" alt="Generiertes Produktbild" hidden />
                 <span class="result-expand" aria-hidden="true">⛶</span>
               </button>
-              <div class="result-placeholder">
+              <button
+                class="result-placeholder"
+                type="button"
+                data-action="upload-result"
+                aria-label="Platz für etwas Schönes: Fertiges Produktbild hochladen"
+              >
                 <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
                   <rect x="4" y="5" width="24" height="22" rx="4" />
                   <path d="m5 23 8-9 6 6 4-4 4 5" />
                   <circle cx="23" cy="11" r="2" /></svg
                 ><strong>Platz für etwas Schönes.</strong
-                ><span>Dein neues Produktbild erscheint hier.</span>
-              </div>
+                ><span>Klicken, um ein fertiges Produktbild hochzuladen.</span>
+              </button>
               <div class="working-overlay" hidden>
                 <span class="spinner" aria-hidden="true"></span><span>Dein Bild entsteht …</span>
               </div>
@@ -350,6 +442,17 @@
                 bauen auf dem zuletzt angezeigten Ergebnis auf.
               </p>
             </div>
+            <div class="github-row-upload">
+              <p class="github-target">GitHub-Ziel: noch kein Produkt gewählt</p>
+              <button class="button button-secondary github-add" type="button" disabled>
+                Zu Produkten hinzufügen
+              </button>
+              <p class="small-note">
+                Beim Hinzufügen erstellt OpenAI eine editierbare Bildbeschreibung (kostenpflichtig).
+              </p>
+              <p class="request-cost describe-cost" hidden></p>
+              <p class="github-row-status" role="status"></p>
+            </div>
           </section>
         </div>
         <p class="row-message" role="status" aria-live="polite">
@@ -357,6 +460,137 @@
         </p>
       </article>
     </template>
+    <dialog id="github-pr-dialog" class="github-dialog" aria-labelledby="github-pr-dialog-title">
+      <form id="github-pr-form">
+        <h2 id="github-pr-dialog-title">Neuen Branch erstellen</h2>
+        <p>
+          Alle Bilder dieser Sitzung kommen in einen gemeinsamen Branch. Der PR entsteht mit dem
+          ersten hinzugefügten Bild.
+        </p>
+        <label for="github-pr-title">Titel</label
+        ><input id="github-pr-title" required maxlength="150" placeholder="Neue Produktbilder" />
+        <p class="small-note">
+          Branch: <code id="github-pr-branch"></code>. Bei bereits vergebenem Namen wird eine Nummer
+          ergänzt, z. B. test-2.
+        </p>
+        <p class="github-dialog-error" role="alert"></p>
+        <div class="github-actions">
+          <button class="button button-primary" type="submit">Branch erstellen</button
+          ><button class="button button-secondary" data-github-close type="button">
+            Abbrechen
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="github-product-dialog" class="github-dialog" aria-labelledby="github-product-title">
+      <form id="github-product-form">
+        <h2 id="github-product-title">Neues Produkt erstellen</h2>
+        <p>
+          Der neue Produktordner und seine spec.yaml werden zusammen mit dem ersten Bild in den PR
+          übernommen.
+        </p>
+        <label for="github-product-name">Produktname</label
+        ><input id="github-product-name" name="name" required maxlength="120" />
+        <label for="github-product-id">Produkt-ID und Ordnername</label
+        ><input
+          id="github-product-id"
+          name="id"
+          required
+          maxlength="80"
+          placeholder="z. B. holzlaterne"
+        />
+        <p class="small-note">
+          Kleinbuchstaben, Zahlen, Bindestriche oder Unterstriche. Ergibt /produkt/produkt-id/.
+        </p>
+        <label for="github-product-description">Beschreibung</label
+        ><textarea
+          id="github-product-description"
+          name="description"
+          required
+          maxlength="8000"
+          rows="5"
+        ></textarea>
+        <label for="github-product-date">Datum</label
+        ><input id="github-product-date" name="date" type="date" required />
+        <label for="github-product-tags">Kategorien (mit Komma trennen)</label
+        ><input
+          id="github-product-tags"
+          name="tags"
+          aria-describedby="github-tags-hint github-product-tags-error"
+          required
+          maxlength="1000"
+          placeholder="Geschenk, Hochzeit"
+        />
+        <p id="github-tags-hint" class="small-note"></p>
+        <p id="github-product-tags-error" class="github-dialog-error" role="alert"></p>
+        <p class="github-dialog-error" role="alert"></p>
+        <div class="github-actions">
+          <button class="button button-primary" type="submit">Produkt vorbereiten</button
+          ><button class="button button-secondary" data-github-close type="button">
+            Abbrechen
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="github-image-dialog" class="github-dialog" aria-labelledby="github-image-title">
+      <form id="github-image-form">
+        <h2 id="github-image-title">Bild zu Produkten hinzufügen</h2>
+        <label for="github-product-select">Kategorie / Produktordner</label>
+        <div class="github-product-controls">
+          <select id="github-product-select" aria-describedby="github-folder-note"></select>
+          <button class="button button-secondary" id="github-new-product" type="button" disabled>
+            Neues Produkt erstellen
+          </button>
+        </div>
+        <p id="github-folder-note">Verbinde GitHub, um deine Produkte zu laden.</p>
+        <button id="github-discard-product" class="text-button" type="button" hidden>
+          Produktentwurf verwerfen
+        </button>
+        <div class="github-upload-layout">
+          <section class="github-product-browser" aria-labelledby="github-gallery-title">
+            <h3 id="github-gallery-title">Vorhandene Bilder</h3>
+            <p id="github-gallery-note" class="small-note"></p>
+            <div
+              id="github-image-previews"
+              class="github-image-previews"
+              aria-label="Produktbilder in Website-Reihenfolge"
+            ></div>
+          </section>
+          <div class="github-upload-fields">
+            <p id="github-image-target"></p>
+            <label for="github-image-name">Dateiname</label
+            ><input id="github-image-name" required maxlength="105" placeholder="100.jpg" />
+            <p class="small-note">
+              JPEG im 4:3-Format. Bestehende Bilder und YAML-Dateien werden nicht überschrieben.
+              Zahlen am Anfang steuern die Reihenfolge.
+            </p>
+            <label for="github-image-description">Bildbeschreibung</label
+            ><textarea
+              id="github-image-description"
+              maxlength="500"
+              required
+              rows="3"
+              placeholder="Kurzer deutscher Alt-Text zum sichtbaren Produkt"
+            ></textarea>
+            <p class="small-note">
+              Der KI-Entwurf beschreibt das Ergebnisbild. Bitte vor dem Übertragen prüfen und
+              bearbeiten. Es entsteht eine gleichnamige YAML-Datei mit ausschließlich description.
+            </p>
+            <p id="github-description-state" role="status"></p>
+            <button id="github-description-retry" class="button button-secondary" type="button">
+              Beschreibung neu erstellen (kostenpflichtig)
+            </button>
+            <p class="github-dialog-error" role="alert"></p>
+            <div class="github-actions">
+              <button class="button button-primary" type="submit">Hinzufügen</button
+              ><button class="button button-secondary" data-github-close type="button">
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </dialog>
     <dialog
       id="result-viewer"
       class="result-viewer"
