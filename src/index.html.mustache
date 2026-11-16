@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      // Enable reserved enhancement slots before the first paint; absent when JS is disabled.
+      document.documentElement.classList.add('js');
+    </script>
     <meta name="theme-color" content="#faf9f6" />
     <meta name="description" content="{{metaAttributes.ogDescription}}" />
     {{#if noindex}}

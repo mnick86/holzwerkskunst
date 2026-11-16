@@ -17,7 +17,8 @@
     "check:site": "node scripts/check-site.mjs",
     "check:seo": "node scripts/check-seo.mjs",
     "test:seo": "node --test scripts/seo.test.mjs",
-    "test:site": "node --test scripts/site.test.mjs scripts/gallery.test.mjs",
+    "test:site": "node --test scripts/site.test.mjs scripts/gallery.test.mjs scripts/cls.test.mjs",
+    "check:cls": "node scripts/measure-cls.mjs --assert",
     "check:branding": "node scripts/check-branding.mjs"
   },
   "private": true,

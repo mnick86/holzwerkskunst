@@ -166,6 +166,16 @@ Zurücksetzen, Galerie, Anfrage, Fokus und reduzierte Bewegung.
 Das Image Studio unter `/image/` wird separat gebaut und bleibt vom Katalogdesign unabhängig.
 Ein Push auf `main` veröffentlicht über den bestehenden GitHub-Pages-Workflow.
 
+### Layoutstabilität prüfen
+
+Die CLS-Analyse mit Vorher-/Nachherwerten steht in
+[docs/cls-optimierung.md](docs/cls-optimierung.md). Nach dem Seitenbuild prüft
+`npm run check:cls` die Start-, Kategorie- und Produktseite in echtem Chrome, mobil und am
+Desktop, auch bei verspäteten Ressourcen. Voraussetzung ist ein lokal installiertes Chrome;
+bei Bedarf dessen Pfad über `CHROME_PATH` setzen. Das ist ein Browsercheck, kein Lighthouse-Lauf.
+Mit `-- --output tmp/cls-repeat.json --runs 3` lassen sich Reportpfad und Wiederholungen angeben.
+Die normalen Website-Tests enthalten zusätzlich die DOM-Regressionen aus `scripts/cls.test.mjs`.
+
 ### SEO prüfen und pflegen
 
 Analyse, priorisierte Maßnahmen und Prüfergebnisse stehen in

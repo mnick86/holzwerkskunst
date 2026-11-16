@@ -34,6 +34,18 @@ body:has(dialog[open]) {
 .catalog-hidden {
   display: none !important;
 }
+/* Reserve the final size while JS enhancements are still unavailable.
+   visibility keeps these controls out of keyboard navigation and the accessibility tree.
+   Without the early .js marker, the original no-JavaScript layout stays collapsed. */
+.js .catalog-sort[hidden],
+.js .gallery-controls[hidden] {
+  display: flex !important;
+  visibility: hidden;
+}
+.js [data-share][hidden] {
+  display: inline-flex !important;
+  visibility: hidden;
+}
 img {
   display: block;
   max-width: 100%;
@@ -416,7 +428,7 @@ summary::-webkit-details-marker {
 }
 .hero-visual img {
   width: 100%;
-  aspect-ratio: auto;
+  /* Keep the aspect ratio supplied by the HTML width/height until the image loads. */
   object-fit: cover;
 }
 .hero-visual figcaption {
@@ -1587,7 +1599,7 @@ dialog::backdrop {
   .gallery-thumbnails a {
     flex-basis: 74px;
   }
-  .gallery-stage:has(.gallery-controls:not([hidden])) .gallery-hint {
+  .js .gallery-stage:has(.gallery-controls) .gallery-hint {
     bottom: 76px;
     left: 12px;
   }

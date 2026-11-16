@@ -1,0 +1,2715 @@
+{
+  "date": "2026-11-16",
+  "baselineCommit": "89784bf298fb2a3010af42ffe4677301ed0a3dec",
+  "method": "Chromium PerformanceObserver, CLS maximum session window; no Lighthouse",
+  "browser": "Chrome/153.0.8010.36",
+  "node": "v24.15.0",
+  "devices": [
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844,
+      "deviceScaleFactor": 1,
+      "mobile": true,
+      "cpu": 4,
+      "latency": 150,
+      "download": 200000,
+      "upload": 93750
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1,
+      "mobile": false,
+      "cpu": 1,
+      "latency": 40,
+      "download": 1250000,
+      "upload": 1250000
+    }
+  ],
+  "delayedAssets": "Release images 700 ms and JavaScript 1400 ms after first paint",
+  "before": {
+    "createdAt": "2026-11-16T07:34:01.329Z",
+    "sourceHashes": {
+      "src/site.css": "438550cc7c40577c9ea10471a0c446f07f7562c7af83ccf43b526edb0159c020",
+      "src/site.js": "b09aebc026fa8b951bbfa33faa8f3aa794a0f0aa523f91a1180acbf9beddccbd",
+      "mustache.ts": "a1ca56d6d7a83744154bf6f8e57ddd65038a555f50fdbeaea0da3d59e5df645c",
+      "src/hero.html.mustache": "84bb80e363b2b742547e498534a15dd20e551d5441fa5550b6f3de18fff195ef",
+      "src/product.html.mustache": "77648c44d4af2d439c0af343f15c4f1884e9c22b92f635af36840fd24219abd2",
+      "src/catalog.html.mustache": "d6ae7ad3953bdf05146dbb8f938d6f17e3023abd995030fe35f0d4d5dbde923e"
+    },
+    "summary": [
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "cold",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "late-assets",
+        "min": 0.0752118058375218,
+        "median": 0.0752118058375218,
+        "max": 0.0752118058375218
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "cold",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "late-assets",
+        "min": 0.005186662128330105,
+        "median": 0.005186662128330105,
+        "max": 0.005186662128330105
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "cold",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "late-assets",
+        "min": 0.033474479631910956,
+        "median": 0.033474479631910956,
+        "max": 0.033474479631910956
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "cold",
+        "min": 0.0005029781471221914,
+        "median": 0.0005029781471221914,
+        "max": 0.0005029781471221914
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "late-assets",
+        "min": 0.024055593105570944,
+        "median": 0.024055593105570944,
+        "max": 0.024055593105570944
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "cold",
+        "min": 0.0031324805581204474,
+        "median": 0.0031324805581204474,
+        "max": 0.0031324805581204474
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "late-assets",
+        "min": 0.0031324805581204474,
+        "median": 0.0031324805581204474,
+        "max": 0.0031324805581204474
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "cold",
+        "min": 0,
+        "median": 0.0038978803734482405,
+        "max": 0.0038978803734482405
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "late-assets",
+        "min": 0.0038978803734482405,
+        "median": 0.0038978803734482405,
+        "max": 0.0038978803734482405
+      }
+    ],
+    "runs": [
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0.0752118058375218,
+        "shifts": [
+          {
+            "time": 1687,
+            "value": 0.0752118058375218,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "figcaption",
+                "previous": {
+                  "x": 34,
+                  "y": 527.859375,
+                  "width": 322,
+                  "height": 79.671875
+                },
+                "current": {
+                  "x": 34,
+                  "y": 729.234375,
+                  "width": 322,
+                  "height": 79.671875
+                }
+              },
+              {
+                "node": "nav#kategorien.category-strip",
+                "previous": {
+                  "x": 0,
+                  "y": 643.53125,
+                  "width": 390,
+                  "height": 116.65625
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              },
+              {
+                "node": "div",
+                "previous": {
+                  "x": 0,
+                  "y": 760.1875,
+                  "width": 390,
+                  "height": 83.8125
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0.0752118058375218,
+        "shifts": [
+          {
+            "time": 1668.6000003814697,
+            "value": 0.0752118058375218,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "figcaption",
+                "previous": {
+                  "x": 34,
+                  "y": 527.859375,
+                  "width": 322,
+                  "height": 79.671875
+                },
+                "current": {
+                  "x": 34,
+                  "y": 729.234375,
+                  "width": 322,
+                  "height": 79.671875
+                }
+              },
+              {
+                "node": "nav#kategorien.category-strip",
+                "previous": {
+                  "x": 0,
+                  "y": 643.53125,
+                  "width": 390,
+                  "height": 116.65625
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              },
+              {
+                "node": "div",
+                "previous": {
+                  "x": 0,
+                  "y": 760.1875,
+                  "width": 390,
+                  "height": 83.8125
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0.0752118058375218,
+        "shifts": [
+          {
+            "time": 1643.5,
+            "value": 0.0752118058375218,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "figcaption",
+                "previous": {
+                  "x": 34,
+                  "y": 527.859375,
+                  "width": 322,
+                  "height": 79.671875
+                },
+                "current": {
+                  "x": 34,
+                  "y": 729.234375,
+                  "width": 322,
+                  "height": 79.671875
+                }
+              },
+              {
+                "node": "nav#kategorien.category-strip",
+                "previous": {
+                  "x": 0,
+                  "y": 643.53125,
+                  "width": 390,
+                  "height": 116.65625
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              },
+              {
+                "node": "div",
+                "previous": {
+                  "x": 0,
+                  "y": 760.1875,
+                  "width": 390,
+                  "height": 83.8125
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0.005186662128330105,
+        "shifts": [
+          {
+            "time": 2331.1000003814697,
+            "value": 0.005186662128330105,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 8,
+                  "y": 531.734375,
+                  "width": 374,
+                  "height": 312.265625
+                },
+                "current": {
+                  "x": 8,
+                  "y": 543.734375,
+                  "width": 374,
+                  "height": 300.265625
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 16,
+                  "y": 499.671875,
+                  "width": 153.921875,
+                  "height": 16.125
+                },
+                "current": {
+                  "x": 16,
+                  "y": 505.671875,
+                  "width": 153.921875,
+                  "height": 16.125
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0.005186662128330105,
+        "shifts": [
+          {
+            "time": 2332.5,
+            "value": 0.005186662128330105,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 8,
+                  "y": 531.734375,
+                  "width": 374,
+                  "height": 312.265625
+                },
+                "current": {
+                  "x": 8,
+                  "y": 543.734375,
+                  "width": 374,
+                  "height": 300.265625
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 16,
+                  "y": 499.671875,
+                  "width": 153.921875,
+                  "height": 16.125
+                },
+                "current": {
+                  "x": 16,
+                  "y": 505.671875,
+                  "width": 153.921875,
+                  "height": 16.125
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0.005186662128330105,
+        "shifts": [
+          {
+            "time": 2310.199999809265,
+            "value": 0.005186662128330105,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 8,
+                  "y": 531.734375,
+                  "width": 374,
+                  "height": 312.265625
+                },
+                "current": {
+                  "x": 8,
+                  "y": 543.734375,
+                  "width": 374,
+                  "height": 300.265625
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 16,
+                  "y": 499.671875,
+                  "width": 153.921875,
+                  "height": 16.125
+                },
+                "current": {
+                  "x": 16,
+                  "y": 505.671875,
+                  "width": 153.921875,
+                  "height": 16.125
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0.033474479631910956,
+        "shifts": [
+          {
+            "time": 2296.699999809265,
+            "value": 0.033474479631910956,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-information",
+                "previous": {
+                  "x": 14,
+                  "y": 520.21875,
+                  "width": 360,
+                  "height": 323.78125
+                },
+                "current": {
+                  "x": 14,
+                  "y": 580.21875,
+                  "width": 360.6875,
+                  "height": 263.78125
+                }
+              },
+              {
+                "node": "div.gallery-thumbnails",
+                "previous": {
+                  "x": 16,
+                  "y": 425.71875,
+                  "width": 358,
+                  "height": 66.5
+                },
+                "current": {
+                  "x": 16,
+                  "y": 485.71875,
+                  "width": 358,
+                  "height": 66.5
+                }
+              },
+              {
+                "node": "span.gallery-hint",
+                "previous": {
+                  "x": 32,
+                  "y": 366.5625,
+                  "width": 148.578125,
+                  "height": 29.15625
+                },
+                "current": {
+                  "x": 28,
+                  "y": 366.5625,
+                  "width": 148.578125,
+                  "height": 29.15625
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0.033474479631910956,
+        "shifts": [
+          {
+            "time": 2309.1000003814697,
+            "value": 0.033474479631910956,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-information",
+                "previous": {
+                  "x": 14,
+                  "y": 520.21875,
+                  "width": 360,
+                  "height": 323.78125
+                },
+                "current": {
+                  "x": 14,
+                  "y": 580.21875,
+                  "width": 360.6875,
+                  "height": 263.78125
+                }
+              },
+              {
+                "node": "div.gallery-thumbnails",
+                "previous": {
+                  "x": 16,
+                  "y": 425.71875,
+                  "width": 358,
+                  "height": 66.5
+                },
+                "current": {
+                  "x": 16,
+                  "y": 485.71875,
+                  "width": 358,
+                  "height": 66.5
+                }
+              },
+              {
+                "node": "span.gallery-hint",
+                "previous": {
+                  "x": 32,
+                  "y": 366.5625,
+                  "width": 148.578125,
+                  "height": 29.15625
+                },
+                "current": {
+                  "x": 28,
+                  "y": 366.5625,
+                  "width": 148.578125,
+                  "height": 29.15625
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0.033474479631910956,
+        "shifts": [
+          {
+            "time": 2310.8999996185303,
+            "value": 0.033474479631910956,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-information",
+                "previous": {
+                  "x": 14,
+                  "y": 520.21875,
+                  "width": 360,
+                  "height": 323.78125
+                },
+                "current": {
+                  "x": 14,
+                  "y": 580.21875,
+                  "width": 360.6875,
+                  "height": 263.78125
+                }
+              },
+              {
+                "node": "div.gallery-thumbnails",
+                "previous": {
+                  "x": 16,
+                  "y": 425.71875,
+                  "width": 358,
+                  "height": 66.5
+                },
+                "current": {
+                  "x": 16,
+                  "y": 485.71875,
+                  "width": 358,
+                  "height": 66.5
+                }
+              },
+              {
+                "node": "span.gallery-hint",
+                "previous": {
+                  "x": 32,
+                  "y": 366.5625,
+                  "width": 148.578125,
+                  "height": 29.15625
+                },
+                "current": {
+                  "x": 28,
+                  "y": 366.5625,
+                  "width": 148.578125,
+                  "height": 29.15625
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0.0005029781471221914,
+        "shifts": [
+          {
+            "time": 287.5,
+            "value": 0.0005029781471221914,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 846.421875,
+                  "width": 1313,
+                  "height": 53.578125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 858.421875,
+                  "width": 1313,
+                  "height": 41.578125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 806.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 812.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0.0005029781471221914,
+        "shifts": [
+          {
+            "time": 255.19999980926514,
+            "value": 0.0005029781471221914,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 846.421875,
+                  "width": 1313,
+                  "height": 53.578125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 858.421875,
+                  "width": 1313,
+                  "height": 41.578125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 806.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 812.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0.0005029781471221914,
+        "shifts": [
+          {
+            "time": 265.5,
+            "value": 0.0005029781471221914,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 846.421875,
+                  "width": 1313,
+                  "height": 53.578125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 858.421875,
+                  "width": 1313,
+                  "height": 41.578125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 806.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 812.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0.024055593105570944,
+        "shifts": [
+          {
+            "time": 1009.8999996185303,
+            "value": 0.023552614958448754,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "figure.hero-visual",
+                "previous": {
+                  "x": 744.5,
+                  "y": 331.265625,
+                  "width": 616.5,
+                  "height": 56.5
+                },
+                "current": {
+                  "x": 744.5,
+                  "y": 157.875,
+                  "width": 616.5,
+                  "height": 403.28125
+                }
+              },
+              {
+                "node": "figcaption",
+                "previous": {
+                  "x": 768.5,
+                  "y": 299.265625,
+                  "width": 568.5,
+                  "height": 88.5
+                },
+                "current": {
+                  "x": 768.5,
+                  "y": 472.65625,
+                  "width": 568.5,
+                  "height": 88.5
+                }
+              }
+            ]
+          },
+          {
+            "time": 1739.1999998092651,
+            "value": 0.0005029781471221914,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 846.421875,
+                  "width": 1313,
+                  "height": 53.578125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 858.421875,
+                  "width": 1313,
+                  "height": 41.578125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 806.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 812.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0.024055593105570944,
+        "shifts": [
+          {
+            "time": 998.7000007629395,
+            "value": 0.023552614958448754,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "figure.hero-visual",
+                "previous": {
+                  "x": 744.5,
+                  "y": 331.265625,
+                  "width": 616.5,
+                  "height": 56.5
+                },
+                "current": {
+                  "x": 744.5,
+                  "y": 157.875,
+                  "width": 616.5,
+                  "height": 403.28125
+                }
+              },
+              {
+                "node": "figcaption",
+                "previous": {
+                  "x": 768.5,
+                  "y": 299.265625,
+                  "width": 568.5,
+                  "height": 88.5
+                },
+                "current": {
+                  "x": 768.5,
+                  "y": 472.65625,
+                  "width": 568.5,
+                  "height": 88.5
+                }
+              }
+            ]
+          },
+          {
+            "time": 1708.3000001907349,
+            "value": 0.0005029781471221914,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 846.421875,
+                  "width": 1313,
+                  "height": 53.578125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 858.421875,
+                  "width": 1313,
+                  "height": 41.578125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 806.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 812.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0.024055593105570944,
+        "shifts": [
+          {
+            "time": 1023.1999998092651,
+            "value": 0.023552614958448754,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "figure.hero-visual",
+                "previous": {
+                  "x": 744.5,
+                  "y": 331.265625,
+                  "width": 616.5,
+                  "height": 56.5
+                },
+                "current": {
+                  "x": 744.5,
+                  "y": 157.875,
+                  "width": 616.5,
+                  "height": 403.28125
+                }
+              },
+              {
+                "node": "figcaption",
+                "previous": {
+                  "x": 768.5,
+                  "y": 299.265625,
+                  "width": 568.5,
+                  "height": 88.5
+                },
+                "current": {
+                  "x": 768.5,
+                  "y": 472.65625,
+                  "width": 568.5,
+                  "height": 88.5
+                }
+              }
+            ]
+          },
+          {
+            "time": 1733.7999992370605,
+            "value": 0.0005029781471221914,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 846.421875,
+                  "width": 1313,
+                  "height": 53.578125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 858.421875,
+                  "width": 1313,
+                  "height": 41.578125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 806.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 812.953125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0.0031324805581204474,
+        "shifts": [
+          {
+            "time": 278.19999980926514,
+            "value": 0.0031324805581204474,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 540.671875,
+                  "width": 1313,
+                  "height": 359.328125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 552.671875,
+                  "width": 1313,
+                  "height": 347.328125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 501.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 507.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0.0031324805581204474,
+        "shifts": [
+          {
+            "time": 287.0999994277954,
+            "value": 0.0031324805581204474,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 540.671875,
+                  "width": 1313,
+                  "height": 359.328125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 552.671875,
+                  "width": 1313,
+                  "height": 347.328125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 501.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 507.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0.0031324805581204474,
+        "shifts": [
+          {
+            "time": 250.60000038146973,
+            "value": 0.0031324805581204474,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 540.671875,
+                  "width": 1313,
+                  "height": 359.328125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 552.671875,
+                  "width": 1313,
+                  "height": 347.328125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 501.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 507.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0.0031324805581204474,
+        "shifts": [
+          {
+            "time": 1732.6999998092651,
+            "value": 0.0031324805581204474,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 540.671875,
+                  "width": 1313,
+                  "height": 359.328125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 552.671875,
+                  "width": 1313,
+                  "height": 347.328125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 501.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 507.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0.0031324805581204474,
+        "shifts": [
+          {
+            "time": 1734.6000003814697,
+            "value": 0.0031324805581204474,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 540.671875,
+                  "width": 1313,
+                  "height": 359.328125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 552.671875,
+                  "width": 1313,
+                  "height": 347.328125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 501.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 507.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0.0031324805581204474,
+        "shifts": [
+          {
+            "time": 1732.0999994277954,
+            "value": 0.0031324805581204474,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.product-grid",
+                "previous": {
+                  "x": 56,
+                  "y": 540.671875,
+                  "width": 1313,
+                  "height": 359.328125
+                },
+                "current": {
+                  "x": 56,
+                  "y": 552.671875,
+                  "width": 1313,
+                  "height": 347.328125
+                }
+              },
+              {
+                "node": "h2#catalog-title.eyebrow",
+                "previous": {
+                  "x": 64,
+                  "y": 501.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                },
+                "current": {
+                  "x": 64,
+                  "y": 507.203125,
+                  "width": 227.8125,
+                  "height": 18.9375
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0.0038978803734482405,
+        "shifts": [
+          {
+            "time": 220.70000076293945,
+            "value": 0.0038978803734482405,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.gallery-thumbnails",
+                "previous": {
+                  "x": 64,
+                  "y": 673.15625,
+                  "width": 659.5,
+                  "height": 87
+                },
+                "current": {
+                  "x": 64,
+                  "y": 733.15625,
+                  "width": 659.5,
+                  "height": 87
+                }
+              },
+              {
+                "node": "section.section",
+                "previous": {
+                  "x": 56,
+                  "y": 890.265625,
+                  "width": 1313,
+                  "height": 9.734375
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              },
+              {
+                "node": "span.gallery-hint",
+                "previous": {
+                  "x": 80,
+                  "y": 614,
+                  "width": 148.578125,
+                  "height": 29.15625
+                },
+                "current": {
+                  "x": 80,
+                  "y": 674,
+                  "width": 148.578125,
+                  "height": 29.15625
+                }
+              },
+              {
+                "node": "a",
+                "previous": {
+                  "x": 787.5,
+                  "y": 857.671875,
+                  "width": 133,
+                  "height": 22
+                },
+                "current": {
+                  "x": 787.5,
+                  "y": 869.375,
+                  "width": 133,
+                  "height": 22
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0.0038978803734482405,
+        "shifts": [
+          {
+            "time": 226.10000038146973,
+            "value": 0.0038978803734482405,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.gallery-thumbnails",
+                "previous": {
+                  "x": 64,
+                  "y": 673.15625,
+                  "width": 659.5,
+                  "height": 87
+                },
+                "current": {
+                  "x": 64,
+                  "y": 733.15625,
+                  "width": 659.5,
+                  "height": 87
+                }
+              },
+              {
+                "node": "section.section",
+                "previous": {
+                  "x": 56,
+                  "y": 890.265625,
+                  "width": 1313,
+                  "height": 9.734375
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              },
+              {
+                "node": "span.gallery-hint",
+                "previous": {
+                  "x": 80,
+                  "y": 614,
+                  "width": 148.578125,
+                  "height": 29.15625
+                },
+                "current": {
+                  "x": 80,
+                  "y": 674,
+                  "width": 148.578125,
+                  "height": 29.15625
+                }
+              },
+              {
+                "node": "a",
+                "previous": {
+                  "x": 787.5,
+                  "y": 857.671875,
+                  "width": 133,
+                  "height": 22
+                },
+                "current": {
+                  "x": 787.5,
+                  "y": 869.375,
+                  "width": 133,
+                  "height": 22
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0.0038978803734482405,
+        "shifts": [
+          {
+            "time": 1681.2999992370605,
+            "value": 0.0038978803734482405,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.gallery-thumbnails",
+                "previous": {
+                  "x": 64,
+                  "y": 673.15625,
+                  "width": 659.5,
+                  "height": 87
+                },
+                "current": {
+                  "x": 64,
+                  "y": 733.15625,
+                  "width": 659.5,
+                  "height": 87
+                }
+              },
+              {
+                "node": "section.section",
+                "previous": {
+                  "x": 56,
+                  "y": 890.265625,
+                  "width": 1313,
+                  "height": 9.734375
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              },
+              {
+                "node": "span.gallery-hint",
+                "previous": {
+                  "x": 80,
+                  "y": 614,
+                  "width": 148.578125,
+                  "height": 29.15625
+                },
+                "current": {
+                  "x": 80,
+                  "y": 674,
+                  "width": 148.578125,
+                  "height": 29.15625
+                }
+              },
+              {
+                "node": "a",
+                "previous": {
+                  "x": 787.5,
+                  "y": 857.671875,
+                  "width": 133,
+                  "height": 22
+                },
+                "current": {
+                  "x": 787.5,
+                  "y": 869.375,
+                  "width": 133,
+                  "height": 22
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0.0038978803734482405,
+        "shifts": [
+          {
+            "time": 1769.8000001907349,
+            "value": 0.0038978803734482405,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.gallery-thumbnails",
+                "previous": {
+                  "x": 64,
+                  "y": 673.15625,
+                  "width": 659.5,
+                  "height": 87
+                },
+                "current": {
+                  "x": 64,
+                  "y": 733.15625,
+                  "width": 659.5,
+                  "height": 87
+                }
+              },
+              {
+                "node": "section.section",
+                "previous": {
+                  "x": 56,
+                  "y": 890.265625,
+                  "width": 1313,
+                  "height": 9.734375
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              },
+              {
+                "node": "span.gallery-hint",
+                "previous": {
+                  "x": 80,
+                  "y": 614,
+                  "width": 148.578125,
+                  "height": 29.15625
+                },
+                "current": {
+                  "x": 80,
+                  "y": 674,
+                  "width": 148.578125,
+                  "height": 29.15625
+                }
+              },
+              {
+                "node": "a",
+                "previous": {
+                  "x": 787.5,
+                  "y": 857.671875,
+                  "width": 133,
+                  "height": 22
+                },
+                "current": {
+                  "x": 787.5,
+                  "y": 869.375,
+                  "width": 133,
+                  "height": 22
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0.0038978803734482405,
+        "shifts": [
+          {
+            "time": 1709.5,
+            "value": 0.0038978803734482405,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "node": "div.gallery-thumbnails",
+                "previous": {
+                  "x": 64,
+                  "y": 673.15625,
+                  "width": 659.5,
+                  "height": 87
+                },
+                "current": {
+                  "x": 64,
+                  "y": 733.15625,
+                  "width": 659.5,
+                  "height": 87
+                }
+              },
+              {
+                "node": "section.section",
+                "previous": {
+                  "x": 56,
+                  "y": 890.265625,
+                  "width": 1313,
+                  "height": 9.734375
+                },
+                "current": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0
+                }
+              },
+              {
+                "node": "span.gallery-hint",
+                "previous": {
+                  "x": 80,
+                  "y": 614,
+                  "width": 148.578125,
+                  "height": 29.15625
+                },
+                "current": {
+                  "x": 80,
+                  "y": 674,
+                  "width": 148.578125,
+                  "height": 29.15625
+                }
+              },
+              {
+                "node": "a",
+                "previous": {
+                  "x": 787.5,
+                  "y": 857.671875,
+                  "width": 133,
+                  "height": 22
+                },
+                "current": {
+                  "x": 787.5,
+                  "y": 869.375,
+                  "width": 133,
+                  "height": 22
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "createdAt": "2026-11-16T07:40:07.324Z",
+    "sourceHashes": {
+      "src/site.css": "cf4b105b7d943ec230bf86d6fa8a85ba9f6192411c59e45c56a3e2ca2d99c07d",
+      "src/site.js": "b09aebc026fa8b951bbfa33faa8f3aa794a0f0aa523f91a1180acbf9beddccbd",
+      "mustache.ts": "ce3999fc2e6d206d31ae1e91a419c1cdba99e95af3fe1a7ac39df732636a1c43",
+      "src/hero.html.mustache": "84bb80e363b2b742547e498534a15dd20e551d5441fa5550b6f3de18fff195ef",
+      "src/product.html.mustache": "77648c44d4af2d439c0af343f15c4f1884e9c22b92f635af36840fd24219abd2",
+      "src/catalog.html.mustache": "d6ae7ad3953bdf05146dbb8f938d6f17e3023abd995030fe35f0d4d5dbde923e"
+    },
+    "summary": [
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "cold",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "late-assets",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "cold",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "late-assets",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "cold",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "late-assets",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "cold",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "late-assets",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "cold",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "late-assets",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "cold",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "late-assets",
+        "min": 0,
+        "median": 0,
+        "max": 0
+      }
+    ],
+    "runs": [
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "mobile",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "home",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "category",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "cold",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 1,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 2,
+        "cls": 0,
+        "shifts": []
+      },
+      {
+        "device": "desktop",
+        "page": "product",
+        "mode": "late-assets",
+        "repetition": 3,
+        "cls": 0,
+        "shifts": []
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "device": "mobile",
+      "page": "home",
+      "intervention": "hold-sort",
+      "cls": 0.0752118058375218,
+      "shifts": [
+        {
+          "time": 1752.5,
+          "value": 0.0752118058375218,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "node": "figcaption",
+              "previous": {
+                "x": 34,
+                "y": 527.859375,
+                "width": 322,
+                "height": 79.671875
+              },
+              "current": {
+                "x": 34,
+                "y": 729.234375,
+                "width": 322,
+                "height": 79.671875
+              }
+            },
+            {
+              "node": "nav#kategorien.category-strip",
+              "previous": {
+                "x": 0,
+                "y": 643.53125,
+                "width": 390,
+                "height": 116.65625
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0
+              }
+            },
+            {
+              "node": "div",
+              "previous": {
+                "x": 0,
+                "y": 760.1875,
+                "width": 390,
+                "height": 83.8125
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device": "mobile",
+      "page": "category",
+      "intervention": "hold-category-sort",
+      "cls": 0,
+      "shifts": []
+    },
+    {
+      "device": "mobile",
+      "page": "home",
+      "intervention": "hero-ratio-only",
+      "cls": 0,
+      "shifts": []
+    },
+    {
+      "device": "mobile",
+      "page": "product",
+      "intervention": "hold-gallery",
+      "cls": 0,
+      "shifts": []
+    },
+    {
+      "device": "mobile",
+      "page": "product",
+      "intervention": "hold-share",
+      "cls": 0.03341746245937526,
+      "shifts": [
+        {
+          "time": 2301.2000007629395,
+          "value": 0.03341746245937526,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "node": "div.product-information",
+              "previous": {
+                "x": 14,
+                "y": 520.21875,
+                "width": 360,
+                "height": 323.78125
+              },
+              "current": {
+                "x": 14,
+                "y": 580.21875,
+                "width": 360,
+                "height": 263.78125
+              }
+            },
+            {
+              "node": "div.gallery-thumbnails",
+              "previous": {
+                "x": 16,
+                "y": 425.71875,
+                "width": 358,
+                "height": 66.5
+              },
+              "current": {
+                "x": 16,
+                "y": 485.71875,
+                "width": 358,
+                "height": 66.5
+              }
+            },
+            {
+              "node": "span.gallery-hint",
+              "previous": {
+                "x": 32,
+                "y": 366.5625,
+                "width": 148.578125,
+                "height": 29.15625
+              },
+              "current": {
+                "x": 28,
+                "y": 366.5625,
+                "width": 148.578125,
+                "height": 29.15625
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "page": "home",
+      "intervention": "hold-sort",
+      "cls": 0.023552614958448754,
+      "shifts": [
+        {
+          "time": 1045.3999996185303,
+          "value": 0.023552614958448754,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "node": "figure.hero-visual",
+              "previous": {
+                "x": 744.5,
+                "y": 331.265625,
+                "width": 616.5,
+                "height": 56.5
+              },
+              "current": {
+                "x": 744.5,
+                "y": 157.875,
+                "width": 616.5,
+                "height": 403.28125
+              }
+            },
+            {
+              "node": "figcaption",
+              "previous": {
+                "x": 768.5,
+                "y": 299.265625,
+                "width": 568.5,
+                "height": 88.5
+              },
+              "current": {
+                "x": 768.5,
+                "y": 472.65625,
+                "width": 568.5,
+                "height": 88.5
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "page": "category",
+      "intervention": "hold-category-sort",
+      "cls": 0,
+      "shifts": []
+    },
+    {
+      "device": "desktop",
+      "page": "home",
+      "intervention": "hero-ratio-only",
+      "cls": 0.0005029781471221914,
+      "shifts": [
+        {
+          "time": 1717,
+          "value": 0.0005029781471221914,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "node": "div.product-grid",
+              "previous": {
+                "x": 56,
+                "y": 846.421875,
+                "width": 1313,
+                "height": 53.578125
+              },
+              "current": {
+                "x": 56,
+                "y": 858.421875,
+                "width": 1313,
+                "height": 41.578125
+              }
+            },
+            {
+              "node": "h2#catalog-title.eyebrow",
+              "previous": {
+                "x": 64,
+                "y": 806.953125,
+                "width": 227.8125,
+                "height": 18.9375
+              },
+              "current": {
+                "x": 64,
+                "y": 812.953125,
+                "width": 227.8125,
+                "height": 18.9375
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "page": "product",
+      "intervention": "hold-gallery",
+      "cls": 0.00022266875277863275,
+      "shifts": [
+        {
+          "time": 1723.2000007629395,
+          "value": 0.00022266875277863275,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "node": "section.section",
+              "previous": {
+                "x": 56,
+                "y": 890.265625,
+                "width": 1313,
+                "height": 9.734375
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0
+              }
+            },
+            {
+              "node": "a",
+              "previous": {
+                "x": 787.5,
+                "y": 857.671875,
+                "width": 133,
+                "height": 22
+              },
+              "current": {
+                "x": 787.5,
+                "y": 869.375,
+                "width": 133,
+                "height": 22
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "page": "product",
+      "intervention": "hold-share",
+      "cls": 0.0033270873089155635,
+      "shifts": [
+        {
+          "time": 1694.0999994277954,
+          "value": 0.0033270873089155635,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "node": "div.gallery-thumbnails",
+              "previous": {
+                "x": 64,
+                "y": 673.15625,
+                "width": 659.5,
+                "height": 87
+              },
+              "current": {
+                "x": 64,
+                "y": 733.15625,
+                "width": 659.5,
+                "height": 87
+              }
+            },
+            {
+              "node": "span.gallery-hint",
+              "previous": {
+                "x": 80,
+                "y": 614,
+                "width": 148.578125,
+                "height": 29.15625
+              },
+              "current": {
+                "x": 80,
+                "y": 674,
+                "width": 148.578125,
+                "height": 29.15625
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "accessibility": [
+    {
+      "device": "mobile",
+      "page": "home",
+      "accessibilityBefore": {
+        "sort": false
+      },
+      "accessibilityAfter": {
+        "sort": true
+      },
+      "cls": 0
+    },
+    {
+      "device": "mobile",
+      "page": "category",
+      "accessibilityBefore": {
+        "sort": false
+      },
+      "accessibilityAfter": {
+        "sort": true
+      },
+      "cls": 0
+    },
+    {
+      "device": "mobile",
+      "page": "product",
+      "accessibilityBefore": {
+        "gallery": false,
+        "share": false
+      },
+      "accessibilityAfter": {
+        "gallery": true,
+        "share": true
+      },
+      "cls": 0
+    },
+    {
+      "device": "desktop",
+      "page": "home",
+      "accessibilityBefore": {
+        "sort": false
+      },
+      "accessibilityAfter": {
+        "sort": true
+      },
+      "cls": 0
+    },
+    {
+      "device": "desktop",
+      "page": "category",
+      "accessibilityBefore": {
+        "sort": false
+      },
+      "accessibilityAfter": {
+        "sort": true
+      },
+      "cls": 0
+    },
+    {
+      "device": "desktop",
+      "page": "product",
+      "accessibilityBefore": {
+        "gallery": false,
+        "share": false
+      },
+      "accessibilityAfter": {
+        "gallery": true,
+        "share": true
+      },
+      "cls": 0
+    }
+  ],
+  "noJavaScript": [
+    {
+      "device": "mobile",
+      "page": "home",
+      "marker": false,
+      "products": 36,
+      "localLinks": true,
+      "mailto": true,
+      "controls": [
+        {
+          "hidden": true,
+          "display": "none"
+        }
+      ]
+    },
+    {
+      "device": "mobile",
+      "page": "category",
+      "marker": false,
+      "products": 17,
+      "localLinks": true,
+      "mailto": true,
+      "controls": [
+        {
+          "hidden": true,
+          "display": "none"
+        }
+      ]
+    },
+    {
+      "device": "mobile",
+      "page": "product",
+      "marker": false,
+      "products": 6,
+      "localLinks": true,
+      "mailto": true,
+      "controls": [
+        {
+          "hidden": true,
+          "display": "none"
+        },
+        {
+          "hidden": true,
+          "display": "none"
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "page": "home",
+      "marker": false,
+      "products": 36,
+      "localLinks": true,
+      "mailto": true,
+      "controls": [
+        {
+          "hidden": true,
+          "display": "none"
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "page": "category",
+      "marker": false,
+      "products": 17,
+      "localLinks": true,
+      "mailto": true,
+      "controls": [
+        {
+          "hidden": true,
+          "display": "none"
+        }
+      ]
+    },
+    {
+      "device": "desktop",
+      "page": "product",
+      "marker": false,
+      "products": 6,
+      "localLinks": true,
+      "mailto": true,
+      "controls": [
+        {
+          "hidden": true,
+          "display": "none"
+        },
+        {
+          "hidden": true,
+          "display": "none"
+        }
+      ]
+    }
+  ],
+  "visualComparison": [
+    {
+      "device": "mobile",
+      "page": "home",
+      "differentPixels": 0,
+      "maximumDifference": 0,
+      "maximumGeometryDifference": 0,
+      "totalPixels": 329160
+    },
+    {
+      "device": "mobile",
+      "page": "category",
+      "differentPixels": 0,
+      "maximumDifference": 0,
+      "maximumGeometryDifference": 0,
+      "totalPixels": 329160
+    },
+    {
+      "device": "mobile",
+      "page": "product",
+      "differentPixels": 0,
+      "maximumDifference": 0,
+      "maximumGeometryDifference": 0,
+      "totalPixels": 329160
+    },
+    {
+      "device": "desktop",
+      "page": "home",
+      "differentPixels": 0,
+      "maximumDifference": 0,
+      "maximumGeometryDifference": 0,
+      "totalPixels": 1296000
+    },
+    {
+      "device": "desktop",
+      "page": "category",
+      "differentPixels": 0,
+      "maximumDifference": 0,
+      "maximumGeometryDifference": 0,
+      "totalPixels": 1296000
+    },
+    {
+      "device": "desktop",
+      "page": "product",
+      "differentPixels": 0,
+      "maximumDifference": 0,
+      "maximumGeometryDifference": 0,
+      "totalPixels": 1296000
+    }
+  ]
+}

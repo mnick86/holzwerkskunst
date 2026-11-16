@@ -53,6 +53,10 @@ extension, but `mustache.ts` renders them with Handlebars.
   Keep answers grounded in known product and inquiry information; do not invent
   prices, production times, shipping or payment policies.
 - `scripts/check-site.mjs`: generated catalog audit for source preservation, links and images.
+- `scripts/measure-cls.mjs`: optional real-Chrome CLS/geometry/accessibility check (`check:cls`),
+  including cold loads, delayed assets and disabled JavaScript. Requires local Chrome or CHROME_PATH;
+  writes local reports/screenshots to ignored `tmp/`. These are browser metrics, not Lighthouse scores.
+- `scripts/cls.test.mjs`: DOM regressions for reserved enhancement slots and intrinsic dimensions.
 - `scripts/check-branding.mjs`: checks every generated HTML page, including image studio, for current logos and favicons.
 - `scripts/check-seo.mjs`: checks canonical/indexing consistency, unique metadata,
   structured data, relevant category lists and full image-sitemap coverage after both builds.
@@ -149,6 +153,11 @@ npm start
 - After generator changes, also run the TypeScript check and exercise the affected
   generation steps. Website and studio DOM regressions use jsdom with simulated canvas,
   image decoding and dialogs; they do not verify native browser rendering or layout.
+- For layout-stability changes, run `npm run check:cls` after generation. Keep the early `.js`
+  marker and invisible reserved controls until initialization; without JS retain the collapsed
+  fallback. Do not override the hero's HTML-derived aspect ratio with plain `auto`.
+  SVG width/height attributes are fallbacks; preserve CSS icon sizes. Attribute measured causes
+  using counterfactual runs, not just the moved nodes. See `docs/cls-optimierung.md`.
 - For image-description changes run `npm run test:descriptions` with mocked API responses;
   verify gallery selection and lightbox alt text as well as HTML escaping and fallback behavior.
 - For visible changes, inspect the affected pages locally, including image links,
