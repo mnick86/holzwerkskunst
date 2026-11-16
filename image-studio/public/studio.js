@@ -3,6 +3,82 @@ import {createOpenAIClient, StudioError} from './openai.mjs';
 import {initGitHubUI} from './github-ui.js';
 
 const rows = new Map();
+// Keep this query aligned with the mobile-only CSS, including touch landscape screens.
+const mobileLayout = window.matchMedia?.(
+  '(max-width: 700px), (pointer: coarse) and (max-width: 1000px)',
+);
+const mobileGithubToggle = document.querySelector('.github-mobile-toggle');
+const githubPanelBody = document.querySelector('#github-panel-body');
+let mobileGithubOpen = false;
+
+function setRowStep(row, step, focus = false) {
+  if (!['original', 'prompt', 'result'].includes(step)) return;
+  row.mobileStep = step;
+  const mobile = Boolean(mobileLayout?.matches);
+  const tabs = row.element.querySelector('.row-mobile-tabs');
+  tabs.hidden = !mobile;
+  row.element.querySelector('.mobile-next').hidden = !mobile;
+  for (const button of tabs.querySelectorAll('[data-step]')) {
+    const selected = button.dataset.step === step;
+    button.id = `row-${row.id}-tab-${button.dataset.step}`;
+    button.setAttribute('aria-controls', `row-${row.id}-panel-${button.dataset.step}`);
+    button.setAttribute('aria-selected', String(selected));
+    button.tabIndex = selected ? 0 : -1;
+    if (focus && selected && mobile) button.focus({preventScroll: true});
+  }
+  for (const panel of row.element.querySelectorAll('[data-mobile-panel]')) {
+    panel.id = `row-${row.id}-panel-${panel.dataset.mobilePanel}`;
+    panel.hidden = mobile && panel.dataset.mobilePanel !== step;
+    if (mobile) {
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', `row-${row.id}-tab-${panel.dataset.mobilePanel}`);
+      panel.tabIndex = 0;
+    } else {
+      panel.removeAttribute('role');
+      panel.removeAttribute('aria-labelledby');
+      panel.removeAttribute('tabindex');
+    }
+  }
+}
+
+function syncMobileLayout() {
+  const mobile = Boolean(mobileLayout?.matches);
+  mobileGithubToggle.hidden = !mobile;
+  if (mobile && githubPanelBody.contains(document.activeElement)) mobileGithubOpen = true;
+  githubPanelBody.hidden = mobile && !mobileGithubOpen;
+  githubPanelBody.dataset.mobileExpanded = String(mobileGithubOpen);
+  mobileGithubToggle.setAttribute('aria-expanded', String(mobileGithubOpen));
+  mobileGithubToggle.textContent = mobileGithubOpen ? 'Schließen' : 'Öffnen';
+  for (const row of rows.values()) {
+    const focusedPanel = document.activeElement?.closest('[data-mobile-panel]');
+    const focusedTab = row.element
+      .querySelector('.row-mobile-tabs')
+      .contains(document.activeElement);
+    setRowStep(
+      row,
+      mobile && row.element.contains(focusedPanel)
+        ? focusedPanel.dataset.mobilePanel
+        : row.mobileStep || 'original',
+    );
+    if (!mobile && focusedTab) {
+      const panel = row.element.querySelector(`[data-mobile-panel="${row.mobileStep}"]`);
+      const target = [...panel.querySelectorAll('button, a[href], textarea, select')].find(
+        (element) => !element.disabled && !element.closest('[hidden]'),
+      );
+      if (target) target.focus({preventScroll: true});
+      else {
+        panel.tabIndex = -1;
+        panel.focus({preventScroll: true});
+      }
+    }
+  }
+}
+mobileGithubToggle.addEventListener('click', () => {
+  mobileGithubOpen = !mobileGithubOpen;
+  if (!mobileGithubOpen) mobileGithubToggle.focus({preventScroll: true});
+  syncMobileLayout();
+});
+mobileLayout?.addEventListener('change', syncMobileLayout);
 const rowsContainer = document.querySelector('#image-rows');
 const fileInput = document.querySelector('#file-input');
 const uploadError = document.querySelector('#upload-error');
@@ -290,6 +366,14 @@ function promptCurrent(row) {
 function updateRow(row) {
   const busy = Boolean(row.busy || row.githubBusy);
   const locked = busy || Boolean(row.editing);
+  row.element.querySelector('[role="tab"][data-step="result"]').dataset.state = [
+    'generate',
+    'refine',
+  ].includes(row.busy)
+    ? 'working'
+    : row.result
+      ? 'ready'
+      : '';
   const viewButton = row.element.querySelector('[data-action="view"]');
   viewButton.hidden = !row.result;
   viewButton.disabled = locked;
@@ -439,6 +523,25 @@ function createRow() {
     timer: null,
   };
   row.draft = element.querySelector('.generation-prompt');
+  row.draft.defaultValue = 'Erstelle ein schönes Produktfoto für etsy von diesem ';
+  setRowStep(row, 'original');
+  element.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-step]');
+    if (button) setRowStep(row, button.dataset.step, button.classList.contains('mobile-next'));
+  });
+  element.querySelector('.row-mobile-tabs').addEventListener('keydown', (event) => {
+    const tabs = [...element.querySelectorAll('[role="tab"]')];
+    const current = tabs.indexOf(event.target);
+    if (current < 0 || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const next =
+      event.key === 'Home'
+        ? 0
+        : event.key === 'End'
+          ? tabs.length - 1
+          : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+    setRowStep(row, tabs[next].dataset.step, true);
+  });
   row.size = element.querySelector('.output-size');
   row.refinement = element.querySelector('.refinement-prompt');
   row.draft.id = `draft-${id}`;
@@ -560,7 +663,7 @@ async function addFiles(files, targetId = null) {
           !replacingImage && row.draft.value.trim()
             ? {size: row.size.value, imageRevision: row.imageRevision}
             : null;
-        if (replacingImage) row.draft.value = '';
+        if (replacingImage) row.draft.value = row.draft.defaultValue;
         row.refinement.value = '';
         resetResult(row);
         row.element.querySelector('.row-filename').textContent = file.name;
@@ -807,6 +910,7 @@ async function processRow(row, action) {
   const imageRevision = refining ? row.resultImageRevision : row.imageRevision;
   row.controller = new AbortController();
   row.busy = action;
+  if (mobileLayout?.matches && ['generate', 'refine'].includes(action)) setRowStep(row, 'result');
   const costEntry = {
     rowId: row.id,
     filename: row.filename || 'Eigener Prompt',
@@ -958,13 +1062,18 @@ window.addEventListener('blur', () => {
 });
 
 createRow();
+syncMobileLayout();
 updateKeyState();
 if (!configured) apiSettings.open = true;
 
 window.addEventListener('beforeunload', (event) => {
   if (
     [...rows.values()].some(
-      (row) => row.image || row.result || row.draft.value || row.refinement.value,
+      (row) =>
+        row.image ||
+        row.result ||
+        row.draft.value !== row.draft.defaultValue ||
+        row.refinement.value,
     )
   ) {
     event.preventDefault();

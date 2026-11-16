@@ -88,8 +88,14 @@ another language. Names and visible product inscriptions retain their original
 spelling and language. Generation uses the reviewed German prompt verbatim.
 
 You can select multiple files immediately; each gets its own row and independent
-draft, status, and result. The three-column layout stays horizontal
-on narrow screens and can be scrolled sideways. Up to 20 images can be loaded in
+draft, status, and result. Desktop keeps the three-column layout. On phones, each
+image has its own **Original · Prompt · Ergebnis** tabs, with no horizontal workspace
+scrolling. **Weiter zum Prompt** opens the prompt step after selecting or cropping a photo.
+Starting generation opens the result step; later tab changes remain under your control,
+including while a request runs. Switching tabs never starts an API request or clears a draft.
+GitHub controls can be expanded with **Öffnen** on mobile. Touch controls and crop handles
+are larger, and dialogs adapt to the available viewport when the keyboard opens.
+Up to 20 images can be loaded in
 one browser session, with at most three API requests in progress at once.
 
 Uploads are limited to 10 MB and 40 megapixels per image. Output defaults to
@@ -355,6 +361,10 @@ Canvas, image decoding and dialogs are simulated in DOM tests; native browser re
 and exported canvas pixels still need browser verification.
 For visible changes also inspect the app in a browser, including at a nested
 `/image/` path and on a narrow screen.
+The mobile layout applies at widths up to 700 CSS pixels and to coarse-pointer touch screens
+up to 1000 CSS pixels, covering phone landscape mode. Keep the matching media queries in
+`studio.css`, `studio.js` and `image-editor.js` aligned. See
+[mobile verification](../docs/image-studio-mobile.md) for desktop comparisons and browser checks.
 
 - `build.mjs`: bundles the SDKs with esbuild, verifies no external imports remain,
   and copies an explicit allowlist of public assets and their licenses into the catalog output.

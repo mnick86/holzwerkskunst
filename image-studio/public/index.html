@@ -2,7 +2,10 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, interactive-widget=resizes-content"
+    />
     <meta name="theme-color" content="#fbfaf7" />
     <title>Bildstudio · Holzwerkskunst</title>
     <meta name="robots" content="noindex, follow" />
@@ -64,65 +67,76 @@
             rel="noopener noreferrer"
             >mnick86/holzwerkskunst ↗</a
           >
-        </div>
-        <details id="github-settings">
-          <summary>GitHub-Token <span id="github-token-state">Nicht gespeichert</span></summary>
-          <p>
-            Der Token wird unverschlüsselt im Local Storage dieses Browsers gespeichert. Nur auf dem
-            eigenen Gerät speichern. Er wird ausschließlich direkt an api.github.com gesendet.
-            Benötigt: Contents und Pull requests lesen/schreiben, Actions lesen.
-          </p>
-          <form id="github-token-form" class="github-token-form">
-            <label for="github-token">Personal Access Token</label>
-            <input
-              id="github-token"
-              type="password"
-              autocomplete="off"
-              spellcheck="false"
-              maxlength="4096"
-              placeholder="GitHub-Token eingeben"
-            />
-            <button class="button button-secondary" type="submit">Token speichern</button>
-            <button class="button button-secondary" id="github-token-delete" type="button">
-              Token löschen
-            </button>
-          </form>
-        </details>
-        <div class="github-actions">
-          <button class="button button-secondary" id="github-connect" type="button">
-            Mit GitHub verbinden
-          </button>
-          <button class="button button-secondary" id="github-new-pr" type="button" disabled>
-            Neuen Branch erstellen
-          </button>
-          <button class="button button-secondary" id="github-refresh" type="button" disabled>
-            Aktualisieren
-          </button>
-          <button class="button button-primary" id="github-publish" type="button" disabled>
-            Branch mergen · 0 Commits
-          </button>
-        </div>
-        <div class="github-branch-picker">
-          <label for="github-branch">Branch für Uploads und Merge</label>
-          <select id="github-branch" aria-describedby="github-branch-note" disabled>
-            <option value="">Mit GitHub verbinden, um Branches zu laden</option>
-          </select>
-          <p id="github-branch-note">Wähle einen vorhandenen Branch oder erstelle einen neuen.</p>
-        </div>
-        <p id="github-deploy-state"></p>
-        <div class="github-links">
-          <a id="github-pr-link" target="_blank" rel="noopener noreferrer" hidden
-            >Pull Request auf GitHub öffnen ↗</a
-          ><a id="github-run-link" target="_blank" rel="noopener noreferrer" hidden
-            >GitHub-Deployment ↗</a
+          <button
+            class="github-mobile-toggle"
+            type="button"
+            aria-controls="github-panel-body"
+            aria-expanded="false"
+            hidden
           >
+            Öffnen
+          </button>
         </div>
-        <ul
-          id="github-changes"
-          class="github-changes"
-          aria-label="Änderungen im ausgewählten Branch"
-        ></ul>
-        <p id="github-message" role="status" aria-live="polite"></p>
+        <div id="github-panel-body" class="github-panel-body">
+          <details id="github-settings">
+            <summary>GitHub-Token <span id="github-token-state">Nicht gespeichert</span></summary>
+            <p>
+              Der Token wird unverschlüsselt im Local Storage dieses Browsers gespeichert. Nur auf
+              dem eigenen Gerät speichern. Er wird ausschließlich direkt an api.github.com gesendet.
+              Benötigt: Contents und Pull requests lesen/schreiben, Actions lesen.
+            </p>
+            <form id="github-token-form" class="github-token-form">
+              <label for="github-token">Personal Access Token</label>
+              <input
+                id="github-token"
+                type="password"
+                autocomplete="off"
+                spellcheck="false"
+                maxlength="4096"
+                placeholder="GitHub-Token eingeben"
+              />
+              <button class="button button-secondary" type="submit">Token speichern</button>
+              <button class="button button-secondary" id="github-token-delete" type="button">
+                Token löschen
+              </button>
+            </form>
+          </details>
+          <div class="github-actions">
+            <button class="button button-secondary" id="github-connect" type="button">
+              Mit GitHub verbinden
+            </button>
+            <button class="button button-secondary" id="github-new-pr" type="button" disabled>
+              Neuen Branch erstellen
+            </button>
+            <button class="button button-secondary" id="github-refresh" type="button" disabled>
+              Aktualisieren
+            </button>
+            <button class="button button-primary" id="github-publish" type="button" disabled>
+              Branch mergen · 0 Commits
+            </button>
+          </div>
+          <div class="github-branch-picker">
+            <label for="github-branch">Branch für Uploads und Merge</label>
+            <select id="github-branch" aria-describedby="github-branch-note" disabled>
+              <option value="">Mit GitHub verbinden, um Branches zu laden</option>
+            </select>
+            <p id="github-branch-note">Wähle einen vorhandenen Branch oder erstelle einen neuen.</p>
+          </div>
+          <p id="github-deploy-state"></p>
+          <div class="github-links">
+            <a id="github-pr-link" target="_blank" rel="noopener noreferrer" hidden
+              >Pull Request auf GitHub öffnen ↗</a
+            ><a id="github-run-link" target="_blank" rel="noopener noreferrer" hidden
+              >GitHub-Deployment ↗</a
+            >
+          </div>
+          <ul
+            id="github-changes"
+            class="github-changes"
+            aria-label="Änderungen im ausgewählten Branch"
+          ></ul>
+          <p id="github-message" role="status" aria-live="polite"></p>
+        </div>
       </section>
       <div class="workspace-toolbar">
         <div>
@@ -283,8 +297,17 @@
             </button>
           </div>
         </div>
+        <div class="row-mobile-tabs" role="tablist" aria-label="Bearbeitungsschritte" hidden>
+          <button type="button" role="tab" data-step="original">Original</button>
+          <button type="button" role="tab" data-step="prompt">Prompt</button>
+          <button type="button" role="tab" data-step="result">Ergebnis</button>
+        </div>
         <div class="row-columns">
-          <section class="studio-column original-column" aria-label="Originalbild">
+          <section
+            class="studio-column original-column"
+            data-mobile-panel="original"
+            aria-label="Originalbild"
+          >
             <button class="upload-zone" type="button" data-action="upload">
               <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
                 <path d="M16 21V5m-6 6 6-6 6 6M6 21v6h20v-6" /></svg
@@ -308,8 +331,20 @@
               </button>
             </div>
             <p class="column-hint">Das Original bleibt die Referenz für dein neues Bild.</p>
+            <button
+              class="button button-secondary mobile-next"
+              type="button"
+              data-step="prompt"
+              hidden
+            >
+              Weiter zum Prompt <span aria-hidden="true">→</span>
+            </button>
           </section>
-          <section class="studio-column prompt-column" aria-label="Produktbild-Prompt">
+          <section
+            class="studio-column prompt-column"
+            data-mobile-panel="prompt"
+            aria-label="Produktbild-Prompt"
+          >
             <div class="field-heading">
               <label class="field-label generation-label">Dein Produktbild-Prompt</label
               ><button class="subtle-button copy-prompt" type="button" data-action="copy" disabled>
@@ -368,7 +403,11 @@
             <p class="request-cost generate-cost" hidden></p>
             <p class="approval-note">Erst dein Klick startet die Generierung.</p>
           </section>
-          <section class="studio-column result-column" aria-label="Ergebnis">
+          <section
+            class="studio-column result-column"
+            data-mobile-panel="result"
+            aria-label="Ergebnis"
+          >
             <input
               class="result-file-input"
               type="file"

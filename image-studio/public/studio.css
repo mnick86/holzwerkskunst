@@ -1317,6 +1317,9 @@ select {
 .github-panel {
   margin-bottom: 28px;
 }
+.github-panel-body {
+  display: contents;
+}
 .github-panel-heading,
 .github-actions,
 .github-links {
@@ -1572,5 +1575,321 @@ select {
   .github-panel-heading > a {
     overflow-wrap: anywhere;
     font-size: 12px;
+  }
+}
+
+/* Desktop retains the existing three columns; touch landscape uses the phone workflow too.
+   Keep this query aligned with mobileLayout in studio.js. */
+@media (max-width: 700px), (pointer: coarse) and (max-width: 1000px) {
+  .studio-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px;
+  }
+  .header-right {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    padding-top: 0;
+  }
+  .api-settings-toggle,
+  .github-mobile-toggle {
+    min-height: 44px;
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  .github-mobile-toggle {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--sage-soft);
+  }
+  main {
+    padding: 24px 12px;
+  }
+  .intro {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .intro h1 {
+    font-size: clamp(28px, 7vw, 36px);
+  }
+  .intro p:not(.eyebrow) {
+    font-size: 14px;
+  }
+  .intro br {
+    display: none;
+  }
+  .github-panel {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .github-panel h2 {
+    font-size: 18px;
+  }
+  .github-panel-heading > a {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .github-panel:has(.github-panel-body:not([data-mobile-expanded='true'])) .github-panel-heading {
+    margin-bottom: 0;
+  }
+  .github-panel:has(.github-panel-body:not([data-mobile-expanded='true']))
+    .github-panel-heading
+    > a {
+    display: none;
+  }
+  .github-panel-body {
+    display: none;
+  }
+  .github-panel-body[data-mobile-expanded='true'] {
+    display: block;
+  }
+  .workspace-toolbar > div {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .column-headings,
+  .scroll-hint,
+  .workflow-note {
+    display: none;
+  }
+  .workspace-scroll {
+    overflow: visible;
+    border-radius: 0;
+  }
+  .workspace-inner {
+    min-width: 0;
+  }
+  .image-row {
+    overflow: clip;
+  }
+  .row-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 16px;
+    gap: 6px;
+  }
+  .row-filename {
+    font-size: 14px;
+  }
+  .row-tools {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .row-status,
+  .elapsed,
+  .file-meta,
+  .row-number {
+    font-size: 12px;
+  }
+  .row-cost {
+    white-space: normal;
+  }
+  .remove-button {
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+  }
+  .cancel-button {
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .row-mobile-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    padding: 8px;
+    border-bottom: 1px solid var(--line);
+    background: var(--card);
+  }
+  .row-mobile-tabs button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 48px;
+    padding: 8px 4px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 14px;
+  }
+  .row-mobile-tabs [aria-selected='true'] {
+    color: var(--sage-dark);
+    background: var(--sage-soft);
+    border-color: #d1dfd3;
+    font-weight: 600;
+  }
+  .row-mobile-tabs [data-state='ready']::after,
+  .row-mobile-tabs [data-state='working']::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--sage);
+  }
+  .row-mobile-tabs [data-state='working']::after {
+    background: #9c8d6c;
+  }
+  .row-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .studio-column {
+    padding: 16px;
+    gap: 14px;
+  }
+  .studio-column + .studio-column {
+    border-left: 0;
+  }
+  .studio-column > .button {
+    margin-top: 0;
+  }
+  .button {
+    min-height: 48px;
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+  .subtle-button,
+  .text-button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .field-label,
+  .format-field label {
+    font-size: 14px;
+  }
+  .column-hint,
+  .review-hint,
+  .result-note,
+  .refinement-note,
+  .approval-note,
+  .request-cost,
+  .field-meta,
+  .image-dimensions {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+  .studio-column textarea,
+  .studio-column select,
+  .api-settings input,
+  .github-panel input,
+  .github-panel select,
+  .github-dialog input,
+  .github-dialog select,
+  .github-dialog textarea,
+  .editor-dimensions input,
+  .editor-toolbar select {
+    font-size: 16px;
+  }
+  .studio-column select,
+  .github-panel input,
+  .github-panel select,
+  .editor-toolbar select {
+    min-height: 48px;
+  }
+  .generation-prompt {
+    min-height: 240px;
+    flex: none;
+  }
+  .prompt-tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .prompt-tools .button,
+  .edit-image-button {
+    font-size: 14px;
+  }
+  .format-field {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .format-field select {
+    width: 100%;
+  }
+  .upload-zone,
+  .result-preview {
+    min-height: 200px;
+  }
+  .upload-zone strong,
+  .result-placeholder strong {
+    font-size: 15px;
+  }
+  .upload-zone > span,
+  .result-placeholder > span,
+  .upload-zone small {
+    font-size: 12px;
+  }
+  .api-key-controls .button,
+  .github-actions > .button,
+  .github-token-form .button {
+    width: 100%;
+    flex-basis: 100%;
+  }
+  .github-dialog,
+  #github-image-dialog,
+  .image-editor {
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+    max-height: calc(100dvh - 16px);
+    padding: 16px;
+    border-radius: 12px;
+    scroll-padding-block: 16px;
+  }
+  .github-upload-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .github-product-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .editor-header h2 {
+    font-size: 22px;
+  }
+  .editor-toolbar label {
+    flex: 1;
+    font-size: 14px;
+  }
+  .editor-dimensions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .editor-dimensions label {
+    font-size: 12px;
+  }
+  .editor-footer {
+    flex-direction: column;
+    align-items: stretch;
+    position: sticky;
+    bottom: -16px;
+    z-index: 2;
+    margin-inline: -16px;
+    padding: 12px 16px;
+    background: var(--paper);
+  }
+  .editor-footer > p {
+    max-width: none;
+  }
+  .editor-footer > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .result-viewer-header {
+    flex-wrap: wrap;
+    padding-inline: 16px;
+  }
+  .result-viewer-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .result-viewer-actions .button {
+    font-size: 14px;
   }
 }

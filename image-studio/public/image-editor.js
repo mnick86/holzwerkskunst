@@ -10,6 +10,9 @@ export function createImageEditor(dialog) {
   const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
   let session = null;
   let drag = null;
+  const touchLayout = window.matchMedia?.(
+    '(max-width: 700px), (pointer: coarse) and (max-width: 1000px)',
+  );
 
   function dimensions() {
     return session.turns % 2
@@ -88,13 +91,16 @@ export function createImageEditor(dialog) {
       context.stroke();
     }
     context.fillStyle = '#fffefa';
+    const handleSize = touchLayout?.matches
+      ? (14 * canvas.width) / (canvas.getBoundingClientRect().width || canvas.width)
+      : 10;
     for (const [cx, cy] of [
       [left, top],
       [right, top],
       [right, bottom],
       [left, bottom],
     ]) {
-      context.fillRect(cx - 5, cy - 5, 10, 10);
+      context.fillRect(cx - handleSize / 2, cy - handleSize / 2, handleSize, handleSize);
     }
     const bounds = {
       x: size.width - width,
@@ -127,6 +133,7 @@ export function createImageEditor(dialog) {
     const box = {...session.crop};
     const size = dimensions();
     const rect = canvas.getBoundingClientRect();
+    const hitRadius = event.pointerType === 'touch' ? 26 : 14;
     const corners = [
       [box.x, box.y, box.x + box.width, box.y + box.height],
       [box.x + box.width, box.y, box.x, box.y + box.height],
@@ -135,8 +142,8 @@ export function createImageEditor(dialog) {
     ];
     const corner = corners.find(
       ([x, y]) =>
-        Math.abs(start.x - x) < (14 * size.width) / rect.width &&
-        Math.abs(start.y - y) < (14 * size.height) / rect.height,
+        Math.abs(start.x - x) < (hitRadius * size.width) / rect.width &&
+        Math.abs(start.y - y) < (hitRadius * size.height) / rect.height,
     );
     const inside =
       start.x > box.x &&
@@ -360,6 +367,11 @@ export function createImageEditor(dialog) {
     current.resolve(current.result || null);
     current.source.src = '';
   });
+  const resizePreview = () => {
+    if (session && touchLayout?.matches) draw();
+  };
+  window.addEventListener('resize', resizePreview);
+  window.visualViewport?.addEventListener('resize', resizePreview);
 
   return {
     async open(sourceUrl, edit) {
@@ -385,6 +397,7 @@ export function createImageEditor(dialog) {
         error.hidden = true;
         draw();
         dialog.showModal();
+        if (touchLayout?.matches) draw();
       });
     },
   };

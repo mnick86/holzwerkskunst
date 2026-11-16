@@ -230,8 +230,11 @@ test('a blocked credential store leaves the token unsaved and never connects', (
   assert(!f.$('github-message').textContent.includes('test-only-placeholder'));
 });
 
-function studioUI(t, client) {
+function studioUI(t, client, mobile = false) {
   const f = browserFixture(t);
+  const mediaListeners = new Set();
+  const media = {matches: mobile, addEventListener: (_, listener) => mediaListeners.add(listener)};
+  f.window.matchMedia = () => media;
   const rows = [];
   const requests = [];
   loadController(f.window, 'studio.js', {
@@ -250,8 +253,129 @@ function studioUI(t, client) {
     createImageEditor: () => ({open: async () => null}),
     initGitHubUI: () => ({updateRow() {}, registerRow: (row) => rows.push(row)}),
   });
-  return {...f, rows, requests};
+  const setMobile = (matches) => {
+    media.matches = matches;
+    mediaListeners.forEach((listener) => listener({matches}));
+  };
+  return {...f, rows, requests, setMobile};
 }
+
+test('mobile tabs use independent accessible panels and preserve prompts without API requests', async (t) => {
+  const f = studioUI(t, undefined, true);
+  const row = f.rows[0];
+  const panel = (step) => row.element.querySelector(`[data-mobile-panel="${step}"]`);
+  const tab = (step) => row.element.querySelector(`[role="tab"][data-step="${step}"]`);
+  assert(!row.element.querySelector('.row-mobile-tabs').hidden);
+  assert(!panel('original').hidden && panel('prompt').hidden && panel('result').hidden);
+  row.element.querySelector('.mobile-next').click();
+  assert.equal(f.document.activeElement, tab('prompt'));
+  assert.equal(tab('prompt').getAttribute('aria-selected'), 'true');
+  assert.equal(panel('prompt').getAttribute('role'), 'tabpanel');
+  assert.equal(tab('prompt').getAttribute('aria-controls'), panel('prompt').id);
+  assert.equal(panel('prompt').getAttribute('aria-labelledby'), tab('prompt').id);
+  row.draft.value = 'Mein eigener Produktbild-Prompt.';
+  row.draft.dispatchEvent(new f.window.Event('input'));
+  tab('prompt').dispatchEvent(
+    new f.window.KeyboardEvent('keydown', {key: 'ArrowRight', bubbles: true}),
+  );
+  assert.equal(f.document.activeElement, tab('result'));
+  assert(!panel('result').hidden && panel('prompt').hidden);
+  tab('result').dispatchEvent(new f.window.KeyboardEvent('keydown', {key: 'Home', bubbles: true}));
+  assert.equal(f.document.activeElement, tab('original'));
+  tab('original').dispatchEvent(
+    new f.window.KeyboardEvent('keydown', {key: 'ArrowLeft', bubbles: true}),
+  );
+  assert.equal(f.document.activeElement, tab('result'));
+  assert.equal(row.draft.value, 'Mein eigener Produktbild-Prompt.');
+  f.selectFile(f.$('file-input'), f.file('eins.jpg'));
+  await until(() => row.image);
+  f.selectFile(f.$('file-input'), f.file('zwei.jpg'));
+  await until(() => f.rows.length === 2 && f.rows[1].image);
+  assert.equal(row.mobileStep, 'result');
+  assert.equal(f.rows[1].mobileStep, 'original');
+  const tabs = [...f.document.querySelectorAll('[role="tab"]')];
+  assert.equal(new Set(tabs.map((element) => element.id)).size, tabs.length);
+  assert.equal(f.requests.length, 0);
+});
+
+test('desktop keeps three visible sections and resizing preserves the focused mobile step', (t) => {
+  const f = studioUI(t);
+  const row = f.rows[0];
+  const panels = [...row.element.querySelectorAll('[data-mobile-panel]')];
+  assert(row.element.querySelector('.row-mobile-tabs').hidden);
+  assert(panels.every((panel) => !panel.hidden && !panel.hasAttribute('role')));
+  row.draft.value = 'Mein Entwurf';
+  row.draft.focus();
+  f.setMobile(true);
+  assert.equal(row.mobileStep, 'prompt');
+  assert.equal(f.document.activeElement, row.draft);
+  assert(f.$('github-panel-body').hidden);
+  f.document.querySelector('.github-mobile-toggle').click();
+  assert(!f.$('github-panel-body').hidden);
+  f.setMobile(false);
+  assert(panels.every((panel) => !panel.hidden && !panel.hasAttribute('role')));
+  assert(!f.$('github-panel-body').hidden);
+  assert(row.element.querySelector('.row-mobile-tabs').hidden);
+  assert.equal(row.draft.value, 'Mein Entwurf');
+  f.setMobile(true);
+  assert(!f.$('github-panel-body').hidden, 'An expanded GitHub panel survives orientation changes');
+  f.$('github-token').focus();
+  f.document.querySelector('.github-mobile-toggle').click();
+  assert(
+    f.$('github-panel-body').hidden,
+    'Explicit collapse also works when an inner input had focus',
+  );
+  const originalTab = row.element.querySelector('[role="tab"][data-step="original"]');
+  originalTab.click();
+  originalTab.focus();
+  f.setMobile(false);
+  assert.equal(f.document.activeElement, row.element.querySelector('.upload-zone'));
+  assert.equal(f.requests.length, 0);
+});
+
+test('mobile generation opens the result but completion never steals a subsequently chosen tab', async (t) => {
+  let finish;
+  let calls = 0;
+  const f = studioUI(
+    t,
+    {
+      generate: () => {
+        calls++;
+        return new Promise((resolve) => {
+          finish = resolve;
+        });
+      },
+    },
+    true,
+  );
+  f.$('api-key-input').value = 'test-only-placeholder';
+  f.$('api-key-form').requestSubmit();
+  f.selectFile(f.$('file-input'), f.file('original.jpg'));
+  const row = f.rows[0];
+  await until(() => row.image);
+  row.element.querySelector('[role="tab"][data-step="prompt"]').click();
+  row.draft.value = 'Ein Holzbrett mit schöner Gravur.';
+  row.draft.dispatchEvent(new f.window.Event('input'));
+  row.element.querySelector('[data-action="generate"]').click();
+  assert.equal(row.mobileStep, 'result');
+  assert.equal(
+    row.element.querySelector('[role="tab"][data-step="result"]').dataset.state,
+    'working',
+  );
+  row.element.querySelector('[role="tab"][data-step="original"]').click();
+  finish({
+    image:
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aO1sAAAAASUVORK5CYII=',
+    size: '1024x768',
+  });
+  await until(() => row.result && !row.busy);
+  assert.equal(row.mobileStep, 'original');
+  assert.equal(
+    row.element.querySelector('[role="tab"][data-step="result"]').dataset.state,
+    'ready',
+  );
+  assert.equal(calls, 1, 'Navigating between tabs must never start another paid action');
+});
 
 test('clicking the result placeholder uploads a finished image without OpenAI and preserves its dimensions', async (t) => {
   const f = studioUI(t);

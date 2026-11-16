@@ -239,8 +239,14 @@ setup and usage documentation in `README.md`.
   esbuild bundles the SDK for static hosting without CDN imports or Node runtime
   dependencies. Publish its license alongside the bundle. `start:image` builds first
   and serves `dist/bootstrap/image/`; source `public/` contains a bare SDK import.
-- Each image stays in one three-column row: original, editable product-image
-  prompt, and result. New images get independent rows. The prompt column contains
+- Each image stays in one three-column row on desktop: original, editable product-image
+  prompt, and result. Mobile uses independent Original/Prompt/Ergebnis tabs per image,
+  at <=700 CSS px or on coarse-pointer screens <=1000 CSS px (including landscape).
+  Keep the queries in studio.css, studio.js and image-editor.js aligned. Preserve drafts,
+  results and running requests across tab/viewport changes; tab navigation never calls APIs.
+  Restore all three visible sections and their ordinary semantics on desktop. GitHub controls
+  collapse only on mobile. See docs/image-studio-mobile.md for verification.
+  New images get independent rows. The prompt column contains
   image-only analysis, text-only prompt improvement, output size, and generation.
 - Prompts can be typed manually without analysis. Image/format changes require
   checking and editing, improving, or regenerating the prompt before generation.
@@ -269,7 +275,7 @@ setup and usage documentation in `README.md`.
   and prompts when showing request errors.
 - `public/github.mjs` uses bundled Octokit REST calls directly to `https://api.github.com`.
   `public/github-ui.js` owns the PR/product/image dialogs. Keep each image in its existing
-  three-column row; show its selected GitHub target in the result column. Folder selection
+  three-column desktop row or mobile tabs; show its selected GitHub target in the result column. Folder selection
   and file browsing belong inside "Zu Produkten hinzufügen", with no sidebar on the main page.
   The upload dialog has a category/product-folder dropdown at the top, followed by small image
   previews captioned with their filenames. Sort exactly like `mustache.ts` sortImages (numeric
