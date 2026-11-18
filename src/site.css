@@ -1131,6 +1131,12 @@ dialog::backdrop {
   aspect-ratio: 4 / 3;
   object-fit: cover;
 }
+.gallery-disclosure {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
 .product-information {
   padding-block: 12px;
 }
